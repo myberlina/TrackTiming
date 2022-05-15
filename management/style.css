@@ -22,11 +22,8 @@ background-color: #A7D6F1;
 color:white;
 }
 .button {
-background-color: SkyBlue;
 padding:5px;
-border-color:white;
 border-radius:4px;
-color:white;
 }
 .del_button {
 background-color: Pink;
@@ -41,9 +38,12 @@ text-align: center;
 width: 100%;
 }
 .txtField {
-padding: 5px;
+padding: 2px;
 border:#90e090 1px solid;
 border-radius:4px;
+}
+.input_number{
+width:60px;
 }
 .evenRow {
 background-color: #E2EDF9;
