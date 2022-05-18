@@ -22,7 +22,7 @@
   $res_qry = $db->prepare('
       SELECT event , run , car_num , rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
       FROM results
-      WHERE event = :event
+      WHERE event = :event AND car_num > 0
       ORDER BY event, car_num, run');
 
   $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
@@ -39,7 +39,7 @@
 <body>
 <script type="text/javascript">function showTiming(str){document.location = 'results.php?evt='+str;}</script>
 <div align="center" style="padding-bottom:5px;">
- Times for <select name="WebTiming" style="width: 240px" onchange="showTiming(this.value)">
+ Times for <select name="EventList" style="width: 240px" onchange="showTiming(this.value)">
    <?php echo $event_select;?>
  </select>
 </div/
