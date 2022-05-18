@@ -6,15 +6,13 @@
   else
     $evt = 0;
 
-  if (isset($_GET['id']))
-    $row_id = 0 + $_GET['id'];
-  else
-    $row_id = 0;
-
   echo "<br>_POST<BR>";
   var_dump($_POST);
   echo "<br>_FILES<BR>";
   var_dump($_FILES);
+
+  if (($evt<1)||(count($_POST)<1)||('Upload'!=$_POST['submit']))
+    die;
 
   if(($evt>0)&&(count($_POST)>0)) {
     if(('Update' == $_POST['submit'])&&($row_id>0)) {
@@ -79,75 +77,30 @@
 
 <html>
   <head>
-    <title>Entrants</title>
+    <title>Entrants File Upload</title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-<script type="text/javascript">function showTiming(str){document.location = 'entrants.php?evt='+str;}</script>
-<div align="center" style="padding-bottom:5px;">
- Entrants for <select name="EventList" style="width: 240px" onchange="showTiming(this.value)">
-   <?php echo $event_select;?>
- </select>
-</div/
-<br>
+<form name="frmEntrantUpload" method="post" enctype="multipart/form-data" action="">
+  <div align="center" style="padding-bottom:5px;">
+   Entrants for <select name="EventList" style="width: 240px">
+     <?php echo $event_select;?>
+   </select>
+  </div>
   <br>
-  <form name="frmEntrant" method="post" enctype="multipart/form-data" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
-  <table align=center border="2" cellpadding="4">
-   <tr class="listheader">
-      <td width=50>Num</td>
-      <td>Title</td>
-      <td>Info/Model</td>
-   </tr>
-   <?php
 
-   $i=0;
-   while(isset($entrants) && $row = $entrants->fetchArray()) {
-    if($i%2==0)
-     $classname="class=\"evenRow\"";
-    else
-     $classname="class=\"oddRow\"";
-    echo "<tr $classname>";
-    $safe_num=htmlspecialchars($row['car_num']);
-    $safe_name=htmlspecialchars($row['car_name']);
-    $safe_info=htmlspecialchars($row['car_info']);
-    $row_id=$row['rowid'];
-    echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EntNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
-    echo " class=\"input_number\" oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
-    echo "<td><input type=\"text\" placeholder=\"Entrant Name\" name=\"EntName-$row_id\" class=\"txtField\" required value=\"$safe_name\"";
-    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
-    echo "<td><input type=\"text\" placeholder=\"Entrant Info\" name=\"EntInfo-$row_id\" class=\"txtField\" value=\"$safe_info\"";
-    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_info')\" ></td>\n";
-    echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
-    echo "</tr>\n";
-    $i++;
-   }
-   if($i==0)
-    $min_evt=1;
-   else
-    $min_evt=1 + $safe_num;
-   if($i%2==0)
-    $classname="class=\"evenRow\"";
-   else
-    $classname="class=\"oddRow\"";
-   echo "<tr $classname>";
-   $safe_num=""; $safe_name=""; $safe_info=""; $row_id=0;
-   echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EntNum-$row_id\" required min=\"$min_evt\" value=\"$min_evt\"";
-   echo " class=\"input_number\" ></td>\n";
-   echo "<td><input type=\"text\" placeholder=\"Entrant Name\" name=\"EntName-$row_id\" class=\"txtField\" value=\"$safe_name\"";
-   echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
-   echo "<td><input type=\"text\" placeholder=\"Entrant Info\" name=\"EntInfo-$row_id\" class=\"txtField\" value=\"$safe_info\"";
-   echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_info')\" ></td>\n";
-   echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Create\" formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
-   echo "</td></tr>\n";
-   ?>
   </table>
   <br>
   <div align="center">
-   <input type="file" name="Upload_CSV" oninput="document.getElementById('submit-file').disabled=false">
-   <input id="submit-file" type="submit" name="submit" value="Upload" disabled>
+   First Row is Headings <select name="head_lines">
+        <option value="0" selected>No</option>
+        <option value="1">One Row</option>
+        <option value="2">Two Rows</option>
+        <option value="3">Three Rows</option>
+   </select> &nbsp; &nbsp; &nbsp; &nbsp;
+   <input id="submit-csv" type="submit" name="submit" value="Submit" >
   </div>
-  </form>
   <?php
   if (is_array($_FILES) && is_array($_FILES["Upload_CSV"]) 
       && (0 == $_FILES["Upload_CSV"]["error"])){
@@ -167,22 +120,29 @@
 	echo "<tr>";
 	$i=0;
 	foreach($row as $cell) {
- 	  echo "<td><select name=\"col-$i\"> $col_type_sel </select></td>";
+	  echo "<td><select name=\"col-$i\"> $col_type_sel </select></td>";
 	  $i=$i+1;
         }
 	echo "</tr>";
       }
+      fseek($handle, 0, SEEK_SET);
+      $j=0;
       while ($row = fgetcsv($handle, 0, "\t")) {
 	echo "<tr>";
+	$i=0;
 	foreach($row as $cell) {
           echo "<td>$cell</td>";
+	  echo "<input type=\"hidden\" name=\"val_$j-$i\" value=\"$cell\">";
+	  $i=$i+1;
         }
 	echo "</tr>";
+	$j=$j+1;
       }
       echo "</table>";
     }
   }
 
   ?>
+  </form>
  </body>
 </html>
