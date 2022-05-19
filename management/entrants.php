@@ -44,7 +44,8 @@
         $message = "<font color=\"#c00000\"> Record Create failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
     }
     if(('Yes!' == $_POST['really-delete'])&&($row_id>0)) {
-      if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE car_num=:num AND car_name=:name AND car_info=:info AND rowid=:row")){
+      if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event AND car_num=:num AND car_name=:name AND car_info=:info AND rowid=:row")){
+        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
         $post_qry->bindValue(':name', $db->escapeString($_POST["EntName-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':info', $db->escapeString($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
@@ -94,9 +95,9 @@
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-<script type="text/javascript">function showTiming(str){document.location = 'entrants.php?evt='+str;}</script>
+<script type="text/javascript">function showEntrants(str){document.location = 'entrants.php?evt='+str;}</script>
 <div align="center" style="padding-bottom:5px;">
- Entrants for <select name="EventList" style="width: 240px" onchange="showTiming(this.value)">
+ Entrants for <select name="EventList" style="width: 240px" onchange="showEntrants(this.value)">
    <?php echo $event_select;?>
  </select>
 </div/
@@ -131,7 +132,7 @@
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_info')\" ></td>\n";
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
     echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Delete\" onclick=\"document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
-    echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes!\" formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
+    echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes!\" formnovalidate formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
     echo "</tr>\n";
     $i++;
    }
