@@ -26,25 +26,10 @@
     if (isset($_POST['data_start'])) $data_start = $_POST['data_start'];
   }
 
-  if (($evt<1)||(count($_POST)<1)||(('Upload'!=$_POST['submit'])&&('Submit'!=$_POST['submit'])))
+  if (($evt<1)||(count($_POST)<1)||(('Upload'!=$_POST['submit'])&&('Submit'!=$_POST['submit'])&&('Rescan'!=$_POST['submit'])))
     die;
 
   if(($evt>0)&&(count($_POST)>0)) {
-    if(('Update' == $_POST['submit'])&&($row_id>0)) {
-      if ($post_qry = $db->prepare("UPDATE entrant_info set car_num=:num, car_name=:name, car_info=:info WHERE rowid=:row")){
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':name', $db->escapeString($_POST["EntName-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':info', $db->escapeString($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
-        if ($update_result = $post_qry->execute())
-          $message = "<p style=\"color:green\"> Record Modified Successfully</p>";
-        else
-          $message = "<p style=\"color:red\"> Record Modify failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n</p><BR>". $db->lastErrorMsg();
-      }
-      else
-        $message = "<p style=\"color:red\"> Record Modify failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n</p><BR>". $db->lastErrorMsg();
-    }
-
     if('Submit' == $_POST['submit']) {
       $can_load=true;
       $i=0; while (isset($_POST["col-$i"])) {
@@ -136,6 +121,7 @@
 	if ($failed > 0)
 	  $message = $message . "<p style=\"color:red\"> Failed to insert $failed entrants</p>";
       }
+      if (isset($handle)) fclose($handle);
     }
   }
 
@@ -226,32 +212,46 @@
         fseek($handle, 0, SEEK_SET);
       }
       if ("\t" == "$sep")
-        echo "Found $sep_count columns using &lt;TAB&gt; as a separator<BR>";
+        echo "Found $sep_count columns using &lt;TAB&gt; as a separator. &nbsp; &nbsp;";
       else
-        echo "Found $sep_count columns using $sep as a separator<BR>";
-      echo "<input type=\"hidden\" name=\"separator\" value=\"$sep\">";
-      echo "<br><table>";
+        echo "Found $sep_count columns using $sep as a separator. &nbsp; &nbsp;";
+      #echo "<input type=\"hidden\" name=\"separator\" value=\"$sep\">";
+      echo "\n<select name=\"separator\">";
+      $all_seps=array(',', "\t", ':', ';', '|', ' ');
+      foreach($all_seps as $try) {
+	if ($try == $sep) $selected="selected";
+	else $selected="";
+	if ($try == "\t") $sep_disp="&lt;TAB&gt;";
+	elseif ($try == " ") $sep_disp="&lt;SPACE&gt;";
+	else $sep_disp=$try;
+	echo "<option value=\"$try\" $selected> &nbsp; $sep_disp &nbsp; </option>";
+      }
+      echo "</select>\n";
+      echo "<input id=\"submit-rescan\" type=\"submit\" name=\"submit\" value=\"Rescan\"><br>";
+      echo "<br><table class=\"tight_table\">";
       if ($row = fgetcsv($handle, 0, "$sep")) {
 	echo "<tr><td>Row</td>";
 	$i=0;
 	foreach($row as $cell) {
-	  echo "<td><select name=\"col-$i\"> $col_type_sel </select></td>";
+	  echo "<td class=\"tight_table\"><select name=\"col-$i\"> $col_type_sel </select></td>";
 	  $i=$i+1;
         }
-	echo "</tr>";
+	echo "</tr>\n";
       }
       fseek($handle, 0, SEEK_SET);
       $j=1;
       while ($row = fgetcsv($handle, 0, "$sep")) {
+	if ($j%2 == 0) $class="tight_even";
+	else $class="tight_odd";
 	if ($good_row[$j] == 1)
-	  echo "<tr><td style=\"color:green\">$j</td>";
+	  echo "<tr><td class=\"$class fg_green\">$j</td>";
 	else if ($bad_row[$j] == 1)
-	  echo "<tr><td style=\"color:red\">$j</td>";
+	  echo "<tr><td class=\"$class fg_red\">$j</td>";
 	else
-	  echo "<tr><td style=\"color:blue\">$j</td>";
+	  echo "<tr><td class=\"$class fg_blue\">$j</td>";
 	#$i=0;
 	foreach($row as $cell) {
-          echo "<td>$cell</td>";
+          echo "<td class=\"$class\">$cell</td>";
 	  #echo "<input type=\"hidden\" name=\"val_$j-$i\" value=\"$cell\">";
 	  #$i=$i+1;
         }
@@ -259,6 +259,7 @@
 	$j=$j+1;
       }
       echo "</table>";
+      fclose($handle);
     }
   }
 
