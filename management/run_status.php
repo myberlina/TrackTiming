@@ -14,7 +14,7 @@
   $curr_name = $status['car_name'];
   $next_car = $db->querySingle('SELECT car_num  FROM next_car ORDER BY ord LIMIT 1');
   if (isset($event_num) && isset($next_car))
-    $next_name = $db->querySingle("SELECT car_name FROM entrant_info WHERE car_num = next_car AND current_event = $event_num");
+    $next_name = $db->querySingle("SELECT car_name FROM entrant_info WHERE car_num = $next_car AND event = $event_num");
   else
     $next_name = "";
 ?>
@@ -40,9 +40,9 @@
     echo "<td class=\"tight_table\" width=120>$event_name</td>\n";
     echo "<td class=\"tight_table\" width=30 align=\"right\">$run</td>\n";
     echo "<td class=\"tight_table\" width=30 align=\"right\">$curr_car</td>\n";
-    echo "<td class=\"tight_table\" width=140 align=\"right\">$curr_name</td>\n";
+    echo "<td class=\"tight_table\" width=140 align=\"left\">$curr_name</td>\n";
     echo "<td class=\"tight_table\" width=30 align=\"right\">$next_car</td>\n";
-    echo "<td class=\"tight_table\" width=140 align=\"right\">$next_name</td>\n";
+    echo "<td class=\"tight_table\" width=140 align=\"left\">$next_name</td>\n";
    ?>
    </tr>
   </table>
