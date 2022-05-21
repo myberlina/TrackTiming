@@ -7,6 +7,8 @@
     $evt = 0;
 
   $save_dir="/var/tmp/Timing_uploads/";
+  $good_row[0] = 1;
+  $bad_row[0] = 1;
 
   if (is_array($_FILES) && isset($_FILES["Upload_CSV"]) && is_array($_FILES["Upload_CSV"]) 
       && (0 == $_FILES["Upload_CSV"]["error"])){
