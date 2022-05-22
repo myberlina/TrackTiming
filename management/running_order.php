@@ -1,44 +1,70 @@
 <?php
   include_once 'database.php';
 
-  if (isset($_GET['id']))
-    $row_id = $_GET['id'];
-  else
     $row_id = 0;
-
-  if(count($_POST)>0) {
-    if(($row_id > 0) && ('Change Event' == $_POST['submit'])) {
-      if ($post_qry = $db->prepare("UPDATE current_event set current_event=:num WHERE rowid=1")) {
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
-        if ($update_result = $post_qry->execute())
-          $message = "<font color=\"#00a000\"> Event Set Successfully";
-        else
-          $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
-      }
-      else
-        $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
-    }
-
-    if('Create' == $_POST['submit']) {
-      if ($post_qry = $db->prepare("INSERT INTO event_info(num, name) VALUES(:num, :name)")) {
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EvtNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':name', $db->escapeString($_POST["EvtName-$row_id"]), SQLITE3_TEXT);
-        if ($update_result = $post_qry->execute())
-          $message = "<font color=\"#00a000\"> Record Modified Successfully";
-        else
-          $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
-      }
-      else
-        $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
-    }
-  }
-
 
   $current = $db->query('select current_event, current_run from current_event, current_run;');
   if ($row = $current->fetchArray()) {
     $cur_evt = $row["current_event"];
     $cur_run = $row["current_run"];
   }
+
+  if(count($_POST)>0) {
+    if((isset($_POST['Change-Event'])) && ('Now' == $_POST['Change-Event']) && ($_POST["Event"] != $cur_evt)) {
+      if ($post_qry = $db->prepare("UPDATE current_event set current_event=:num WHERE rowid=1")) {
+        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
+        if ($update_result = $post_qry->execute()) {
+          $message = "<font color=\"#00a000\"> Event Set Successfully";
+	  $db->query('UPDATE current_run SET current_run = 0 WHERE rowid=1');
+	  $db->query('DELETE FROM next_car');
+	}
+        else
+          $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["Event"]."\n<BR>" . $db->lastErrorMsg();
+      }
+      else
+        $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["Event"]."\n<BR>". $db->lastErrorMsg();
+      $current = $db->query('select current_event, current_run from current_event, current_run;');
+      if ($row = $current->fetchArray()) {
+        $cur_evt = $row["current_event"];
+        $cur_run = $row["current_run"];
+      }
+    }
+
+    if((isset($_POST['NewRun-2'])) && ('Now' == $_POST['NewRun-2'])) {
+      $db->query("BEGIN");
+      $db->query("DELETE FROM next_car");
+      if ($post_qry = $db->prepare("INSERT INTO next_car
+             SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event")) {
+        $post_qry->bindValue(':event', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
+        if ($update_result = $post_qry->execute()) {
+          $message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>". $db->lastErrorMsg();
+          $db->query("UPDATE current_run SET current_run = current_run + 1 WHERE ROWID=1;");
+          $db->query("COMMIT");
+	}
+        else {
+          $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
+          $db->query("ROLLBACK");
+        }
+      }
+      else {
+        $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
+        $db->query("ROLLBACK");
+      }
+
+      $current = $db->query('select current_event, current_run from current_event, current_run;');
+      if ($row = $current->fetchArray()) {
+        $cur_evt = $row["current_event"];
+        $cur_run = $row["current_run"];
+      }
+    }
+
+    $current = $db->query('select current_event, current_run from current_event, current_run;');
+    if ($row = $current->fetchArray()) {
+      $cur_evt = $row["current_event"];
+      $cur_run = $row["current_run"];
+    }
+  }
+
 
   if ($events = $db->query('SELECT num, name, COUNT() as entrants FROM event_info
   				LEFT JOIN entrant_info ON event = num
@@ -62,7 +88,7 @@
 
 <html>
   <head>
-    <title>Events</title>
+    <title>Running Order</title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
@@ -71,17 +97,23 @@
   <form name="frmRunOrd" method="post" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
     <div align="center" style="padding-bottom:5px;">
-   Current Event <select name="Event" style="width: 240px">
+      Current Event
+    <select name="Event" style="width: 240px" 
+    oninput="document.getElementById('chEvt').disabled=(this.value == '<?php echo $cur_evt;?>')">
      <?php echo $event_select;?>
    </select>
+   <input type="button" id="chEvt" name="chEvt" value="Change Event" onclick="document.getElementById('changeEvt').disabled=false" class="button" disabled>
+   <input id="changeEvt" type="submit" name="Change-Event" value="Now" class="button" disabled>
+
   </div>
 
   <table align=center border="2" cellpadding="4">
    <tr class="listheader">
       <td width=50>Num</td>
       <td>Driver</td>
-   </tr>
    <?php
+   echo "<td>Run : $cur_run</td>";
+   echo "</tr>";
 
    $i=0;
    while(($row = $order->fetchArray())||($i==0)) {
@@ -94,11 +126,8 @@
     $safe_num=htmlspecialchars($row['car_num']);
     $safe_name=htmlspecialchars($row['car_name']);
     $row_id=$row['rowid'];
-    echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EvtNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
-    echo " class=\"input_number\" oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
-    echo "<td><input type=\"text\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" required value=\"$safe_name\"";
-    #echo " oninput=\"document.getElementById('submit-$row_id').disabled=false\" ></td>\n";
-    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
+    echo "<td align=\"center\">$safe_num</td>\n";
+    echo "<td>$safe_name</td>\n";
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
     echo "<td><a href=\"entrants.php?evt=$safe_num\">Entrants</a>\n";
     echo "</td></tr>\n";
@@ -106,6 +135,8 @@
    }
    ?>
   </table>
+  <input type="button" id="NewRun-1" name="NewRun-1" value="Load Rew Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
+  <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
   </form>
  </body>
 </html>
