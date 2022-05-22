@@ -35,6 +35,7 @@
   <head>
     <title>Results</title>
     <link rel="stylesheet" href="style.css">
+    <meta http-equiv="refresh" content="20" >
   </head>
 <body>
 <script type="text/javascript">function showTiming(str){document.location = 'results.php?evt='+str;}</script>
