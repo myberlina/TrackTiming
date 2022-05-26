@@ -1,8 +1,6 @@
 <?php
   include_once 'database.php';
 
-    $row_id = 0;
-
   $current = $db->query('select current_event, current_run from current_event, current_run;');
   if ($row = $current->fetchArray()) {
     $cur_evt = $row["current_event"];
@@ -37,7 +35,7 @@
              SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event")) {
         $post_qry->bindValue(':event', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute()) {
-          $message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>". $db->lastErrorMsg();
+          $message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>";
           $db->query("UPDATE current_run SET current_run = current_run + 1 WHERE ROWID=1;");
           $db->query("COMMIT");
 	}
@@ -55,6 +53,43 @@
       if ($row = $current->fetchArray()) {
         $cur_evt = $row["current_event"];
         $cur_run = $row["current_run"];
+      }
+    }
+
+    if((isset($_POST['submit'])) && (('Up' == $_POST['submit']) || ('Down' == $_POST['submit']))) {
+      $move_vals=explode(":", $_POST['move_vals']);
+      $db->query("BEGIN");
+      if ($swap_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) {
+	$swap_qry->bindValue(':rowid', $move_vals[0]);
+	$swap_qry->bindValue(':new_ord', 999999);
+	if ($update_result = $swap_qry->execute()) {
+	  $swap_qry->bindValue(':rowid', $move_vals[2]);
+	  $swap_qry->bindValue(':new_ord', $move_vals[3]);
+	  if ($update_result = $swap_qry->execute()) {
+	    $swap_qry->bindValue(':rowid', $move_vals[0]);
+	    $swap_qry->bindValue(':new_ord', $move_vals[1]);
+	    if ($update_result = $swap_qry->execute()) {
+              $message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+              $db->query("COMMIT");
+            }
+	    else{
+	      $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	      $db->query("ROLLBACK");
+            }
+          }
+	  else{
+	    $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	    $db->query("ROLLBACK");
+          }
+        }
+	else{
+	  $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	  $db->query("ROLLBACK");
+        }
+      }
+      else{
+	$message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	$db->query("ROLLBACK");
       }
     }
 
@@ -81,7 +116,7 @@
   else
     $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
 
-  $order = $db->query("SELECT next_car.rowid, next_car.car_num, car_name FROM next_car
+  $order = $db->query("SELECT next_car.rowid, next_car.car_num, car_name, ord FROM next_car
 	  		LEFT JOIN entrant_info ON event=$cur_evt AND entrant_info.car_num = next_car.car_num ORDER BY ord");
 
 ?>
@@ -115,28 +150,51 @@
    echo "<td>Run : $cur_run</td>";
    echo "</tr>";
 
+   echo "<input type=\"hidden\" id=\"move_vals\" name=\"move_vals\" value=\"\">";
+
+   $prev_row="";
+   $prev_down="";
+   $up_data="";
    $i=0;
-   while(($row = $order->fetchArray())||($i==0)) {
-    if(!is_array($row)) break;
-    if($i%2==0)
-     $classname="class=\"evenRow\"";
-    else
-     $classname="class=\"oddRow\"";
-    echo "<tr $classname>";
-    $safe_num=htmlspecialchars($row['car_num']);
-    $safe_name=htmlspecialchars($row['car_name']);
-    $row_id=$row['rowid'];
-    echo "<td align=\"center\">$safe_num</td>\n";
-    echo "<td>$safe_name</td>\n";
-    echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
-    echo "<td><a href=\"entrants.php?evt=$safe_num\">Entrants</a>\n";
-    echo "</td></tr>\n";
-    $i++;
+   while(true) {
+    $new_row = $order->fetchArray();
+    if(is_array($prev_row)) {
+      if($i%2==0)
+       $classname="class=\"evenRow\"";
+      else
+       $classname="class=\"oddRow\"";
+      echo "<tr $classname>";
+      $row_id=$prev_row['rowid'];
+      if (is_array($new_row)) {
+	$down_disable = "";
+        $down_data="$row_id:" . $new_row['ord'] . ":" . $new_row['rowid'] . ":" . $prev_row['ord'];
+      }
+      else {
+	$down_disable = "disabled";
+	$down_data="";
+      }
+      $safe_num=htmlspecialchars($prev_row['car_num']);
+      $safe_name=htmlspecialchars($prev_row['car_name']);
+      echo "<td align=\"center\">$safe_num</td>\n";
+      echo "<td>$safe_name</td>\n";
+      echo "<td> <input type=\"submit\" name=\"submit\" value=\"Down\" onclick=\"document.getElementById('move_vals').value='$down_data'\" class=\"button\" $down_disable> </td>\n";
+      if ($i > 0) $up_disable = "";
+      else $up_disable = "disabled";
+      echo "<td> <input type=\"submit\" name=\"submit\" value=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable> </td>\n";
+      echo "</td></tr>\n";
+      $up_data=$down_data;
+      $i++;
+    }
+    if(!is_array($new_row)) break;
+    $prev_row = $new_row;
    }
    ?>
   </table>
-  <input type="button" id="NewRun-1" name="NewRun-1" value="Load Rew Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
-  <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
+  <div align="center" style="padding-top:5px;">
+   <a href="running_order.php"> Refresh </a> &nbsp; &nbsp; 
+   <input type="button" id="NewRun-1" name="NewRun-1" value="Load Rew Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
+   <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
+  </div>
   </form>
  </body>
 </html>
