@@ -8,6 +8,7 @@
   }
 
   if(count($_POST)>0) {
+    $refetch_current_run = false;
     if((isset($_POST['Change-Event'])) && ('Now' == $_POST['Change-Event']) && ($_POST["Event"] != $cur_evt)) {
       if ($post_qry = $db->prepare("UPDATE current_event set current_event=:num WHERE rowid=1")) {
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
@@ -21,11 +22,7 @@
       }
       else
         $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["Event"]."\n<BR>". $db->lastErrorMsg();
-      $current = $db->query('select current_event, current_run from current_event, current_run;');
-      if ($row = $current->fetchArray()) {
-        $cur_evt = $row["current_event"];
-        $cur_run = $row["current_run"];
-      }
+      $refetch_current_run = true;
     }
 
     if((isset($_POST['NewRun-2'])) && ('Now' == $_POST['NewRun-2'])) {
@@ -48,12 +45,7 @@
         $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
         $db->query("ROLLBACK");
       }
-
-      $current = $db->query('select current_event, current_run from current_event, current_run;');
-      if ($row = $current->fetchArray()) {
-        $cur_evt = $row["current_event"];
-        $cur_run = $row["current_run"];
-      }
+      $refetch_current_run = true;
     }
 
     if((isset($_POST['submit'])) && (('Up' == $_POST['submit']) || ('Down' == $_POST['submit']))) {
@@ -93,10 +85,28 @@
       }
     }
 
-    $current = $db->query('select current_event, current_run from current_event, current_run;');
-    if ($row = $current->fetchArray()) {
-      $cur_evt = $row["current_event"];
-      $cur_run = $row["current_run"];
+    if((isset($_POST['ReallyAdd'])) && ('Add' == $_POST['ReallyAdd'])) {
+      if ($post_qry = $db->prepare("INSERT INTO next_car VALUES (:car, :ord)")) {
+        $post_qry->bindValue(':car', 0 + $db->escapeString($_POST["AddEntrant"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':ord', 0 + $db->escapeString($_POST["last_ord"]), SQLITE3_INTEGER);
+        if ($update_result = $post_qry->execute()) {
+          $message = "<font color=\"#00a000\"> Entrant Re-added Successfully" ."\n<BR>";
+	}
+        else {
+          $message = "<font color=\"#c00000\"> Entrant Re-add failed \n<BR>". $db->lastErrorMsg();
+        }
+      }
+      else {
+        $message = "<font color=\"#c00000\"> Entrant Re-add failed \n<BR>". $db->lastErrorMsg();
+      }
+    }
+
+    if ($refetch_current_run) {
+      $current = $db->query('select current_event, current_run from current_event, current_run;');
+      if ($row = $current->fetchArray()) {
+        $cur_evt = $row["current_event"];
+        $cur_run = $row["current_run"];
+      }
     }
   }
 
@@ -116,9 +126,18 @@
   else
     $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
 
+
+  if ($entrant_qry = $db->prepare("SELECT car_num, car_name FROM entrant_info WHERE event=:event")) {
+    $entrant_qry->bindValue(':event', 0 + $cur_evt, SQLITE3_INTEGER);
+    if ($entrants_res = $entrant_qry->execute()) {
+      while ($row = $entrants_res->fetchArray()) {
+        $entrants[$row['car_num']] = $row['car_name'];
+      }
+    }
+  }
+
   $order = $db->query("SELECT next_car.rowid, next_car.car_num, car_name, ord FROM next_car
 	  		LEFT JOIN entrant_info ON event=$cur_evt AND entrant_info.car_num = next_car.car_num ORDER BY ord");
-
 ?>
 
 <html>
@@ -183,10 +202,30 @@
       echo "<td> <input type=\"submit\" name=\"submit\" value=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable> </td>\n";
       echo "</td></tr>\n";
       $up_data=$down_data;
+      unset($entrants[$safe_num]);
       $i++;
     }
     if(!is_array($new_row)) break;
     $prev_row = $new_row;
+   }
+   if ((is_array($entrants)) && (count($entrants) > 0 )) {
+     $last_ord = 1 + $prev_row['ord'];
+     echo "<input type=\"hidden\" id=\"last_ord\" name=\"last_ord\" value=\"$last_ord\">";
+     if($i%2==0)
+       $classname="class=\"evenRow\"";
+     else
+       $classname="class=\"oddRow\"";
+     echo "<tr $classname><td colspan=2>";
+     echo "<select name=\"AddEntrant\" style=\"width: 240px\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
+     foreach($entrants as $car => $name) {
+      echo "<option value=\"$car\"> $car &nbsp &nbsp " . $name . "</option>";
+     }
+     echo "<option value=\"\" selected> --  ReRun Entrant -- </option>";
+     echo "</select></td><td>";
+     echo "<input type=\"button\" id=\"AddEnt\" name=\"AddEnt\" value=\"Entrant\" onclick=\"document.getElementById('ReallyAdd').disabled=false\" class=\"button\" disabled>";
+     echo "</td><td>";
+     echo "<input id=\"ReallyAdd\" type=\"submit\" name=\"ReallyAdd\" value=\"Add\" class=\"button\" disabled>";
+     echo "</td></tr>";
    }
    ?>
   </table>
