@@ -20,10 +20,11 @@
   }
 
   $res_qry = $db->prepare('
-      SELECT event , run , car_num , rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
+      SELECT results.event, run, results.car_num, car_name, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
       FROM results
-      WHERE event = :event AND car_num > 0
-      ORDER BY event, car_num, run');
+      LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
+      WHERE results.event = :event AND results.car_num > 0
+      ORDER BY results.event, results.car_num, run');
 
   $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
 
@@ -67,11 +68,13 @@
    if ($row["car_num"] != $prev_car ) {
    ?>
      <tr border="0" class="new_owner">
-     <th colspan="4" align="left"> <?php echo htmlspecialchars($row["car_num"]); ?> </th>
+     <th colspan="5" align="left"> <?php echo htmlspecialchars($row["car_num"]) . 
+     " &nbsp; &nbsp; " . htmlspecialchars($row["car_name"]); ?> </th>
      </tr>
    <?php
      $prev_car = htmlspecialchars($row["car_num"]);
    }
+   elseif ($row["run"] == $prev_run ) continue;
    ?>
    <tr class="<?php if(isset($classname)) echo $classname;?>">
      <td>
@@ -83,6 +86,7 @@
      <td><?php echo htmlspecialchars($row["ft"]); ?></td>
    </tr>
    <?php
+   $prev_run = $row["run"];
    $i++;
    }
    ?>
