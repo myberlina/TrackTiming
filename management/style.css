@@ -45,12 +45,12 @@ background-color: #A7D6F1;
 color:white;
 }
 .button {
-padding:5px;
-border-radius:4px;
+padding:2px;
+border-radius:3px;
 }
 .del_button {
 background-color: Pink;
-padding:5px;
+padding:3px;
 border-color:white;
 border-radius:4px;
 color:white;

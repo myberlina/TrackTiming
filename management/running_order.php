@@ -114,7 +114,6 @@
   if ($events = $db->query('SELECT num, name, COUNT() as entrants FROM event_info
   				LEFT JOIN entrant_info ON event = num
   				GROUP BY num ORDER BY num DESC; ')) {
-    $event_select = "<option value=\"\">Please Select Date</option>";
     while($row = $events->fetchArray()) {
       $ev=$row['num']; $nm=$row['name'] . " - " . $row['entrants'] . " Entrants";
       if ($ev == $cur_evt)
@@ -166,7 +165,7 @@
       <td width=50>Num</td>
       <td>Driver</td>
    <?php
-   echo "<td>Run : $cur_run</td>";
+   echo "<td colspan=2>Run : $cur_run</td>";
    echo "</tr>";
 
    echo "<input type=\"hidden\" id=\"move_vals\" name=\"move_vals\" value=\"\">";
@@ -216,7 +215,7 @@
      else
        $classname="class=\"oddRow\"";
      echo "<tr $classname><td colspan=2>";
-     echo "<select name=\"AddEntrant\" style=\"width: 240px\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
+     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 240px\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
      foreach($entrants as $car => $name) {
       echo "<option value=\"$car\"> $car &nbsp &nbsp " . $name . "</option>";
      }
