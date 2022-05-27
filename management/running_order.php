@@ -111,6 +111,7 @@
   }
 
 
+  $event_select = "";
   if ($events = $db->query('SELECT num, name, COUNT() as entrants FROM event_info
   				LEFT JOIN entrant_info ON event = num
   				GROUP BY num ORDER BY num DESC; ')) {
@@ -145,8 +146,6 @@
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-<br>
-  <br>
   <form name="frmRunOrd" method="post" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
     <div align="center" style="padding-bottom:5px;">
@@ -208,7 +207,8 @@
     $prev_row = $new_row;
    }
    if ((is_array($entrants)) && (count($entrants) > 0 )) {
-     $last_ord = 1 + $prev_row['ord'];
+     if ($i > 0) $last_ord = 1 + $prev_row['ord'];
+     else $last_ord = 1;
      echo "<input type=\"hidden\" id=\"last_ord\" name=\"last_ord\" value=\"$last_ord\">";
      if($i%2==0)
        $classname="class=\"evenRow\"";
