@@ -17,7 +17,6 @@
     $row_id = 0;
 
   if((count($_POST)>0)) {
-    var_dump($_POST);
     if (isset($_POST['tgt_evt'])) $evt = $_POST['tgt_evt'];
     if (isset($_POST['tgt_run'])) $run = $_POST['tgt_run'];
     if (isset($_POST['tgt_row'])) $row_id = $_POST['tgt_row'];
@@ -28,7 +27,7 @@
         $post_qry->bindValue(':run', 0 + $db->escapeString($run), SQLITE3_INTEGER);
         $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
-          $message = "<font color=\"#00a000\"> Record Modified Successfully";
+          $message = "";
         else
           $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
       }
@@ -43,7 +42,7 @@
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["CarNum-$row_id"]), SQLITE3_INTEGER);
         $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
-          $message = "<font color=\"#00a000\"> Record Deleted Successfully for ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>";
+          $message = "";
         else
           $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
       }
@@ -79,14 +78,16 @@
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-<br>
-  <br>
-  <form name="frmEntrant" method="post" action="">
+  <form name="frmTiming" method="post" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
   <table align=center border="0" cellpadding="1">
    <input type="hidden" id="tgt_row" name="tgt_row" value="">
    <input type="hidden" id="tgt_evt" name="tgt_evt" value="<?php echo htmlspecialchars($evt);?>">
    <input type="hidden" id="tgt_run" name="tgt_run" value="<?php echo htmlspecialchars($run);?>">
+   <tr>
+      <td colspan=2>Green</td> <td></td>
+      <td colspan=3 align="right"><a href=""> Refresh </a></td>
+   </tr>
    <tr class="listheader">
       <td width=50>Car</td>
       <td>Time</td>
