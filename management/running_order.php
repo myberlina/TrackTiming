@@ -244,7 +244,7 @@
   </table>
   <div align="center" style="padding-top:5px;">
    <a href="running_order.php"> Refresh </a> &nbsp; &nbsp; 
-   <input type="button" id="NewRun-1" name="NewRun-1" value="Load Rew Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
+   <input type="button" id="NewRun-1" name="NewRun-1" value="Load New Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
    <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
   </div>
   </form>
