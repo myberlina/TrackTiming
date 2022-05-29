@@ -91,7 +91,8 @@
    <input type="hidden" id="tgt_evt" name="tgt_evt" value="<?php echo htmlspecialchars($evt);?>">
    <input type="hidden" id="tgt_run" name="tgt_run" value="<?php echo htmlspecialchars($run);?>">
    <tr>
-      <td colspan=2>Finish</td> <td></td>
+      <td colspan=2>Finish</td>
+      <td colspan=1>Run <?php echo $run;?></td>
       <td colspan=3 align="right"><a href=""> Refresh </a></td>
    </tr>
    <tr class="listheader">
