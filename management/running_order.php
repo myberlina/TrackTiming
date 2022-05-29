@@ -1,13 +1,13 @@
 <?php
-  include_once 'database.php';
-
-  $current = $db->query('select current_event, current_run from current_event, current_run;');
-  if ($row = $current->fetchArray()) {
-    $cur_evt = $row["current_event"];
-    $cur_run = $row["current_run"];
-  }
-
   if(count($_POST)>0) {
+    include_once 'database.php';
+
+    $current = $db->query('select current_event, current_run from current_event, current_run;');
+    if ($row = $current->fetchArray()) {
+      $cur_evt = $row["current_event"];
+      $cur_run = $row["current_run"];
+    }
+
     $refetch_current_run = false;
     if((isset($_POST['Change-Event'])) && ('Now' == $_POST['Change-Event']) && ($_POST["Event"] != $cur_evt)) {
       if ($post_qry = $db->prepare("UPDATE current_event set current_event=:num WHERE rowid=1")) {
@@ -19,6 +19,7 @@
 	}
         else
           $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["Event"]."\n<BR>" . $db->lastErrorMsg();
+	$post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["Event"]."\n<BR>". $db->lastErrorMsg();
@@ -40,6 +41,7 @@
           $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
           $db->query("ROLLBACK");
         }
+	$post_qry->close();
       }
       else {
         $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
@@ -78,6 +80,7 @@
 	  $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
 	  $db->query("ROLLBACK");
         }
+	$swap_qry->close();
       }
       else{
 	$message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
@@ -95,6 +98,7 @@
         else {
           $message = "<font color=\"#c00000\"> Entrant Re-add failed \n<BR>". $db->lastErrorMsg();
         }
+	$post_qry->close();
       }
       else {
         $message = "<font color=\"#c00000\"> Entrant Re-add failed \n<BR>". $db->lastErrorMsg();
@@ -109,10 +113,19 @@
       }
     }
   }
+  else {
+    include_once 'database_ro.php';
+    $current = $db->query('select current_event, current_run from current_event, current_run;');
+    if ($row = $current->fetchArray()) {
+      $cur_evt = $row["current_event"];
+      $cur_run = $row["current_run"];
+    }
+
+  }
 
 
   $event_select = "";
-  if ($events = $db->query('SELECT num, name, COUNT() as entrants FROM event_info
+  if ($events = $db->query('SELECT num, name, COUNT(event) as entrants FROM event_info
   				LEFT JOIN entrant_info ON event = num
   				GROUP BY num ORDER BY num DESC; ')) {
     while($row = $events->fetchArray()) {
@@ -134,6 +147,7 @@
         $entrants[$row['car_num']] = $row['car_name'];
       }
     }
+    $entrant_qry->close();
   }
 
   $order = $db->query("SELECT next_car.rowid, next_car.car_num, car_name, ord FROM next_car
@@ -206,7 +220,7 @@
     if(!is_array($new_row)) break;
     $prev_row = $new_row;
    }
-   if ((is_array($entrants)) && (count($entrants) > 0 )) {
+   if (isset($entrants) && (is_array($entrants)) && (count($entrants) > 0 )) {
      if ($i > 0) $last_ord = 1 + $prev_row['ord'];
      else $last_ord = 1;
      echo "<input type=\"hidden\" id=\"last_ord\" name=\"last_ord\" value=\"$last_ord\">";

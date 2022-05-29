@@ -1,12 +1,11 @@
 <?php
-  include_once 'database.php';
-
   if (isset($_GET['id']))
     $row_id = $_GET['id'];
   else
     $row_id = 0;
 
   if(count($_POST)>0) {
+    include_once 'database.php';
     if(($row_id > 0) && ('Update' == $_POST['submit'])) {
       if ($post_qry = $db->prepare("UPDATE event_info set num=:num, name=:name WHERE rowid=:row")) {
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EvtNum-$row_id"]), SQLITE3_INTEGER);
@@ -16,6 +15,7 @@
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
         else
           $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+	$post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
@@ -29,10 +29,14 @@
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
         else
           $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+	$post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EvtNum-$row_id"].", \"".$_POST["EvtName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
     }
+  }
+  else {
+    include_once 'database_ro.php';
   }
 
 

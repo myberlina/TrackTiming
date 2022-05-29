@@ -1,6 +1,4 @@
 <?php
-  include_once 'database.php';
-
   if (isset($_GET['evt']))
     $evt = 0 + $_GET['evt'];
   else
@@ -11,16 +9,13 @@
   else
     $run = 0;
 
-  if (isset($_GET['id']))
-    $row_id = 0 + $_GET['id'];
-  else
-    $row_id = 0;
-
   if((count($_POST)>0)) {
+    include_once 'database.php';
     if (isset($_POST['tgt_evt'])) $evt = $_POST['tgt_evt'];
     if (isset($_POST['tgt_run'])) $run = $_POST['tgt_run'];
     if (isset($_POST['tgt_row'])) $row_id = $_POST['tgt_row'];
-    if(('Fix' == $_POST['submit'])&&($row_id>0)) {
+    else $row_id = 0;
+    if ((isset($_POST['submit']))&&('Fix' == $_POST['submit'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("UPDATE finish_time set car_num=:num WHERE rowid=:row AND event=:event AND run=:run")){
         $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["CarNum-$row_id"]), SQLITE3_INTEGER);
@@ -30,12 +25,13 @@
           $message = "";
         else
           $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
+        $post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
     }
 
-    if(('Yes' == $_POST['really-delete'])&&($row_id>0)) {
+    if((isset($_POST['really-delete']))&&('Yes' == $_POST['really-delete'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("DELETE FROM finish_time WHERE event=:event AND run=:run AND car_num=:num AND rowid=:row")){
         $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
         $post_qry->bindValue(':run', 0 + $db->escapeString($run), SQLITE3_INTEGER);
@@ -45,10 +41,14 @@
           $message = "";
         else
           $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
+        $post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
     }
+  }
+  else {
+    include_once 'database_ro.php';
   }
 
   $current = $db->query('select current_event, current_run from current_event, current_run;');
@@ -135,6 +135,7 @@
     $prev_row_id = $row_id;
     $i++;
    }
+   $ent_qry->close();
    ?>
   </table>
   <br>

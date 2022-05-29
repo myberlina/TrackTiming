@@ -89,6 +89,7 @@
    $prev_run = $row["run"];
    $i++;
    }
+   $res_qry->close();
    ?>
   </table>
  </body>

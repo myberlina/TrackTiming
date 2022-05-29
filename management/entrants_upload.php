@@ -122,6 +122,7 @@
 	  $message = $message . "<p style=\"color:red\"> Successfully inserted $inserted entrants</p>";
 	if ($failed > 0)
 	  $message = $message . "<p style=\"color:red\"> Failed to insert $failed entrants</p>";
+	$upload_qry->close();
       }
       if (isset($handle)) fclose($handle);
     }
@@ -147,13 +148,6 @@
     $cur_evt = $row["current_event"];
     $cur_run = $row["current_run"];
   }
-  if ($ent_qry = $db->prepare('SELECT rowid, car_num, car_name, car_info FROM entrant_info WHERE event = :event ORDER BY car_num')) {
-    $ent_qry->bindValue(':event', 0 + $evt, SQLITE3_INTEGER);
-    $entrants = $ent_qry->execute();
-  }
-  else
-    $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
-
 ?>
 
 <html>

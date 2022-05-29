@@ -1,5 +1,4 @@
 <?php
-  include_once 'database.php';
 
   if (isset($_GET['evt']))
     $evt = 0 + $_GET['evt'];
@@ -13,6 +12,7 @@
 
 
   if(($evt>0)&&(count($_POST)>0)) {
+    include_once 'database.php';
     if(('Update' == $_POST['submit'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("UPDATE entrant_info set car_num=:num, car_name=:name, car_info=:info WHERE rowid=:row AND event=:event")){
         $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
@@ -24,6 +24,7 @@
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
         else
           $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+        $post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
@@ -39,6 +40,7 @@
           $message = "<font color=\"#00a000\"> Record Created Successfully";
         else
           $message = "<font color=\"#c00000\"> Record Create failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+        $post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Create failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
@@ -54,10 +56,14 @@
           $message = "<font color=\"#00a000\"> Record Deleted Successfully for ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>";
         else
           $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+        $post_qry->close();
       }
       else
         $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
     }
+  }
+  else {
+    include_once 'database_ro.php';
   }
 
   if ($events = $db->query('SELECT DISTINCT num, name FROM event_info ORDER BY num DESC')) {
@@ -80,6 +86,7 @@
     $cur_evt = $row["current_event"];
     $cur_run = $row["current_run"];
   }
+
   if ($ent_qry = $db->prepare('SELECT rowid, car_num, car_name, car_info FROM entrant_info WHERE event = :event ORDER BY car_num')) {
     $ent_qry->bindValue(':event', 0 + $evt, SQLITE3_INTEGER);
     $entrants = $ent_qry->execute();
@@ -137,6 +144,7 @@
     echo "</tr>\n";
     $i++;
    }
+   $ent_qry->close();
    if($i==0)
     $min_evt=1;
    else
