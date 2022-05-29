@@ -13,7 +13,7 @@
 
   if(($evt>0)&&(count($_POST)>0)) {
     include_once 'database.php';
-    if(('Update' == $_POST['submit'])&&($row_id>0)) {
+    if(isset($_POST['submit'])&&('Update' == $_POST['submit'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("UPDATE entrant_info set car_num=:num, car_name=:name, car_info=:info WHERE rowid=:row AND event=:event")){
         $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
@@ -30,7 +30,7 @@
         $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
     }
 
-    if('Create' == $_POST['submit']) {
+    if(isset($_POST['submit']) && ('Create' == $_POST['submit'])) {
       if ($post_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info) VALUES(:event, :num, :name, :info)")){
         $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
@@ -45,7 +45,7 @@
       else
         $message = "<font color=\"#c00000\"> Record Create failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
     }
-    if(('Yes!' == $_POST['really-delete'])&&($row_id>0)) {
+    if(isset($_POST['really-delete'])&&('Yes!' == $_POST['really-delete'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event AND car_num=:num AND car_name=:name AND car_info=:info AND rowid=:row")){
         $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
@@ -66,10 +66,15 @@
     include_once 'database_ro.php';
   }
 
-  if ($events = $db->query('SELECT DISTINCT num, name FROM event_info ORDER BY num DESC')) {
-    $event_select = "<option value=\"\">Please Select Date</option>";
+  
+  #if ($events = $db->query('SELECT DISTINCT num, name FROM event_info ORDER BY num DESC')) {
+  if ($events = $db->query('SELECT DISTINCT num, name, COUNT(event) as entrants
+		  		FROM event_info LEFT JOIN entrant_info ON event = num
+                                GROUP BY num ORDER BY num DESC; ')) {
+    $event_select = "<option value=\"\">Please Select Event</option>";
     while($row = $events->fetchArray()) {
-      $ev=$row['num']; $nm=$row['name'];
+      #$ev=$row['num']; $nm=$row['name'];
+      $ev=$row['num']; $nm=$row['name'] . " - " . $row['entrants'] . " Entrants";
       if ($evt == 0) $evt=$ev;
       if ($ev == $evt)
         $event_select = "$event_select <option value=\"$ev\" selected>$nm</option>";
