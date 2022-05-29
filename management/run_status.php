@@ -1,5 +1,5 @@
 <?php
-  include_once 'database.php';
+  include_once 'database_ro.php';
 
   #$events = $db->query('SELECT rowid, num, name FROM event_info ORDER BY num DESC');
 
@@ -26,23 +26,20 @@
     <meta http-equiv="refresh" content="10" >
   </head>
 <body>
-<br>
-  <table class="tight_table">
-   <tr>
-    <th class="tight_table" colspan=2>Event</th>
-    <th class="tight_table" >Run</th>
-    <th class="tight_table" colspan=2>Current</th>
-    <th class="tight_table" colspan=2>Next</th>
-   </tr>
+  <table>
    <tr>
    <?php
-    echo "<td class=\"tight_table\" width=30 align=\"right\">$event_num</td>\n";
-    echo "<td class=\"tight_table\" width=120>$event_name</td>\n";
-    echo "<td class=\"tight_table\" width=30 align=\"right\">$run</td>\n";
-    echo "<td class=\"tight_table\" width=30 align=\"right\">$curr_car</td>\n";
-    echo "<td class=\"tight_table\" width=140 align=\"left\">$curr_name</td>\n";
-    echo "<td class=\"tight_table\" width=30 align=\"right\">$next_car</td>\n";
-    echo "<td class=\"tight_table\" width=140 align=\"left\">$next_name</td>\n";
+    echo '<th colspan=2>Event</th>';
+    echo "<th width=30 align=\"right\">$event_num</td>\n";
+    echo "<th >$event_name</td>\n";
+    echo '<th > &nbsp; Run</th>';
+    echo "<th width=30 align=\"right\">$run</td>\n";
+    echo '<th > &nbsp; Current</th>';
+    echo "<td width=30 align=\"right\">$curr_car</td>\n";
+    echo "<td width=140 align=\"left\">$curr_name</td>\n";
+    echo '<th > &nbsp; Next</th>';
+    echo "<td width=30 align=\"right\">$next_car</td>\n";
+    echo "<td width=140 align=\"left\">$next_name</td>\n";
    ?>
    </tr>
   </table>
