@@ -50,7 +50,7 @@
       $refetch_current_run = true;
     }
 
-    if((isset($_POST['submit'])) && (('Up' == $_POST['submit']) || ('Down' == $_POST['submit']))) {
+    if((isset($_POST['submit'])) && (('Up' == $_POST['submit']) || ('Dn' == $_POST['submit']))) {
       $move_vals=explode(":", $_POST['move_vals']);
       $db->query("BEGIN");
       if ($swap_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) {
@@ -63,7 +63,7 @@
 	    $swap_qry->bindValue(':rowid', $move_vals[0]);
 	    $swap_qry->bindValue(':new_ord', $move_vals[1]);
 	    if ($update_result = $swap_qry->execute()) {
-              $message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+              #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
               $db->query("COMMIT");
             }
 	    else{
@@ -85,6 +85,24 @@
       else{
 	$message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
 	$db->query("ROLLBACK");
+      }
+    }
+
+    if((isset($_POST['submit'])) && (('Top' == $_POST['submit']) || ('Bot' == $_POST['submit']))) {
+      $move_vals=explode(":", $_POST['move_vals'] . ":" . $_POST["last_ord"]);
+      if ($swap_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) {
+	$swap_qry->bindValue(':rowid', $move_vals[0]);
+	$swap_qry->bindValue(':new_ord', $move_vals[1]);
+	if ($update_result = $swap_qry->execute()) {
+          #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+        }
+	else{
+	  $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+        }
+	$swap_qry->close();
+      }
+      else{
+	$message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
       }
     }
 
@@ -187,6 +205,7 @@
    $prev_down="";
    $up_data="";
    $i=0;
+   $top=0;
    while(true) {
     $new_row = $order->fetchArray();
     if(is_array($prev_row)) {
@@ -204,14 +223,25 @@
 	$down_disable = "disabled";
 	$down_data="";
       }
+      if ($i > 0) {
+	$up_disable = "";
+	$top_data = "$row_id:$top";
+      }
+      else {
+	$up_disable = "disabled";
+	$top_data = "";
+	$top=$prev_row['ord'] - 1;
+      }
       $safe_num=htmlspecialchars($prev_row['car_num']);
       $safe_name=htmlspecialchars($prev_row['car_name']);
       echo "<td align=\"center\">$safe_num</td>\n";
       echo "<td>$safe_name</td>\n";
-      echo "<td> <input type=\"submit\" name=\"submit\" value=\"Down\" onclick=\"document.getElementById('move_vals').value='$down_data'\" class=\"button\" $down_disable> </td>\n";
-      if ($i > 0) $up_disable = "";
-      else $up_disable = "disabled";
-      echo "<td> <input type=\"submit\" name=\"submit\" value=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable> </td>\n";
+      echo "<td>";
+      echo " <input type=\"submit\" name=\"submit\" value=\"Dn\" onclick=\"document.getElementById('move_vals').value='$down_data'\" class=\"button\" $down_disable>\n";
+      echo " <input type=\"submit\" name=\"submit\" value=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable>\n";
+      echo "</td><td>";
+      echo " <input type=\"submit\" name=\"submit\" value=\"Bot\" onclick=\"document.getElementById('move_vals').value='$row_id'\" class=\"button\" $down_disable>\n";
+      echo " <input type=\"submit\" name=\"submit\" value=\"Top\" onclick=\"document.getElementById('move_vals').value='$top_data'\" class=\"button\" $up_disable>\n";
       echo "</td></tr>\n";
       $up_data=$down_data;
       unset($entrants[$safe_num]);
@@ -220,10 +250,12 @@
     if(!is_array($new_row)) break;
     $prev_row = $new_row;
    }
+   if ($i > 0) {
+     $last_ord = 1 + $prev_row['ord'];
+   }
+   else $last_ord = 1;
+   echo "<input type=\"hidden\" id=\"last_ord\" name=\"last_ord\" value=\"$last_ord\">";
    if (isset($entrants) && (is_array($entrants)) && (count($entrants) > 0 )) {
-     if ($i > 0) $last_ord = 1 + $prev_row['ord'];
-     else $last_ord = 1;
-     echo "<input type=\"hidden\" id=\"last_ord\" name=\"last_ord\" value=\"$last_ord\">";
      if($i%2==0)
        $classname="class=\"evenRow\"";
      else
