@@ -45,8 +45,10 @@
     $cur_evt = $row["current_event"];
     $cur_run = $row["current_run"];
   }
-  $events = $db->query('SELECT rowid, num, name FROM event_info ORDER BY num DESC');
-
+  #$events = $db->query('SELECT rowid, num, name FROM event_info ORDER BY num DESC');
+  $events = $db->query('SELECT event_info.rowid, num, name, COUNT(event) as entrants
+			FROM event_info LEFT JOIN entrant_info ON event = num
+			GROUP BY num ORDER BY num DESC');
 ?>
 
 <html>
@@ -64,6 +66,7 @@
    <tr class="listheader">
       <td width=50>Num</td>
       <td>Title</td>
+      <td>Entrants</td>
    </tr>
    <?php
 
@@ -81,6 +84,7 @@
      echo " class=\"input_number\" ></td>\n";
      echo "<td><input type=\"text\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" value=\"$safe_name\"";
      echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
+     echo "<td></td>";
      echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Create\" formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
      echo "</td></tr>\n";
     }
@@ -94,12 +98,14 @@
     echo "<tr $classname>";
     $safe_num=htmlspecialchars($row['num']);
     $safe_name=htmlspecialchars($row['name']);
+    $safe_ent_cnt=htmlspecialchars($row['entrants']);
     $row_id=$row['rowid'];
     echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EvtNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
     echo "<td><input type=\"text\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" required value=\"$safe_name\"";
     #echo " oninput=\"document.getElementById('submit-$row_id').disabled=false\" ></td>\n";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
+    echo "<td align=\"right\">$safe_ent_cnt</td>";
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
     echo "<td><a href=\"entrants.php?evt=$safe_num\">Entrants</a>\n";
     if ($cur_evt == $row["num"])
