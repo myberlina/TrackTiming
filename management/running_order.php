@@ -9,7 +9,7 @@
     }
 
     $refetch_current_run = false;
-    if((isset($_POST['Change-Event'])) && ('Now' == $_POST['Change-Event']) && ($_POST["Event"] != $cur_evt)) {
+    if(isset($_POST['Change-Event']) && ('Now' == $_POST['Change-Event']) && ($_POST["Event"] != $cur_evt)) {
       if ($post_qry = $db->prepare("UPDATE current_event set current_event=:num WHERE rowid=1")) {
         $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute()) {
@@ -26,28 +26,54 @@
       $refetch_current_run = true;
     }
 
-    if((isset($_POST['NewRun-2'])) && ('Now' == $_POST['NewRun-2'])) {
+    if(isset($_POST['NewRun-1'])) $op = $_POST['NewRun-1'];
+    else $op = "";
+    if(isset($_POST['NewRun-2']) && ('Now' == $_POST['NewRun-2']) && ($op != '')) {
       $db->query("BEGIN");
-      $db->query("DELETE FROM next_car");
-      if ($post_qry = $db->prepare("INSERT INTO next_car
-             SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event")) {
-        $post_qry->bindValue(':event', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
-        if ($update_result = $post_qry->execute()) {
-          $message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>";
-          $db->query("UPDATE current_run SET current_run = current_run + 1 WHERE ROWID=1;");
-          $db->query("COMMIT");
-	}
+      $db->query("DELETE FROM next_car"); # True for all operations
+      if (($op == "NR-Load") || ($op == "Load")) {
+        if ($post_qry = $db->prepare("INSERT INTO next_car
+               SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event")) {
+          $post_qry->bindValue(':event', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
+          if ($update_result = $post_qry->execute()) {
+            #$message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>";
+	    if ($op == "NR-Load") {
+	      $db->query("UPDATE current_run SET current_run = current_run + 1 WHERE ROWID=1;");
+              $refetch_current_run = true;
+	    }
+            $db->query("COMMIT");
+	  }
+          else {
+            $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
+            $db->query("ROLLBACK");
+          }
+	  $post_qry->close();
+        }
         else {
           $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
           $db->query("ROLLBACK");
         }
-	$post_qry->close();
       }
-      else {
-        $message = "<font color=\"#c00000\"> Entrant Load failed \n<BR>". $db->lastErrorMsg();
-        $db->query("ROLLBACK");
+      elseif ($op == "NewRun") {
+        if ($db->query("UPDATE current_run SET current_run = current_run + 1 WHERE ROWID=1;")) {
+          $db->query("COMMIT");
+          $refetch_current_run = true;
+	}
+        else {
+          $message = "<font color=\"#c00000\"> Run Change failed \n<BR>". $db->lastErrorMsg();
+          $db->query("ROLLBACK");
+        }
       }
-      $refetch_current_run = true;
+      elseif ($op == "PrevRun") {
+        if ($db->query("UPDATE current_run SET current_run = current_run - 1 WHERE ROWID=1 AND current_run > 1")) {
+          $db->query("COMMIT");
+          $refetch_current_run = true;
+	}
+        else {
+          $message = "<font color=\"#c00000\"> Run Change failed \n<BR>". $db->lastErrorMsg();
+          $db->query("ROLLBACK");
+        }
+      }
     }
 
     if((isset($_POST['submit'])) && (('Up' == $_POST['submit']) || ('Dn' == $_POST['submit']))) {
@@ -193,7 +219,7 @@
 
   <table align=center border="2" cellpadding="4">
    <tr class="listheader">
-      <td width=50>Num</td>
+      <td width=40>Num</td>
       <td>Driver</td>
    <?php
    echo "<td colspan=2>Run : $cur_run</td>";
@@ -261,7 +287,7 @@
      else
        $classname="class=\"oddRow\"";
      echo "<tr $classname><td colspan=2>";
-     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 240px\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
+     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 180px\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
      foreach($entrants as $car => $name) {
       echo "<option value=\"$car\"> $car &nbsp &nbsp " . $name . "</option>";
      }
@@ -276,7 +302,15 @@
   </table>
   <div align="center" style="padding-top:5px;">
    <a href="running_order.php"> Refresh </a> &nbsp; &nbsp; 
-   <input type="button" id="NewRun-1" name="NewRun-1" value="Load New Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
+   <hide-input type="button" id="NewRun-1" name="NewRun-1" value="Load New Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
+   <select name="NewRun-1" oninput="document.getElementById('NewRun-2').disabled=(this.value == '')">
+    <option value='' selected> -- Operation -- </option>
+    <option value="NR-Load"> <strong> New Run &amp; Load </strong></option>
+    <option value="NewRun"> New Run </option>
+    <option value="Load"> Load </option>
+    <option value="Clear"> Clear </option>
+    <option value="PrevRun"> Prev Run </option>
+   </select>
    <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
   </div>
   </form>
