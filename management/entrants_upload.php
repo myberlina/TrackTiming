@@ -31,6 +31,8 @@
   if (($evt<1)||(count($_POST)<1)||(('Upload'!=$_POST['submit'])&&('Submit'!=$_POST['submit'])&&('Rescan'!=$_POST['submit'])))
     die;
 
+  $message="";
+
   if(($evt>0)&&(count($_POST)>0)) {
     if('Submit' == $_POST['submit']) {
       $can_load=true;
@@ -239,9 +241,9 @@
       while ($row = fgetcsv($handle, 0, "$sep")) {
 	if ($j%2 == 0) $class="tight_even";
 	else $class="tight_odd";
-	if ($good_row[$j] == 1)
+	if (isset($good_row[$j]) && ($good_row[$j] == 1))
 	  echo "<tr><td class=\"$class fg_green\">$j</td>";
-	else if ($bad_row[$j] == 1)
+	else if (isset($bad_row[$j]) && ($bad_row[$j] == 1))
 	  echo "<tr><td class=\"$class fg_red\">$j</td>";
 	else
 	  echo "<tr><td class=\"$class fg_blue\">$j</td>";
