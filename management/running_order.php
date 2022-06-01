@@ -1,6 +1,7 @@
 <?php
   if(count($_POST)>0) {
     include_once 'database.php';
+    #var_dump($_POST);
 
     $current = $db->query('select current_event, current_run from current_event, current_run;');
     if ($row = $current->fetchArray()) {
@@ -73,6 +74,9 @@
           $message = "<font color=\"#c00000\"> Run Change failed \n<BR>". $db->lastErrorMsg();
           $db->query("ROLLBACK");
         }
+      }
+      elseif ($op == "Clear") {
+        $db->query("COMMIT");
       }
     }
 
@@ -168,7 +172,10 @@
   }
 
 
-  $event_select = "";
+  if ($cur_evt == 0)
+    $event_select = "<option value=\"0\" selected> -- Select an event -- </option>";
+  else
+    $event_select = "";
   if ($events = $db->query('SELECT num, name, COUNT(event) as entrants FROM event_info
   				LEFT JOIN entrant_info ON event = num
   				GROUP BY num ORDER BY num DESC; ')) {
@@ -265,9 +272,13 @@
       echo "<td>";
       echo " <input type=\"submit\" name=\"submit\" value=\"Dn\" onclick=\"document.getElementById('move_vals').value='$down_data'\" class=\"button\" $down_disable>\n";
       echo " <input type=\"submit\" name=\"submit\" value=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable>\n";
+      #echo " <input type=\"image\" name=\"Down\" src=\"down_arrow.png\" alt=\"Down\" title=\"Down\" onclick=\"document.getElementById('move_vals').value='$down_data'\" class=\"button\" $down_disable>\n";
+      #echo " <input type=\"image\" name=\"Up\" src=\"up_arrow.png\" alt=\"Up\" title=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable>\n";
       echo "</td><td>";
       echo " <input type=\"submit\" name=\"submit\" value=\"Bot\" onclick=\"document.getElementById('move_vals').value='$row_id'\" class=\"button\" $down_disable>\n";
       echo " <input type=\"submit\" name=\"submit\" value=\"Top\" onclick=\"document.getElementById('move_vals').value='$top_data'\" class=\"button\" $up_disable>\n";
+      #echo " <input type=\"image\" name=\"Bot\" src=\"bottom_arrow.png\" alt=\"Bottom\" title=\"Bottom\" onclick=\"document.getElementById('move_vals').value='$row_id'\" class=\"button\" $down_disable>\n";
+      #echo " <input type=\"image\" name=\"Top\" src=\"top_arrow.png\" alt=\"Top\" title=\"Top\" onclick=\"document.getElementById('move_vals').value='$top_data'\" class=\"button\" $up_disable>\n";
       echo "</td></tr>\n";
       $up_data=$down_data;
       unset($entrants[$safe_num]);
