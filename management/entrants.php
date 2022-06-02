@@ -103,10 +103,12 @@
 
 <html>
   <head>
-    <title>Entrants</title>
+    <title>Entrant Management</title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
+<center>
+<h2>Entrant Management</h2>
 <script type="text/javascript">function showEntrants(str){document.location = 'entrants.php?evt='+str;}</script>
 <div align="center" style="padding-bottom:5px;">
  Entrants for <select name="EventList" style="width: 240px" onchange="showEntrants(this.value)">

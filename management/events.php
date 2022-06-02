@@ -53,11 +53,11 @@
 
 <html>
   <head>
-    <title>Events</title>
+    <title>Event Management</title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-<script type="text/javascript">function showTiming(str){document.location = 'events.php?evt='+str;}</script>
+<center><h2>Event Management</h2>
 <center><a href="management.html">Main Management Page</a>&nbsp; &nbsp; 
 <br>
   <br>
