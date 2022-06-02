@@ -216,10 +216,10 @@
     <div align="center" style="padding-bottom:5px;">
       Current Event
     <select name="Event" style="width: 240px" 
-    oninput="document.getElementById('chEvt').disabled=(this.value == '<?php echo $cur_evt;?>')">
+    oninput="clearTimeout(refesh_timeout);document.getElementById('chEvt').disabled=(this.value == '<?php echo $cur_evt;?>')">
      <?php echo $event_select;?>
    </select>
-   <input type="button" id="chEvt" name="chEvt" value="Change Event" onclick="document.getElementById('changeEvt').disabled=false" class="button" disabled>
+   <input type="button" id="chEvt" name="chEvt" value="Change Event" onclick="clearTimeout(refesh_timeout);document.getElementById('changeEvt').disabled=false" class="button" disabled>
    <input id="changeEvt" type="submit" name="Change-Event" value="Now" class="button" disabled>
 
   </div>
@@ -298,13 +298,13 @@
      else
        $classname="class=\"oddRow\"";
      echo "<tr $classname><td colspan=2>";
-     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 180px\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
+     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 180px\" oninput=\"clearTimeout(refesh_timeout);document.getElementById('AddEnt').disabled=(this.value == '')\">";
      foreach($entrants as $car => $name) {
       echo "<option value=\"$car\"> $car &nbsp &nbsp " . $name . "</option>";
      }
      echo "<option value=\"\" selected> --  ReRun Entrant -- </option>";
      echo "</select></td><td>";
-     echo "<input type=\"button\" id=\"AddEnt\" name=\"AddEnt\" value=\"Entrant\" onclick=\"document.getElementById('ReallyAdd').disabled=false\" class=\"button\" disabled>";
+     echo "<input type=\"button\" id=\"AddEnt\" name=\"AddEnt\" value=\"Entrant\" onclick=\"clearTimeout(refesh_timeout);document.getElementById('ReallyAdd').disabled=false\" class=\"button\" disabled>";
      echo "</td><td>";
      echo "<input id=\"ReallyAdd\" type=\"submit\" name=\"ReallyAdd\" value=\"Add\" class=\"button\" disabled>";
      echo "</td></tr>";
@@ -313,8 +313,8 @@
   </table>
   <div align="center" style="padding-top:5px;">
    <a href="running_order.php"> Refresh </a> &nbsp; &nbsp; 
-   <hide-input type="button" id="NewRun-1" name="NewRun-1" value="Load New Run" onclick="document.getElementById('NewRun-2').disabled=false" class="button">
-   <select name="NewRun-1" oninput="document.getElementById('NewRun-2').disabled=(this.value == '')">
+   <hide-input type="button" id="NewRun-1" name="NewRun-1" value="Load New Run" onclick="clearTimeout(refesh_timeout);document.getElementById('NewRun-2').disabled=false" class="button">
+   <select name="NewRun-1" oninput="clearTimeout(refesh_timeout);document.getElementById('NewRun-2').disabled=(this.value == '')">
     <option value='' selected> -- Operation -- </option>
     <option value="NR-Load"> <strong> New Run &amp; Load </strong></option>
     <option value="NewRun"> New Run </option>
@@ -326,4 +326,8 @@
   </div>
   </form>
  </body>
+ <script type="text/javascript">
+   /*refesh_timeout=setTimeout(function () { location.reload(true); }, 10000);*/
+  refesh_timeout=setTimeout(function () { document.location=document.location }, 10000);
+ </script>
 </html>
