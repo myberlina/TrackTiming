@@ -216,7 +216,8 @@
     <div align="center" style="padding-bottom:5px;">
       Current Event
     <select name="Event" style="width: 240px" 
-    oninput="clearTimeout(refesh_timeout);document.getElementById('chEvt').disabled=(this.value == '<?php echo $cur_evt;?>')">
+    onfocus="clearTimeout(refesh_timeout)"
+    oninput="document.getElementById('chEvt').disabled=(this.value == '<?php echo $cur_evt;?>')">
      <?php echo $event_select;?>
    </select>
    <input type="button" id="chEvt" name="chEvt" value="Change Event" onclick="clearTimeout(refesh_timeout);document.getElementById('changeEvt').disabled=false" class="button" disabled>
@@ -298,7 +299,7 @@
      else
        $classname="class=\"oddRow\"";
      echo "<tr $classname><td colspan=2>";
-     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 180px\" oninput=\"clearTimeout(refesh_timeout);document.getElementById('AddEnt').disabled=(this.value == '')\">";
+     echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 180px\" onfocus=\"clearTimeout(refesh_timeout)\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
      foreach($entrants as $car => $name) {
       echo "<option value=\"$car\"> $car &nbsp &nbsp " . $name . "</option>";
      }
@@ -314,7 +315,7 @@
   <div align="center" style="padding-top:5px;">
    <a href="running_order.php"> Refresh </a> &nbsp; &nbsp; 
    <hide-input type="button" id="NewRun-1" name="NewRun-1" value="Load New Run" onclick="clearTimeout(refesh_timeout);document.getElementById('NewRun-2').disabled=false" class="button">
-   <select name="NewRun-1" oninput="clearTimeout(refesh_timeout);document.getElementById('NewRun-2').disabled=(this.value == '')">
+   <select name="NewRun-1" onfocus="clearTimeout(refesh_timeout)" oninput="document.getElementById('NewRun-2').disabled=(this.value == '')">
     <option value='' selected> -- Operation -- </option>
     <option value="NR-Load"> <strong> New Run &amp; Load </strong></option>
     <option value="NewRun"> New Run </option>
