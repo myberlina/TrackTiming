@@ -9,7 +9,7 @@
   else
     $run = 0;
 
-  if((count($_POST)>0)) {
+  if(count($_POST)>0) {
     include_once 'database.php';
     if (isset($_POST['tgt_evt'])) $evt = $_POST['tgt_evt'];
     if (isset($_POST['tgt_run'])) $run = $_POST['tgt_run'];
@@ -143,7 +143,11 @@
   </form>
  </body>
  <script type="text/javascript">
-   /*refesh_timeout=setTimeout(function () { location.reload(true); }, 10000);*/
-  refesh_timeout=setTimeout(function () { document.location=document.location }, 10000);
+<?php
+   if(count($_POST)>0) /* Dont do a reload if this was a post */
+    echo "refesh_timeout=setTimeout(function () { document.location=document.location }, 10000);";
+   else /* Prefer reload if not a post as browser will preserve your location in the page */
+    echo "refesh_timeout=setTimeout(function () { location.reload(true); }, 10000);";
+?>
  </script>
 </html>
