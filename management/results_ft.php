@@ -99,6 +99,7 @@
        echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br>" . htmlspecialchars($row["car_info"]) . "</td>\n";
        $prev_car = $row["car_num"];
        $tab_run = 1;
+       $i++;
      }
      elseif ($row["run"] == $prev_run ) continue;
      while ($row["run"] > $tab_run++)
@@ -118,7 +119,6 @@
          printf("%5.2f", $row["ft"]);
      echo "</td>";
      $prev_run = $row["run"];
-     $i++;
    }
    $res_qry->close();
    ?>
