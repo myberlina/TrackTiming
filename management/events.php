@@ -58,6 +58,7 @@
   </head>
 <body>
 <script type="text/javascript">function showTiming(str){document.location = 'events.php?evt='+str;}</script>
+<center><a href="management.html">Main Management Page</a>&nbsp; &nbsp; 
 <br>
   <br>
   <form name="frmEvent" method="post" action="">
