@@ -45,7 +45,7 @@
   </form>
  </body>
  <script>
-  var ws = new WebSocket('ws://'+location.host+'/ws/status/start/');
+  var ws = new WebSocket('ws://'+location.host+'/ws/status/green/');
   ws.onclose = function()	{ location.reload(true); };
   ws.onmessage = function(event){ location.reload(true); };
  </script>
