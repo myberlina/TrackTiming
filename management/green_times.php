@@ -108,10 +108,10 @@
     $safe_time=htmlspecialchars($row['time_ms']/1000);
     $row_id=$row['rowid'];
     echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
-    echo " class=\"input_number\" oninput=\"clearTimeout(refesh_timeout);document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
+    echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
     echo "<td>$safe_time</td>";
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
-    echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Del\" onclick=\"clearTimeout(refesh_timeout);document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
+    echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Del\" onclick=\"block_refresh=1;document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
     echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes\" formnovalidate onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
     echo "</tr>\n";
     $i++;
@@ -123,11 +123,16 @@
   </form>
  </body>
  <script type="text/javascript">
+  block_refresh = 0;
 <?php
    if(count($_POST)>0) /* Dont do a reload if this was a post */
-    echo "refesh_timeout=setTimeout(function () { document.location=document.location }, 10000);";
+    echo "   function refesh_page() { if (block_refresh == 0) document.location=document.location; };";
    else /* Prefer reload if not a post as browser will preserve your location in the page */
-    echo "refesh_timeout=setTimeout(function () { location.reload(true); }, 10000);";
+    echo "   function refesh_page() { if (block_refresh == 0) location.reload(true); };";
 ?>
+  /*refesh_timeout=setTimeout(refesh_page, 3000);*/
+  var ws = new WebSocket('ws://'+location.host+'/ws/status/green/');
+  ws.onclose = function()       { refesh_page(); };
+  ws.onmessage = function(event){ refesh_page(); };
  </script>
 </html>
