@@ -23,7 +23,6 @@
   <head>
     <title>Event Status</title>
     <link rel="stylesheet" href="style.css">
-    <meta http-equiv="refresh" content="10" >
   </head>
 <body>
   <table>
@@ -45,4 +44,9 @@
   </table>
   </form>
  </body>
+ <script>
+  var ws = new WebSocket('ws://'+location.host+'/ws/status/start/');
+  ws.onclose = function()	{ location.reload(true); };
+  ws.onmessage = function(event){ location.reload(true); };
+ </script>
 </html>
