@@ -1,0 +1,13 @@
+#!/bin/bash
+
+arg0="${0##*/}"
+
+LOCK=/dev/shm/.lck.$arg0
+
+exec 9<>/var/lock/mylockfile
+
+flock -n 9 || exit
+
+
+rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/
+

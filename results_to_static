@@ -1,0 +1,22 @@
+#!/bin/bash
+
+DIR='/var/www/html/HSV_Timing/'
+
+while inotifywait -e modify /data/state_Finish >/dev/null 2>&1
+do
+  php "$DIR"/management/results_ft.php |
+   sed '/function showTiming/,+4d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_ft.html.new &&
+     mv "$DIR/Results"/results_ft.html.new "$DIR/Results"/results_ft.html
+
+  php "$DIR"/management/results_et.php |
+   sed '/function showTiming/,+4d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_et.html.new &&
+    mv "$DIR/Results"/results_et.html.new "$DIR/Results"/results_et.html
+
+  forward_results "$DIR/Results"/results_ft.html "$DIR/Results"/results_et.html &
+
+  sleep 20
+done
