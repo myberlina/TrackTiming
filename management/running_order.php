@@ -7,6 +7,8 @@
     if ($row = $current->fetchArray()) {
       $cur_evt = $row["current_event"];
       $cur_run = $row["current_run"];
+      $prev_evt = $cur_evt;
+      $prev_run = $cur_run;
     }
 
     $refetch_current_run = false;
@@ -209,6 +211,10 @@
   <head>
     <title>Running Order</title>
     <link rel="stylesheet" href="style.css">
+<?php
+    if ((isset($prev_evt) && ($prev_evt != $cur_evt)) || (isset($prev_run) && ($prev_run != $cur_run)))
+      echo "<script type=\"text/javascript\"> window.top.location.reload(); </script>\n";
+?>
   </head>
 <body>
   <form name="frmRunOrd" method="post" action="">
