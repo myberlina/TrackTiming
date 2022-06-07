@@ -94,25 +94,23 @@ int main (int argc, char **argv) {
   
   while (1) {
     int	free = CONN;
+    int max;
     while ((free < MAX_FDs) && (watch[free].events == POLLIN))
       free++;
+
+    max = free;
+    for (slot = free; slot<MAX_FDs; slot++)
+      if (watch[slot].fd > 0)
+	max = slot+1;
 
     if (free < MAX_FDs)
       watch[LISTEN].events = POLLIN;
     else
       watch[LISTEN].events = 0;
 
-    poll(watch, MAX_FDs, 1000);
+    poll(watch, max, 1000);
 
-    if (watch[LISTEN].revents & POLLIN) {
-      int conn = accept(0, NULL, NULL);
-      if (conn > 0) {
-        if (debug) fprintf(stderr, "Got new connection on listen port to slot %d\n", free);
-        watch[free].fd = conn;
-        watch[free].events = POLLIN;
-      }
-    }
-    for (slot = CONN; slot<MAX_FDs; slot++) {
+    for (slot = CONN; slot<max; slot++) {
       if (watch[slot].revents & POLLIN) {
         if (debug) fprintf(stderr, "Data to read\n");
         int len = read(watch[slot].fd, ignore, sizeof(ignore));
@@ -128,12 +126,20 @@ int main (int argc, char **argv) {
       if (debug) fprintf(stderr, "Notify fired\n");
       read(notify_fd, ignore, sizeof(ignore));
       int  num_sent=0;
-      for (slot = CONN; slot<MAX_FDs; slot++)
+      for (slot = CONN; slot<max; slot++)
         if ((watch[slot].events == POLLIN) && (watch[slot].fd > 0)) {
           write(watch[slot].fd, "Change on file\n", 15);
 	  num_sent++;
 	}
       if (debug) fprintf(stderr, " Sent update x %d\n", num_sent);
+    }
+    if (watch[LISTEN].revents & POLLIN) {
+      int conn = accept(0, NULL, NULL);
+      if (conn > 0) {
+        if (debug) fprintf(stderr, "Got new connection on listen port to slot %d\n", free);
+        watch[free].fd = conn;
+        watch[free].events = POLLIN;
+      }
     }
   }
 }
