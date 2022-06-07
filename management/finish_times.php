@@ -9,7 +9,7 @@
   else
     $run = 0;
 
-  if(count($_POST)>0) {
+  if (count($_POST)>0) {
     include_once 'database.php';
     if (isset($_POST['tgt_evt'])) $evt = $_POST['tgt_evt'];
     if (isset($_POST['tgt_run'])) $run = $_POST['tgt_run'];
@@ -77,7 +77,7 @@
     $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
 
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Finish Times <?php echo htmlspecialchars($evt).":".htmlspecialchars($run);?></title>
@@ -150,9 +150,12 @@
    else /* Prefer reload if not a post as browser will preserve your location in the page */
     echo "   function refesh_page() { if (block_refresh == 0) location.reload(true); };";
 ?>
-  /*refesh_timeout=setTimeout(refesh_page, 3000);*/
+  refesh_timeout=setTimeout(refesh_page, 70000);
   var ws = new WebSocket('ws://'+location.host+'/ws/status/finish/');
-  ws.onclose = function()       { refesh_page(); };
+  ws.onopen = function() { /* got the websocket, switch to ws based refresh */
+    clearTimeout(refesh_timeout);
+    ws.onclose = function()     { refesh_page(); }; /* Idle time out in 60s */
+  }
   ws.onmessage = function(event){ refesh_page(); };
  </script>
 </html>
