@@ -151,7 +151,7 @@
     $cur_run = $row["current_run"];
   }
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Entrants File Upload</title>

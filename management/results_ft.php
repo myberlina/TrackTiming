@@ -57,7 +57,7 @@
   $results = $res_qry->execute();
 
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Results</title>

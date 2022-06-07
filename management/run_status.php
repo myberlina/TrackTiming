@@ -18,7 +18,7 @@
   else
     $next_name = "";
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Event Status</title>

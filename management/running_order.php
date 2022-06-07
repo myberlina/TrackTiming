@@ -204,7 +204,7 @@
   $order = $db->query("SELECT next_car.rowid, next_car.car_num, car_name, ord FROM next_car
 	  		LEFT JOIN entrant_info ON event=$cur_evt AND entrant_info.car_num = next_car.car_num ORDER BY ord");
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Running Order</title>

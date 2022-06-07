@@ -50,7 +50,7 @@
 			FROM event_info LEFT JOIN entrant_info ON event = num
 			GROUP BY num ORDER BY num DESC');
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Event Management</title>

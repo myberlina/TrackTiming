@@ -72,7 +72,7 @@
     $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
 
 ?>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>Green Times <?php echo htmlspecialchars($evt).":".htmlspecialchars($run);?></title>
