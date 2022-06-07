@@ -66,10 +66,14 @@ int main (int argc, char **argv) {
 
   if (debug) fprintf(stderr, "Watching file %s\n", argv[optind]);
 
+  int	slot;
+
   enum poll_fds { NOTIFY=0, LISTEN, CONN, MAX_FDs = 12 };
   struct pollfd	watch[MAX_FDs];
 
   memset(watch, 0, sizeof(watch));
+  for (slot = CONN; slot<MAX_FDs; slot++)
+    watch[slot].fd = -1;
 
   char	ignore[8192];
 
@@ -90,7 +94,6 @@ int main (int argc, char **argv) {
   
   while (1) {
     int	free = CONN;
-    int	slot;
     while ((free < MAX_FDs) && (watch[free].events == POLLIN))
       free++;
 
