@@ -25,9 +25,7 @@ int	notify_fd = -1;
 int	watch_id = -1;
 struct	inotify_event notify_evt;
 
-int	conn = -1;
-
-int	debug=1;
+int	debug = 0;
 
 
 int main (int argc, char **argv) {
@@ -68,8 +66,10 @@ int main (int argc, char **argv) {
 
   if (debug) fprintf(stderr, "Watching file %s\n", argv[optind]);
 
-  enum poll_fds { NOTIFY=0, LISTEN, CONN, MAX_FDs };
+  enum poll_fds { NOTIFY=0, LISTEN, CONN, MAX_FDs = 12 };
   struct pollfd	watch[MAX_FDs];
+
+  memset(watch, 0, sizeof(watch));
 
   char	ignore[8192];
 
@@ -88,49 +88,49 @@ int main (int argc, char **argv) {
   watch[LISTEN].fd = 0; /* STDIN */
   watch[LISTEN].events = POLLIN;
   
-  while ((conn = accept(0, NULL, NULL))) {
-    watch[CONN].fd = conn;
-    watch[CONN].events = POLLIN;
-    while (1) {
-      if (conn == -1) {
-        watch[LISTEN].events = POLLIN;
-        poll(watch, CONN, 100);
+  while (1) {
+    int	free = CONN;
+    int	slot;
+    while ((free < MAX_FDs) && (watch[free].events == POLLIN))
+      free++;
 
-        if (watch[LISTEN].revents & POLLIN) {
-          conn = accept(0, NULL, NULL);
-	  if (debug) fprintf(stderr, "Got new connection on listen port\n");
-	  watch[CONN].fd = conn;
-          watch[CONN].events = POLLIN;
+    if (free < MAX_FDs)
+      watch[LISTEN].events = POLLIN;
+    else
+      watch[LISTEN].events = 0;
+
+    poll(watch, MAX_FDs, 1000);
+
+    if (watch[LISTEN].revents & POLLIN) {
+      int conn = accept(0, NULL, NULL);
+      if (conn > 0) {
+        if (debug) fprintf(stderr, "Got new connection on listen port to slot %d\n", free);
+        watch[free].fd = conn;
+        watch[free].events = POLLIN;
+      }
+    }
+    for (slot = CONN; slot<MAX_FDs; slot++) {
+      if (watch[slot].revents & POLLIN) {
+        if (debug) fprintf(stderr, "Data to read\n");
+        int len = read(watch[slot].fd, ignore, sizeof(ignore));
+        if (debug) fprintf(stderr, "Received and ignored %d bytes\n", len);
+        if (len == 0) {
+          close(watch[slot].fd);
+          watch[slot].fd = -1;
+          watch[slot].events = 0;
         }
       }
-      else {
-        watch[LISTEN].events = 0;
-        poll(watch, MAX_FDs, 100);
-
-        if (watch[CONN].revents & POLLIN) {
-	  if (debug) fprintf(stderr, "Data to read\n");
-	  int len = read(conn, ignore, sizeof(ignore));
-	  if (debug) fprintf(stderr, "Received and ignored %d bytes\n", len);
-	  if (len == 0) {
-	    close(conn);
-	    conn = -1;
-          }
-        }
-	if (watch[NOTIFY].revents & POLLIN) {
-	  if (debug) fprintf(stderr, "Notify fired\n");
-	  read(notify_fd, ignore, sizeof(ignore));
-	  write(conn, "Change on file\n", 15);
-	  if (debug) fprintf(stderr, " Sent update\n");
+    }
+    if (watch[NOTIFY].revents & POLLIN) {
+      if (debug) fprintf(stderr, "Notify fired\n");
+      read(notify_fd, ignore, sizeof(ignore));
+      int  num_sent=0;
+      for (slot = CONN; slot<MAX_FDs; slot++)
+        if ((watch[slot].events == POLLIN) && (watch[slot].fd > 0)) {
+          write(watch[slot].fd, "Change on file\n", 15);
+	  num_sent++;
 	}
-        if (watch[LISTEN].revents & POLLIN) {
-	  fprintf(stderr, "Got a listen with a current socket active\n");
-	  close(conn);
-          conn = accept(0, NULL, NULL);
-	  if (debug) fprintf(stderr, "Got new connection on listen port\n");
-	  watch[CONN].fd = conn;
-          watch[CONN].events = POLLIN;
-        }
-      }
+      if (debug) fprintf(stderr, " Sent update x %d\n", num_sent);
     }
   }
 }
