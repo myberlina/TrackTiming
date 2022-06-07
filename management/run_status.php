@@ -25,22 +25,22 @@
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-  <table>
+  <table style="height:100%;width:100%; position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
    <tr>
    <?php
     echo '<th colspan=2>Event:</th>';
-    echo "<th width=30 align=\"left\">$event_num</td>\n";
+    echo "<th align=\"left\">$event_num</td>\n";
     echo "<th> &nbsp; $event_name</td>\n";
     echo '<th> </th>';
     echo '<th> &nbsp; Run:</th>';
-    echo "<th width=30 align=\"left\">$run</td>\n";
+    echo "<th align=\"left\">$run</td>\n";
     echo '<th> </th>';
     echo '<th> &nbsp; Current</th>';
-    echo "<td width=30 align=\"right\">$curr_car</td>\n";
-    echo "<td width=140 align=\"left\">$curr_name</td>\n";
+    echo "<td align=\"right\">$curr_car</td>\n";
+    echo "<td align=\"left\">$curr_name</td>\n";
     echo '<th> &nbsp; Next</th>';
-    echo "<td width=30 align=\"right\">$next_car</td>\n";
-    echo "<td width=140 align=\"left\">$next_name</td>\n";
+    echo "<td align=\"right\">$next_car</td>\n";
+    echo "<td align=\"left\">$next_name</td>\n";
    ?>
    </tr>
   </table>
