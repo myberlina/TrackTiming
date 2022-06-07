@@ -28,15 +28,17 @@
   <table>
    <tr>
    <?php
-    echo '<th colspan=2>Event</th>';
-    echo "<th width=30 align=\"right\">$event_num</td>\n";
-    echo "<th >$event_name</td>\n";
-    echo '<th > &nbsp; Run</th>';
-    echo "<th width=30 align=\"right\">$run</td>\n";
-    echo '<th > &nbsp; Current</th>';
+    echo '<th colspan=2>Event:</th>';
+    echo "<th width=30 align=\"left\">$event_num</td>\n";
+    echo "<th> &nbsp; $event_name</td>\n";
+    echo '<th> </th>';
+    echo '<th> &nbsp; Run:</th>';
+    echo "<th width=30 align=\"left\">$run</td>\n";
+    echo '<th> </th>';
+    echo '<th> &nbsp; Current</th>';
     echo "<td width=30 align=\"right\">$curr_car</td>\n";
     echo "<td width=140 align=\"left\">$curr_name</td>\n";
-    echo '<th > &nbsp; Next</th>';
+    echo '<th> &nbsp; Next</th>';
     echo "<td width=30 align=\"right\">$next_car</td>\n";
     echo "<td width=140 align=\"left\">$next_name</td>\n";
    ?>
