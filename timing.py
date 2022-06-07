@@ -60,6 +60,7 @@ import apsw
 conn = apsw.Connection('/data/Track_Time/Track_Time.db', apsw.SQLITE_OPEN_READWRITE)
 cur = conn.cursor()
 cur.execute('pragma busy_timeout=5000')
+cur.execute('pragma wal_checkpoint(full);')
 
 Green_f = open("/data/state_Green", "w")
 Start_f = open("/data/state_Start", "w")
