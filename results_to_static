@@ -1,22 +1,69 @@
 #!/bin/bash
 
+arg0="${0##*/}"
+
 DIR='/var/www/html/HSV_Timing/'
+dbase='/data/Track_Time/Track_Time.db'
 
-while inotifywait -e modify /data/state_Finish >/dev/null 2>&1
+data_ts="/dev/shm/.data.ts.$arg0"
+push_ts="/dev/shm/.push.ts.$arg0"
+
+function update_pages()
+{
+  if php "$DIR"/management/results_ft.php |
+   sed '/function showTiming/,+4d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_ft.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/results_ft.html.new "$DIR/Results"/results_ft.html >/dev/null
+    then
+      : No change to results
+    else
+      need_to_refresh=y
+      mv "$DIR/Results"/results_ft.html.new "$DIR/Results"/results_ft.html
+    fi
+  fi
+
+  if php "$DIR"/management/results_et.php |
+   sed '/function showTiming/,+4d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_et.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/results_et.html.new "$DIR/Results"/results_et.html >/dev/null
+    then
+      : No change to results
+    else
+      need_to_refresh=y
+      mv "$DIR/Results"/results_et.html.new "$DIR/Results"/results_et.html
+    fi
+  fi
+
+  if [[ y = "$need_to_refresh" || "$DIR/Results"/results_et.html -nt "$push_ts" ]]
+  then
+    forward_results "$push_ts" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html &&
+     need_to_refresh=''
+  fi
+}
+
+while true
 do
-  php "$DIR"/management/results_ft.php |
-   sed '/function showTiming/,+4d
-    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
-     > "$DIR/Results"/results_ft.html.new &&
-     mv "$DIR/Results"/results_ft.html.new "$DIR/Results"/results_ft.html
-
-  php "$DIR"/management/results_et.php |
-   sed '/function showTiming/,+4d
-    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
-     > "$DIR/Results"/results_et.html.new &&
-    mv "$DIR/Results"/results_et.html.new "$DIR/Results"/results_et.html
-
-  forward_results "$DIR/Results"/results_ft.html "$DIR/Results"/results_et.html &
-
-  sleep 20
+  if inotifywait -e modify /data/state_Finish -t 120 >/dev/null 2>&1
+  then
+    sleep 2
+    update_pages
+    sleep 20
+  else
+    if [[ "${dbase}" -nt "$data_ts" ||
+          "${dbase}-wal" -nt "$data_ts" ||
+          "${dbase}-shm" -nt "$data_ts" ]]
+    then
+      update_pages
+    elif [[ y = "$need_to_refresh" || "$DIR/Results"/results_et.html -nt "$push_ts" ]]
+    then
+      forward_results "$push_ts" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html &&
+       need_to_refresh=''
+    fi
+  fi
 done
