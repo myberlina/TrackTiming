@@ -128,7 +128,7 @@ def cb_green(gpio, level, tick):
 def cb_start(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 400000 :
+    if pigpio.tickDiff(debo,tick) > 1200000 :  # 1.2s debounce, and ignore rear wheels.
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         i=0
         while (i < 5):
