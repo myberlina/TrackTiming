@@ -61,6 +61,18 @@
       else
         $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
     }
+    if(isset($_POST['really-delete-ALL'])&&('Yes!' == $_POST['really-delete-ALL'])) {
+      if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event")){
+        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
+        if ($update_result = $post_qry->execute())
+          $message = "<font color=\"#00a000\"> All Entrants Deleted Successfully for Event ".$evt.", \"".$_POST["EventList"]."\"\n<BR>";
+        else
+          $message = "<font color=\"#c00000\"> All Entrants Delete failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+        $post_qry->close();
+      }
+      else
+        $message = "<font color=\"#c00000\"> All Entrants Delete failed for &nbsp; ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+    }
   }
   else {
     include_once 'database_ro.php';
@@ -109,6 +121,7 @@
 <body>
 <center>
 <h2>Entrant Management</h2>
+  <form name="frmEntrant" method="post" action="">
 <script type="text/javascript">function showEntrants(str){document.location = 'entrants.php?evt='+str;}</script>
 <div align="center" style="padding-bottom:5px;">
  Entrants for <select name="EventList" style="width: 240px" onchange="showEntrants(this.value)">
@@ -118,13 +131,15 @@
 </div/
 <br>
   <br>
-  <form name="frmEntrant" method="post" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
   <table align=center border="2" cellpadding="4">
    <tr class="listheader">
       <td width=50>Num</td>
       <td>Title</td>
       <td>Info/Model</td>
+      <td> <input id="delete-ALL" type="button" name="delete-ALL" value="Delete ALL" onclick="document.getElementById('really-ALL').disabled=false" class="button"> </td>
+      <td> <input id="really-ALL" type="button" name="really-ALL" value="Really?" onclick="document.getElementById('really-delete-ALL').disabled=false" class="button" disabled> </td>
+      <td> <input id="really-delete-ALL" type="submit" name="really-delete-ALL" value="Yes!" formnovalidate formaction="?evt=<?php echo $evt;?>&id=ALL" class="button" disabled> </td>
    </tr>
    <?php
 
