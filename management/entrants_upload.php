@@ -78,8 +78,10 @@
         while ($row = fgetcsv($handle, 0, "$form_sep")) {
 	  $file_row=$file_row+1;
 	  if ($file_row >= $data_start) {
-	    if (isset($col_num)) $num = $row[$col_num];
-	    else {
+	    if (isset($col_num)) {
+	      $num = $row[$col_num];
+	      if ($num < 1) continue;
+	    }else {
 	      $num = $next_num++;
 	    }
 
