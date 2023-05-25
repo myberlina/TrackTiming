@@ -103,7 +103,7 @@ def new_car():
 new_car.run_num = 0
 new_car.next_missing_car = -101
 new_car.curr_car = -5
-new_car.next_car = -5
+new_car.next_car = 99
 new_car.tick = 0
 
 new_car.state = 0
