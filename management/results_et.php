@@ -61,8 +61,9 @@
 <html>
   <head>
     <title>Results</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/HSV_Timing/style.css">
     <meta http-equiv="refresh" content="20" >
+    <!-- Timing_Event_Num='<?php echo $evt;?>' -->
   </head>
 <body>
 <script type="text/javascript">function showTiming(str){document.location = '?evt='+str;}</script>
