@@ -65,7 +65,7 @@
   if ($ent_qry = $db->prepare(
 	 'SELECT start_time.rowid, start_time.car_num, start_time.time_ms, start_time.time_ms - green_time.time_ms delta
 	  FROM start_time
-	  LEFT JOIN green_time ON green_time.event = start_time.event AND green_time.run = start_time.run AND green_time.car_num = start_time.car_num AND start_time.time_ms > green_time.time_ms
+	  LEFT JOIN green_time ON green_time.event = start_time.event AND green_time.run = start_time.run AND green_time.car_num = start_time.car_num AND start_time.time_ms > (green_time.time_ms - 1200)
 	  WHERE start_time.event = :event AND start_time.run = :run
 	  ORDER BY start_time.rowid desc, delta'
     )) {
@@ -122,7 +122,10 @@
     else {
       echo "<td>&nbsp;$safe_num</td>";
     }
-    echo "<td>$safe_delta</td>";
+    if ($safe_delta <= 0) 
+      echo "<td style=\"color: red\">$safe_delta</td>";
+    else
+      echo "<td>$safe_delta</td>";
     echo "<td>$safe_time</td>";
     if ($row_id != $prev_row_id) {
       echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
