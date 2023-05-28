@@ -65,7 +65,7 @@
   if ($ent_qry = $db->prepare(
 	 'SELECT start_time.rowid, start_time.car_num, start_time.time_ms, start_time.time_ms - green_time.time_ms delta
 	  FROM start_time
-	  LEFT JOIN green_time ON green_time.event = start_time.event AND green_time.run = start_time.run AND green_time.car_num = start_time.car_num AND start_time.time_ms > (green_time.time_ms - 1200)
+	  LEFT JOIN green_time ON green_time.event = start_time.event AND green_time.run = start_time.run AND green_time.car_num = abs(start_time.car_num) AND start_time.time_ms > (green_time.time_ms - 2000)
 	  WHERE start_time.event = :event AND start_time.run = :run
 	  ORDER BY start_time.rowid desc, delta'
     )) {
@@ -116,14 +116,18 @@
     $safe_time=htmlspecialchars($row['time_ms']/1000);
     $safe_delta=htmlspecialchars($row['delta']/1000);
     if ($row_id != $prev_row_id) {
-      echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
-      echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
+      if ( ($safe_num < 0) && ($safe_delta < 0) && ($safe_delta > -1.0) )
+        echo "<td><input style=\"background: red\" type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
+      else
+        echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
+      echo " class=\"input_number\" ondblclick=\"this.value = -this.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\"";
+      echo " oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
     }
     else {
       echo "<td>&nbsp;$safe_num</td>";
     }
-    if ($safe_delta <= 0) 
-      echo "<td style=\"color: red\">$safe_delta</td>";
+    if ( ($safe_delta < 0) && ($safe_delta > -1.0) )
+      echo "<td style=\"background: red\">$safe_delta</td>";
     else
       echo "<td>$safe_delta</td>";
     echo "<td>$safe_time</td>";
