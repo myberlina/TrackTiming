@@ -24,9 +24,17 @@
       $event_select = "$event_select <option value=\"$ev\">$nm</option>";
   }
 
+  $max_runs=5;
+  $best_qry = $db->query('SELECT MAX(run) AS max_runs FROM results WHERE event = ' . $db->escapeString($evt) );
+  if ($row = $best_qry->fetchArray()) {
+    $max_runs = $row["max_runs"];
+  }
+
   $place=1;
   $best_qry = $db->query('SELECT * FROM rt_order WHERE event = ' . $db->escapeString($evt) );
   while($row = $best_qry->fetchArray()) {
+    if ($place == 1)
+      $purple_rt = $row["best_rt"] / 1000;
     $best_rt[$row["car_num"]] = $row["best_rt"] / 1000;
     $place_rt[$row["car_num"]] = $place++;
   }
@@ -34,6 +42,8 @@
   $place=1;
   $best_qry = $db->query('SELECT * FROM et_order WHERE event = ' . $db->escapeString($evt) );
   while($row = $best_qry->fetchArray()) {
+    if ($place == 1)
+      $purple_et = $row["best_et"] / 1000;
     $best_et[$row["car_num"]] = $row["best_et"] / 1000;
     $place_et[$row["car_num"]] = $place++;
   }
@@ -41,6 +51,8 @@
   $place=1;
   $best_qry = $db->query('SELECT * FROM ft_order WHERE event = ' . $db->escapeString($evt) );
   while($row = $best_qry->fetchArray()) {
+    if ($place == 1)
+      $purple_ft = $row["best_ft"] / 1000;
     $best_ft[$row["car_num"]] = $row["best_ft"] / 1000;
     $place_ft[$row["car_num"]] = $place++;
   }
@@ -51,7 +63,7 @@
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
       WHERE results.event = :event AND results.car_num > 0
         AND results.event = ft_order.event AND results.car_num = ft_order.car_num
-      ORDER BY results.event, ft_order.best_ft, results.car_num, results.run');
+      ORDER BY results.event, ft_order.red, ft_order.best_ft, results.car_num, results.run');
   $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
 
   $results = $res_qry->execute();
@@ -78,11 +90,12 @@
       <td>Driver</td>
       <td>Info</td>
       <td>Run 1</td>
-      <td>Run 2</td>
-      <td>Run 3</td>
-      <td>Run 4</td>
-      <td>Run 5</td>
    <?php
+   $i=1;
+   while(++$i <= $max_runs) {
+       echo "<td>Run $i</td>";
+       
+   }
    $i=0;
    $prev_car = "";
    $tab_run = 1;
@@ -104,18 +117,30 @@
      }
      elseif ($row["run"] == $prev_run ) continue;
      while ($row["run"] > $tab_run++)
-       echo "<td></td>";
-     echo "<td><sup><font size=2>";
+         echo "<td></td>";
+     if ($row["rt"] < 0)
+         echo "<td style=\"color: red\"><sup><font size=2>";
+     else
+         echo "<td><sup><font size=2>";
      if ($best_rt[$row["car_num"]] == $row["rt"])
-	 printf("<strong>%3.2f</strong> ", $row["rt"]);
+         if ($purple_rt == $row["rt"])
+	     printf("<strong style=\"color: purple\">%3.2f</strong> ", $row["rt"]);
+         else
+	     printf("<strong>%3.2f</strong> ", $row["rt"]);
      else
 	 printf("%3.2f ", $row["rt"]);
      if ($best_et[$row["car_num"]] == $row["et"])
-         printf("<strong>%3.2f</strong></sup><br/><font size=3>", $row["et"]);
+         if ($purple_et == $row["et"])
+             printf("<strong style=\"color: purple\">%3.2f</strong></sup><br/><font size=3>", $row["et"]);
+         else
+             printf("<strong>%3.2f</strong></sup><br/><font size=3>", $row["et"]);
      else
          printf("%3.2f</sup><br/><font size=3>", $row["et"]);
      if ($best_ft[$row["car_num"]] == $row["ft"])
-         printf("<strong>%5.2f</strong>", $row["ft"]);
+         if ($purple_ft == $row["ft"])
+             printf("<strong style=\"color: purple\">%5.2f</strong>", $row["ft"]);
+         else
+             printf("<strong>%5.2f</strong>", $row["ft"]);
      else
          printf("%5.2f", $row["ft"]);
      echo "</td>";
