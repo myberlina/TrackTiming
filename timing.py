@@ -74,7 +74,7 @@ def new_car():
       "FROM current_event LEFT JOIN current_run");
     result=cur.fetchall()
     if (len(result) == 1) :
-        event = result[0][0]
+        new_car.event = result[0][0]
         new_car.run_num = result[0][1]
         print("run_num" , new_car.run_num)
     else :
@@ -100,11 +100,13 @@ def new_car():
         cur.execute("ROLLBACK")
         new_car.next_car = new_car.curr_car
 
+new_car.event=-1
 new_car.run_num = 0
-new_car.next_missing_car = -101
-new_car.curr_car = -5
+new_car.next_missing_car = 1001
+new_car.curr_car = 1000
 new_car.next_car = 99
 new_car.tick = 0
+new_car.tick_val = 0
 
 new_car.state = 0
 
@@ -122,7 +124,8 @@ def cb_green(gpio, level, tick):
         new_car()
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         new_car.tick = pi.get_current_tick()
-        cur.execute("insert into green_time values ( ?, ?, ?, ?)", (event, new_car.run_num, new_car.curr_car, val))
+        new_car.tick_val = val
+        cur.execute("insert into green_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
         print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick))
         Green_f.seek(0)
         Green_f.write(str(new_car.curr_car))
@@ -137,8 +140,11 @@ def cb_green(gpio, level, tick):
 def cb_start(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 1200000 :  # 1.2s debounce, and ignore rear wheels.
+    #if pigpio.tickDiff(debo,tick) > 1200000 :  # 1.2s debounce, and ignore rear wheels.
+    if pigpio.tickDiff(debo,tick) > 200000 :  # 1.2s debounce, and ignore rear wheels.
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
+        if (val < new_car.tick_val) :
+            val=val+4294967     # undo the wrap for database entry
         i=0
         while (i < 5):
             if (pigpio.tickDiff(debounce[green_gpio], new_car.tick) < 5000000):
@@ -146,13 +152,14 @@ def cb_start(gpio, level, tick):
             time.sleep(0.2)
             i=i+1
         if (new_car.state == 1) :
-          cur.execute("insert into start_time values ( ?, ?, ?, ?)", (event, new_car.run_num, new_car.curr_car, val))
+          cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
+          new_car.state = 2
         elif (new_car.state == 0) :
           # Red light
-          cur.execute("insert into start_time values ( ?, ?, ?, ?)", (event, new_car.run_num, -new_car.next_car, val))
+          cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, -new_car.next_car, val))
         else :
           # Rear wheels slow, next car staging??
-          cur.execute("insert into start_time values ( ?, ?, ?, ?)", (event, new_car.run_num, new_car.curr_car, val))
+          cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, -new_car.curr_car, val))
         print(gpio, level, val, i)
         Start_f.seek(0)
         Start_f.write(str(new_car.curr_car))
@@ -168,7 +175,9 @@ def cb_finish(gpio, level, tick):
     debounce[gpio] = tick
     if pigpio.tickDiff(debo,tick) > 200000 :
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
-        cur.execute("insert into finish_time values ( ?, ?, ?, ?)", (event, new_car.run_num, new_car.curr_car, val))
+        if (val < new_car.tick_val) :
+            val=val+4294967     # undo the wrap for database entry
+        cur.execute("insert into finish_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
         print(gpio, level, val)
         Finish_f.seek(0)
         Finish_f.write(str(new_car.curr_car))
@@ -185,12 +194,12 @@ cur.execute("SELECT current_event, current_run "
       "FROM current_event LEFT JOIN current_run");
 result=cur.fetchall()
 if (len(result) == 1) :
-    event = result[0][0]
+    new_car.event = result[0][0]
     new_car.run_num = result[0][1]
-    print("Timing for event", event, "  Run", new_car.run_num)
+    print("Timing for event", new_car.event, "  Run", new_car.run_num)
 else :
-    event = -2
-    print("No current event specified, storing with event", event)
+    new_car.event = -2
+    print("No current event specified, storing with event", new_car.event)
 
 pi = pigpio.pi()       # pi  accesses the local Pi's GPIO
 
@@ -240,11 +249,11 @@ while (1) :
         result=cur.fetchall()
         if (len(result) == 1) :
             new_event = result[0][0]
-            if (new_event != event) :
-                event = new_event
-                print("Timing for event", event)
+            if (new_event != new_car.event) :
+                new_car.event = new_event
+                print("Timing for event", new_car.event)
         else :
-            print("Failed trying to check current event", event)
+            print("Failed trying to check current event", new_car.event)
     #now_tick = pi.get_current_tick()
     #if (now_tick < prev_tick) :
     #    print("Tick has wrapped. Tick:", now_tick, "  Green:", debounce[green_gpio], "  Start:", debounce[start_gpio], "  Finish:", debounce[finish_gpio])
