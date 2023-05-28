@@ -141,7 +141,7 @@ def cb_start(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
     #if pigpio.tickDiff(debo,tick) > 1200000 :  # 1.2s debounce, and ignore rear wheels.
-    if pigpio.tickDiff(debo,tick) > 200000 :  # 1.2s debounce, and ignore rear wheels.
+    if pigpio.tickDiff(debo,tick) > 200000 :  # 0.2s debounce.
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
