@@ -63,7 +63,7 @@
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
       WHERE results.event = :event AND results.car_num > 0
         AND results.event = et_order.event AND results.car_num = et_order.car_num
-      ORDER BY results.event, ft_order.red, ft_order.best_ft, results.car_num, results.run');
+      ORDER BY results.event, et_order.red, et_order.best_et, results.car_num, results.run');
   $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
 
   $results = $res_qry->execute();
