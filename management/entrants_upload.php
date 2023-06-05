@@ -44,6 +44,7 @@
         if (($_POST["col-$i"] == 'info1') && ! isset($col_info1)) $col_info1 = $i;
         if (($_POST["col-$i"] == 'info2') && ! isset($col_info2)) $col_info2 = $i;
         if (($_POST["col-$i"] == 'info3') && ! isset($col_info3)) $col_info3 = $i;
+        if (($_POST["col-$i"] == 'special') && ! isset($col_special)) $col_special = $i;
 	$i=$i+1;
       }
       if (! isset($col_name1)) {
@@ -66,7 +67,7 @@
 	  $can_load=false;
 	}
 	else
-	  if (! ($upload_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info) VALUES(:event, :num, :name, :info)"))) {
+	  if (! ($upload_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info, special) VALUES(:event, :num, :name, :info, :special)"))) {
 	    $message = $message . "<p style=\"color:red\"> Could not create base INSERT query\n</p><BR>";
 	    $can_load=false;
 	  }
@@ -95,6 +96,7 @@
 	      }
 	    }
 
+            $upload_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
 	    if (isset($col_info1)) {
 	      $info=$row[$col_info1];
 	      if (isset($col_info2)) {
@@ -106,10 +108,16 @@
 	    }
 	    else $info="";
 	    
+	    if (isset($col_special)) {
+	      $special=$row[$col_special];
+	    }
+	    else $special="";
+	    
             $upload_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
             $upload_qry->bindValue(':num', 0 + $db->escapeString($num), SQLITE3_INTEGER);
             $upload_qry->bindValue(':name', $db->escapeString($name), SQLITE3_TEXT);
             $upload_qry->bindValue(':info', $db->escapeString($info), SQLITE3_TEXT);
+            $upload_qry->bindValue(':special', $db->escapeString($special), SQLITE3_TEXT);
 	    if ($update_result = $upload_qry->execute()) {
 	      $inserted++;
 	      $good_row[$file_row] = 1;
@@ -195,6 +203,7 @@
 	<option value="info1">Info1</option>
 	<option value="info2">Info2</option>
 	<option value="info3">Info3</option>
+	<option value="special">Special</option>
     ';
     if ($handle = fopen($save_file, "r")) {
       $sep=''; $sep_count=0;
