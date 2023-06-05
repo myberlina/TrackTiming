@@ -57,6 +57,16 @@
     $place_ft[$row["car_num"]] = $place++;
   }
 
+  $best_qry = $db->query('SELECT * FROM ft_order
+	                  LEFT JOIN entrant_info ON ft_order.car_num = entrant_info.car_num and ft_order.event = entrant_info.event
+			  WHERE ft_order.event = ' . $db->escapeString($evt) .
+                        ' AND special != ""
+                          ORDER BY ft_order.red, ft_order.best_ft, ft_order.run, ft_order.car_num');
+  while($row = $best_qry->fetchArray()) {
+    if (! isset($place_sp[$row["special"]])) $place_sp[$row["special"]] = 1;
+    $place_special[$row["car_num"]][$row["special"]] = $place_sp[$row["special"]]++;
+  }
+
   $res_qry = $db->prepare('
       SELECT results.event, results.run, results.car_num, car_name, car_info, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
       FROM results, ft_order
@@ -109,6 +119,11 @@
        echo "<tr class=\"$classname\">";
        echo "<td align=\"left\">";
        echo htmlspecialchars($row["car_name"]) . "<br/>&nbsp; &nbsp; Place:" . $place_ft[$row["car_num"]];
+       if (isset($place_special[$row["car_num"]])) {
+         foreach ($place_special[$row["car_num"]] as $type => $place) {
+	   echo " &nbsp; &nbsp; <strong>$type: $place</strong>";
+         }
+       }
        echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br>" . htmlspecialchars($row["car_info"]) . "</td>\n";
        $prev_car = $row["car_num"];
        $tab_run = 1;
