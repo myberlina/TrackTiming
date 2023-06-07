@@ -24,6 +24,10 @@ INSERT INTO current_run VALUES ( 0 );
 CREATE TABLE IF NOT EXISTS entrant_info( event INT NOT NULL, car_num INT NOT NULL, car_name NOT NULL, car_info,
  CONSTRAINT Tuple UNIQUE (event,car_num));
 
+CREATE TABLE IF NOT EXISTS entrant_info( event INT NOT NULL, car_num INT NOT NULL, car_name NOT NULL, car_info, special,
+ CONSTRAINT Tuple UNIQUE (event,car_num));
+
+
 CREATE TABLE IF NOT EXISTS event_info( num INT NOT NULL unique, name );
 
 CREATE TABLE IF NOT EXISTS next_car( car_num INT NOT NULL unique, ord INT NOT NULL unique);
