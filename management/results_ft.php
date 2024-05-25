@@ -138,11 +138,11 @@
          echo "<td><sup><font size=2>";
      if ($best_rt[$row["car_num"]] == $row["rt"])
          if ($purple_rt == $row["rt"])
-             printf("<strong style=\"color: purple\">%3.2f</strong> ", $row["rt"]);
+             printf("<strong style=\"color: purple\">%4.3f</strong> ", $row["rt"]);
          else
-             printf("<strong>%3.2f</strong> ", $row["rt"]);
+             printf("<strong>%4.3f</strong> ", $row["rt"]);
      else
-         printf("%3.2f ", $row["rt"]);
+         printf("%4.3f ", $row["rt"]);
      if ($best_et[$row["car_num"]] == $row["et"])
          if ($purple_et == $row["et"])
              printf("<strong style=\"color: purple\">%3.2f</strong></sup><br/><font size=3>", $row["et"]);
