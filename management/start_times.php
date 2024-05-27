@@ -103,6 +103,7 @@
    </tr>
    <?php
 
+   $no_green=0;
    $i=0; $prev_row_id = 0;
    while(isset($entrants) && $row = $entrants->fetchArray()) {
     $row_id=$row['rowid'];
@@ -115,8 +116,10 @@
     $safe_num=htmlspecialchars($row['car_num']);
     $safe_time=htmlspecialchars($row['time_ms']/1000);
     $safe_delta=htmlspecialchars($row['delta']/1000);
+    if ((i < 3) && (is_null($row['delta'])))
+      $no_green=1;
     if ($row_id != $prev_row_id) {
-      if ( ($safe_num < 0) && ($safe_delta < 0) && ($safe_delta > -1.0) )
+      if ( ($safe_num < 0) && ($safe_delta <= 0) && ($safe_delta > -2.0) )
         echo "<td><input style=\"background: red\" type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
       else
         echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
@@ -126,7 +129,7 @@
     else {
       echo "<td>&nbsp;$safe_num</td>";
     }
-    if ( ($safe_delta < 0) && ($safe_delta > -1.0) )
+    if ( ($safe_delta <= 0) && ($safe_delta > -2.0) )
       echo "<td style=\"background: red\">$safe_delta</td>";
     else
       echo "<td>$safe_delta</td>";
@@ -164,5 +167,17 @@
     ws.onclose = function()     { refesh_page(); }; /* Idle time out in 60s */
   }
   ws.onmessage = function(event){ refesh_page(); };
+<?php
+  if ($no_green == 1) {
+?>
+  var ws_green = new WebSocket('ws://'+location.host+'/ws/status/green/');
+  ws_green.onopen = function() { /* got the websocket, switch to ws based refresh */
+    clearTimeout(refesh_timeout);
+    ws_green.onclose = function()     { refesh_page(); }; /* Idle time out in 60s */
+  }
+  ws_green.onmessage = function(event){ refesh_page(); };
+<?php
+  }
+?>
  </script>
 </html>
