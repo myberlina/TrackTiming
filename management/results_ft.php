@@ -117,8 +117,15 @@
      if ($row["car_num"] != $prev_car ) {
        echo "</tr>";
        echo "<tr class=\"$classname\">";
-       echo "<td align=\"left\">";
-       echo htmlspecialchars($row["car_name"]) . "<br/>&nbsp; &nbsp; Place:" . $place_ft[$row["car_num"]];
+       echo "<td><div style=\"float:left\">";
+       $achievement="";
+       if ($best_rt[$row["car_num"]] == $purple_rt)
+	   $achievement=" RT";
+       if ($best_et[$row["car_num"]] == $purple_et)
+	   $achievement=" ET";
+       if ($achievement != "")
+	   $achievement="</div><div style=\"float:right\"><strong style=\"color: purple; text-align: right;\">" . $achievement . "</strong>";
+       echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br>&nbsp; &nbsp; Place:" . $place_ft[$row["car_num"]];
        if (isset($place_special[$row["car_num"]])) {
          foreach ($place_special[$row["car_num"]] as $type => $place) {
 	   echo " &nbsp; &nbsp; <strong>$type: $place</strong>";
