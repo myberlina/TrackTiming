@@ -15,11 +15,11 @@
     include_once 'database.php';
     if(isset($_POST['submit'])&&('Update' == $_POST['submit'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("UPDATE entrant_info set car_num=:num, car_name=:name, car_info=:info, special=:special WHERE rowid=:row AND event=:event")){
-        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':name', $db->escapeString($_POST["EntName-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':info', $db->escapeString($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':special', $db->escapeString($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
@@ -33,11 +33,11 @@
 
     if(isset($_POST['submit']) && ('Create' == $_POST['submit'])) {
       if ($post_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info, special) VALUES(:event, :num, :name, :info, :special)")){
-        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':name', $db->escapeString($_POST["EntName-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':info', $db->escapeString($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':special', $db->escapeString($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
         if ($update_result = $post_qry->execute()) 
           $message = "<font color=\"#00a000\"> Record Created Successfully";
         else
@@ -49,11 +49,11 @@
     }
     if(isset($_POST['really-delete'])&&('Yes!' == $_POST['really-delete'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event AND car_num=:num AND car_name=:name AND car_info=:info AND special=:special AND rowid=:row")){
-        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':name', $db->escapeString($_POST["EntName-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':info', $db->escapeString($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':special', $db->escapeString($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
+        $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Deleted Successfully for ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>";
@@ -75,11 +75,11 @@
 	  $bad_message="";
           foreach($update_list as $row_id) {
 	    if ($row_id < 1) continue;
-            $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-            $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
-            $post_qry->bindValue(':name', $db->escapeString($_POST["EntName-$row_id"]), SQLITE3_TEXT);
-            $post_qry->bindValue(':info', $db->escapeString($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
-            $post_qry->bindValue(':special', $db->escapeString($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
+            $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
+            $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+            $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
+            $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
+            $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
             if ($update_result = $post_qry->execute())
               $good++;
@@ -98,7 +98,7 @@
     }
     if(isset($_POST['really-delete-ALL'])&&('Yes!' == $_POST['really-delete-ALL'])) {
       if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event")){
-        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> All Entrants Deleted Successfully for Event ".$evt.", \"".$_POST["EventList"]."\"\n<BR>";
         else
@@ -211,18 +211,25 @@
      $classname="class=\"oddRow\"";
     echo "<tr $classname>";
     $safe_num=htmlspecialchars($row['car_num']);
-    $safe_name=htmlspecialchars($row['car_name']);
+    $safe_name=htmlspecialchars($row['car_name'],ENT_QUOTES);
     $safe_info=htmlspecialchars($row['car_info']);
     $safe_special=htmlspecialchars($row['special']);
     $row_id=$row['rowid'];
     echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EntNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num');haveUpdate()\" ></td>\n";
+
+    echo "<input type=\"hidden\" name=\"OrigName-$row_id\" value=\"$safe_name\" id=\"OrigName-$row_id\">";
     echo "<td><input type=\"text\" placeholder=\"Entrant Name\" name=\"EntName-$row_id\" class=\"txtField\" required value=\"$safe_name\"";
-    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name');haveUpdate()\" ></td>\n";
-    echo "<td><input type=\"text\" placeholder=\"Entrant Info\" name=\"EntInfo-$row_id\" class=\"txtField\" value=\"$safe_info\"";
-    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_info');haveUpdate()\" ></td>\n";
-    echo "<td><input type=\"text\" placeholder=\"Special\" size=\"10\" name=\"EntSpecial-$row_id\" class=\"txtField\" value=\"$safe_special\"";
-    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_special');haveUpdate()\" ></td>\n";
+    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigName-$row_id').value);haveUpdate()\" ></td>\n";
+
+    echo "<input type=\"hidden\" name=\"OrigInfo-$row_id\" value=\"$safe_info\" id=\"OrigInfo-$row_id\">";
+    echo "<td><input type=\"text\" placeholder=\"Entrant Info\" name=\"EntInfo-$row_id\" class=\"txtField\" required value=\"$safe_info\"";
+    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigInfo-$row_id').value);haveUpdate()\" ></td>\n";
+
+    echo "<input type=\"hidden\" name=\"OrigSpecial-$row_id\" value=\"$safe_special\" id=\"OrigSpecial-$row_id\">";
+    echo "<td><input type=\"text\" placeholder=\"Entrant Special\" name=\"EntSpecial-$row_id\" class=\"txtField\" required value=\"$safe_special\"";
+    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigSpecial-$row_id').value);haveUpdate()\" ></td>\n";
+
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" tag=\"Update\" formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
     echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Delete\" onclick=\"document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
     echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes!\" formnovalidate formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
