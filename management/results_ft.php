@@ -130,7 +130,7 @@
        echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br>&nbsp; &nbsp; Place:" . $place_ft[$row["car_num"]];
        if (isset($place_special[$row["car_num"]])) {
          foreach ($place_special[$row["car_num"]] as $type => $place) {
-	   echo " &nbsp; &nbsp; <strong>$type: $place</strong>";
+	   echo " &nbsp; &nbsp; <strong>$type:&nbsp;$place</strong>";
          }
        }
        echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br>" . htmlspecialchars($row["car_info"]) . "</td>\n";
