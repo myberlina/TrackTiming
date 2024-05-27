@@ -15,6 +15,7 @@ EVENT="$1"
 shift
 
 (
+  echo rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ 
   rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ &&
    touch -r "$1" "${TS_FILE}"
   sleep 100 # Dont run another transfer for 2 mins or so
