@@ -57,11 +57,11 @@
     $place_ft[$row["car_num"]] = $place++;
   }
 
-  $best_qry = $db->query('SELECT * FROM et_order
-                         LEFT JOIN entrant_info ON et_order.car_num = entrant_info.car_num and et_order.event = entrant_info.event
-                         WHERE et_order.event = ' . $db->escapeString($evt) .
+  $best_qry = $db->query('SELECT * FROM rt_order
+                         LEFT JOIN entrant_info ON rt_order.car_num = entrant_info.car_num and rt_order.event = entrant_info.event
+                         WHERE rt_order.event = ' . $db->escapeString($evt) .
                         ' AND special != ""
-                          ORDER BY et_order.red, et_order.best_et, et_order.run, et_order.car_num');
+                          ORDER BY rt_order.red, rt_order.best_rt, rt_order.run, rt_order.car_num');
   while($row = $best_qry->fetchArray()) {
     if (! isset($place_sp[$row["special"]])) $place_sp[$row["special"]] = 1;
     $place_special[$row["car_num"]][$row["special"]] = $place_sp[$row["special"]]++;
@@ -69,11 +69,11 @@
 
   $res_qry = $db->prepare('
       SELECT results.event, results.run, results.car_num, car_name, car_info, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
-      FROM results, et_order
+      FROM results, rt_order
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
       WHERE results.event = :event AND results.car_num > 0
-        AND results.event = et_order.event AND results.car_num = et_order.car_num
-      ORDER BY results.event, et_order.red, et_order.best_et, results.car_num, results.run');
+        AND results.event = rt_order.event AND results.car_num = rt_order.car_num
+      ORDER BY results.event, rt_order.red, rt_order.best_rt, results.car_num, results.run');
   $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
 
   $results = $res_qry->execute();
@@ -119,15 +119,13 @@
        echo "<tr class=\"$classname\">";
        echo "<td><div style=\"float:left\">";
        $achievement="";
-       if ($place_rt[$row["car_num"]] <= 5)
-           $achievement=" RT".$place_rt[$row["car_num"]];
-       #if ($best_rt[$row["car_num"]] == $purple_rt)
-       #    $achievement=" RT";
+       if ($best_et[$row["car_num"]] == $purple_et)
+           $achievement=" ET";
        if ($best_ft[$row["car_num"]] == $purple_et)
            $achievement=" FT";
        if ($achievement != "")
            $achievement="</div><div style=\"float:right\"><strong style=\"color: purple; text-align: right;\">" . $achievement . "</strong>";
-       echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br>&nbsp; &nbsp; Place:" . $place_et[$row["car_num"]];
+       echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br>&nbsp; &nbsp; Place:" . $place_rt[$row["car_num"]];
        if (isset($place_special[$row["car_num"]])) {
          foreach ($place_special[$row["car_num"]] as $type => $place) {
           echo " &nbsp; &nbsp; <strong>$type: $place</strong>";

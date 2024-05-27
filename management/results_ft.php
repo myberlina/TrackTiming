@@ -119,8 +119,10 @@
        echo "<tr class=\"$classname\">";
        echo "<td><div style=\"float:left\">";
        $achievement="";
-       if ($best_rt[$row["car_num"]] == $purple_rt)
-	   $achievement=" RT";
+       if ($place_rt[$row["car_num"]] <= 5)
+	   $achievement=" RT".$place_rt[$row["car_num"]];
+       #if ($best_rt[$row["car_num"]] == $purple_rt)
+       #    $achievement=" RT";
        if ($best_et[$row["car_num"]] == $purple_et)
 	   $achievement=" ET";
        if ($achievement != "")
