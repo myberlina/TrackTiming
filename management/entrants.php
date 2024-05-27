@@ -223,11 +223,11 @@
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigName-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigInfo-$row_id\" value=\"$safe_info\" id=\"OrigInfo-$row_id\">";
-    echo "<td><input type=\"text\" placeholder=\"Entrant Info\" name=\"EntInfo-$row_id\" class=\"txtField\" required value=\"$safe_info\"";
+    echo "<td><input type=\"text\" placeholder=\"Entrant Info\" name=\"EntInfo-$row_id\" class=\"txtField\" value=\"$safe_info\"";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigInfo-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigSpecial-$row_id\" value=\"$safe_special\" id=\"OrigSpecial-$row_id\">";
-    echo "<td><input type=\"text\" placeholder=\"Entrant Special\" name=\"EntSpecial-$row_id\" class=\"txtField\" required value=\"$safe_special\"";
+    echo "<td><input type=\"text\" placeholder=\"Entrant Special\" name=\"EntSpecial-$row_id\" class=\"txtField\" value=\"$safe_special\"";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigSpecial-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" tag=\"Update\" formaction=\"?evt=$evt&id=$row_id\" class=\"button\" disabled> </td>\n";
