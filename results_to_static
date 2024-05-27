@@ -43,9 +43,25 @@ function update_pages()
     fi
   fi
 
+  if php "$DIR"/management/results_rt.php |
+   sed '/function showTiming/,+4d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_rt.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/results_rt.html.new "$DIR/Results"/results_rt.html >/dev/null
+    then
+      : No change to results
+    else
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/results_rt.html.new )
+      need_to_refresh=y
+      mv "$DIR/Results"/results_rt.html.new "$DIR/Results"/results_rt.html
+    fi
+  fi
+
   if [[ y = "$need_to_refresh" || "$DIR/Results"/results_et.html -nt "$push_ts" ]]
   then
-    forward_results "$push_ts" "${event}" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html &&
+    forward_results "$push_ts" "${event}" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html "$DIR/Results"/results_rt.html &&
      need_to_refresh=''
   fi
 }
@@ -65,7 +81,8 @@ do
       update_pages
     elif [[ y = "$need_to_refresh" || "$DIR/Results"/results_et.html -nt "$push_ts" ]]
     then
-      forward_results "$push_ts" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html &&
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/results_ft.html.new )
+      forward_results "$push_ts" "${event}" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html "$DIR/Results"/results_rt.html &&
        need_to_refresh=''
     fi
   fi
