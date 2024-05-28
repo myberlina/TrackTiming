@@ -83,8 +83,8 @@
 <html>
   <head>
     <title>Results</title>
-    <link rel="stylesheet" href="/HSV_Timing/style.css">
-    <meta http-equiv="refresh" content="20" >
+    <link rel="stylesheet" href="/HSV_Timing/style.css"/>
+    <meta http-equiv="refresh" content="20"/>
     <!-- Timing_Event_Num='<?php echo $evt;?>' -->
   </head>
 <body>
@@ -93,9 +93,9 @@
  Times for <select name="EventList" style="width: 240px" onchange="showTiming(this.value)">
    <?php echo $event_select;?>
  </select>
-</div/
-<br>
-  <table align=center border="2" cellpadding="4">
+</div>
+<br/>
+  <table align="center" border="2" cellpadding="4">
    <tr class="listheader">
       <td>Driver</td>
       <td>Info</td>
@@ -123,18 +123,18 @@
            $achievement=" RT".$place_rt[$row["car_num"]];
        #if ($best_rt[$row["car_num"]] == $purple_rt)
        #    $achievement=" RT";
-       if ($best_ft[$row["car_num"]] == $purple_et)
+       if ($best_ft[$row["car_num"]] == $purple_ft)
            $achievement=" FT";
        if ($achievement != "")
            $achievement="</div><div style=\"float:right\"><strong style=\"color: purple; text-align: right;\">" . $achievement . "</strong>";
-       echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br>&nbsp; &nbsp; Place:" . $place_et[$row["car_num"]];
+       echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br/>&nbsp; &nbsp; Place:" . $place_et[$row["car_num"]];
        if (isset($place_special[$row["car_num"]])) {
          foreach ($place_special[$row["car_num"]] as $type => $place) {
           echo " &nbsp; &nbsp; <strong>$type:&nbsp;$place</strong>";
          }
        }
 
-       echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br>" . htmlspecialchars($row["car_info"]) . "</td>\n";
+       echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br/>" . htmlspecialchars($row["car_info"]) . "</td>\n";
        $prev_car = $row["car_num"];
        $tab_run = 1;
        $i++;
@@ -143,9 +143,9 @@
      while ($row["run"] > $tab_run++)
          echo "<td></td>";
      if ($row["rt"] < 0)
-         echo "<td style=\"color: red\"><sup><font size=2>";
+         echo "<td style=\"color: red\"><sup><font size='2'/>";
      else
-         echo "<td><sup><font size=2>";
+         echo "<td><sup><font size='2'/>";
      if ($best_rt[$row["car_num"]] == $row["rt"])
          if ($purple_rt == $row["rt"])
              printf("<strong style=\"color: purple\">%4.3f</strong> ", $row["rt"]);
@@ -155,11 +155,11 @@
          printf("%4.3f ", $row["rt"]);
      if ($best_et[$row["car_num"]] == $row["et"])
          if ($purple_et == $row["et"])
-             printf("<strong style=\"color: purple\">%3.2f</strong></sup><br/><font size=3>", $row["et"]);
+             printf("<strong style=\"color: purple\">%3.2f</strong></sup><br/><font size='3'/>", $row["et"]);
          else
-             printf("<strong>%3.2f</strong></sup><br/><font size=3>", $row["et"]);
+             printf("<strong>%3.2f</strong></sup><br/><font size='3'/>", $row["et"]);
      else
-         printf("%3.2f</sup><br/><font size=3>", $row["et"]);
+         printf("%3.2f</sup><br/><font size='3'/>", $row["et"]);
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])
              printf("<strong style=\"color: purple\">%5.2f</strong>", $row["ft"]);
