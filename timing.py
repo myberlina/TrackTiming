@@ -89,7 +89,7 @@ def new_car():
         if (len(result) > 1) :
           new_car.next_car = result[1][0]
         else :
-          new_car.next_car = new_car.curr_car
+          new_car.next_car = 666
         cur.execute("delete from next_car where car_num = ?", (new_car.curr_car, ))
         cur.execute("update current_car set current_car = ? where ROWID = 1", (new_car.curr_car, ))
         cur.execute("COMMIT")
@@ -104,11 +104,12 @@ new_car.event=-1
 new_car.run_num = 0
 new_car.next_missing_car = 1001
 new_car.curr_car = 1000
-new_car.next_car = 99
+new_car.next_car = 666
 new_car.tick = 0
 new_car.tick_val = 0
 
-new_car.state = 0
+#  0 - No Car (prev car finished) ,   1 - Car has green light  ,   2 - Car has a start time
+new_car.state = 0  #  No Car
 
 import time
 debounce = np.empty(60, dtype=np.uint32)
@@ -120,7 +121,7 @@ finish_gpio=25
 def cb_green(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 200000 :
+    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
         new_car()
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         new_car.tick = pi.get_current_tick()
@@ -128,9 +129,9 @@ def cb_green(gpio, level, tick):
         cur.execute("insert into green_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
         print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick))
         Green_f.seek(0)
-        Green_f.write(str(new_car.curr_car))
+        Green_f.write(str(new_car.curr_car)+"    ")
         Green_f.flush()
-        new_car.state = 1
+        new_car.state = 1  #  Car given green
     else:
         if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
@@ -141,7 +142,7 @@ def cb_start(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
     #if pigpio.tickDiff(debo,tick) > 1200000 :  # 1.2s debounce, and ignore rear wheels.
-    if pigpio.tickDiff(debo,tick) > 200000 :  # 0.2s debounce.
+    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
@@ -151,18 +152,20 @@ def cb_start(gpio, level, tick):
                 break
             time.sleep(0.2)
             i=i+1
-        if (new_car.state == 1) :
+        if (new_car.state == 1) :  # Got green, and this is first start trigger
           cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
-          new_car.state = 2
-        elif (new_car.state == 0) :
+          new_car.state = 2  # Have a start trigger
+        elif (new_car.state == 0) :  # No car with green - red light
           # Red light
           cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, -new_car.next_car, val))
-        else :
+          if (new_car.next_car == 666) :  # Last car of this run - first car of next run ??
+            cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num + 1, -new_car.next_car, val))
+        else :  #  new_car.state == 2   #  Already have a start line trigger
           # Rear wheels slow, next car staging??
           cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, -new_car.curr_car, val))
         print(gpio, level, val, i)
         Start_f.seek(0)
-        Start_f.write(str(new_car.curr_car))
+        Start_f.write(str(new_car.curr_car)+"    ")
         Start_f.flush()
     else:
         if cb_debug:
@@ -173,16 +176,16 @@ def cb_start(gpio, level, tick):
 def cb_finish(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 200000 :
+    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
         cur.execute("insert into finish_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
         print(gpio, level, val)
         Finish_f.seek(0)
-        Finish_f.write(str(new_car.curr_car))
+        Finish_f.write(str(new_car.curr_car)+"    ")
         Finish_f.flush()
-        new_car.state = 0
+        new_car.state = 0  #  Car finished
     else:
         if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
