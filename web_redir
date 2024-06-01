@@ -13,7 +13,7 @@ Connection: close
 Content-Length: 175
 
 <head><title>HSVFest Timing Redirect</title></head>
-<body><h1>HSVFest Timing Redirect</h1>HSVFest Timing Redirect may be found <a HREF="http://192.168.5.1/">here</a></body>
+<body><h1>HSVFest Timing Redirect</h1>HSVFest Timing Redirect may be found <a HREF="http://192.168.5.1/HSV_Timing/Results/results_ft.html">here</a></body>
 EOF
 
 received=''
