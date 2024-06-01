@@ -1,11 +1,11 @@
 <?php
 
-  if (isset($_GET['evt']))
+  if (isset($_GET['evt']) && is_numeric($_GET['evt']))
     $evt = 0 + $_GET['evt'];
   else
     $evt = 0;
 
-  if (isset($_GET['id']))
+  if (isset($_GET['id']) && is_numeric($_GET['id']))
     $row_id = 0 + $_GET['id'];
   else
     $row_id = 0;

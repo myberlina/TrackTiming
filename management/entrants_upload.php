@@ -115,9 +115,9 @@
 	    
             $upload_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
             $upload_qry->bindValue(':num', 0 + $db->escapeString($num), SQLITE3_INTEGER);
-            $upload_qry->bindValue(':name', $db->escapeString($name), SQLITE3_TEXT);
-            $upload_qry->bindValue(':info', $db->escapeString($info), SQLITE3_TEXT);
-            $upload_qry->bindValue(':special', $db->escapeString($special), SQLITE3_TEXT);
+            $upload_qry->bindValue(':name', $name, SQLITE3_TEXT);
+            $upload_qry->bindValue(':info', $info, SQLITE3_TEXT);
+            $upload_qry->bindValue(':special', $special, SQLITE3_TEXT);
 	    if ($update_result = $upload_qry->execute()) {
 	      $inserted++;
 	      $good_row[$file_row] = 1;
