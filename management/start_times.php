@@ -140,7 +140,7 @@
       echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes\" formnovalidate onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
     }
     else {
-      echo "<td colspan=3> Dup Green Time</td>\n";
+      echo "<td colspan=3 style=\"background: pink\"> Dup Green Time</td>\n";
     }
     echo "</tr>\n";
     $prev_row_id = $row_id;
