@@ -35,9 +35,16 @@
       $db->query("BEGIN");
       $db->query("DELETE FROM next_car"); # True for all operations
       if (($op == "NR-Load") || ($op == "Load")) {
-        if ($post_qry = $db->prepare("INSERT INTO next_car
-               SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event")) {
+        if ($op == "NR-Load")
+	  $cur_run++;
+        $load_qry = "INSERT INTO next_car SELECT entrant_info.car_num, ROW_NUMBER() OVER ( ORDER BY entrant_info.car_num ) RowNum
+		FROM entrant_info 
+                LEFT JOIN finish_time ON finish_time.car_num = entrant_info.car_num AND finish_time.event = entrant_info.event AND finish_time.run=:run
+                WHERE entrant_info.event=:event AND finish_time.car_num IS NULL";
+        #  $load_qry = "INSERT INTO next_car SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event";
+        if ($post_qry = $db->prepare($load_qry)) {
           $post_qry->bindValue(':event', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
+          $post_qry->bindValue(':run', 0 + $cur_run, SQLITE3_INTEGER);
           if ($update_result = $post_qry->execute()) {
             #$message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>";
 	    if ($op == "NR-Load") {
