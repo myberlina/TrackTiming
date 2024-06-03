@@ -121,10 +121,13 @@
     if ($row_id != $prev_row_id) {
       if ( ($safe_num < 0) && ($safe_delta <= 0) && ($safe_delta > -2.0) )
         echo "<td><input style=\"background: red\" type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
+      else if ( ($safe_num > 0) && (isset($seen_car_num[$safe_num])) )
+        echo "<td><input style=\"background: pink\" type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
       else
         echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
       echo " class=\"input_number\" ondblclick=\"this.value = -this.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\"";
       echo " oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
+      $seen_car_num[$safe_num] = 1;
     }
     else {
       echo "<td>&nbsp;$safe_num</td>";
