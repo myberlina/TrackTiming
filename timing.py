@@ -9,9 +9,10 @@ import signal
 import sys
 
 cb_debug=0
-fake_timing=0
+button_lockout=22 * 1000 * 1000 * 1000  # 22 seconds in nanoseconds
 
 def reset_debounce(sig, frame):
+    debounce[button_gpio] = start_tick
     debounce[green_gpio] = start_tick
     debounce[start_gpio] = start_tick + 2
     debounce[finish_gpio] = start_tick + 4
@@ -33,8 +34,15 @@ def fake_timing(sig, frame):
         fake_timing.evt = 2
         cb_start(start_gpio, 2, now)
     elif (fake_timing.evt == 2):
-        fake_timing.evt = 0
+        fake_timing.evt = -1
         cb_finish(finish_gpio, 2, now)
+    elif (fake_timing.evt == -1):
+        fake_timing.evt = 0
+        cb_button(button_gpio, 2, now)
+
+def fake_timing_0(sig, frame):
+    now = pi.get_current_tick();
+    cb_button(button_gpio, 2, now)
 
 def fake_timing_1(sig, frame):
     now = pi.get_current_tick();
@@ -48,10 +56,11 @@ def fake_timing_3(sig, frame):
     now = pi.get_current_tick();
     cb_finish(finish_gpio, 2, now)
 
-fake_timing.evt=0
+fake_timing.evt=-1
 
 signal.signal(signal.SIGUSR1, fake_timing)
 
+signal.signal(signal.SIGRTMIN, fake_timing_0)
 signal.signal(signal.SIGRTMIN+1, fake_timing_1)
 signal.signal(signal.SIGRTMIN+2, fake_timing_2)
 signal.signal(signal.SIGRTMIN+3, fake_timing_3)
@@ -107,6 +116,7 @@ new_car.curr_car = 1000
 new_car.next_car = 666
 new_car.tick = 0
 new_car.tick_val = 0
+new_car.time=time.monotonic_ns() - button_lockout
 
 #  0 - No Car (prev car finished) ,   1 - Car has green light  ,   2 - Car has a start time
 new_car.state = 0  #  No Car
@@ -117,21 +127,51 @@ debounce = np.empty(60, dtype=np.uint32)
 green_gpio=23
 start_gpio=24
 finish_gpio=25
+button_gpio=17
+
+def cb_button(gpio, level, tick):
+    debo=debounce[gpio]
+    debounce[gpio] = tick
+    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
+        mon_now=time.monotonic_ns()
+        val = int(pigpio.tickDiff(start_tick, tick) / 1000)
+        if ( (mon_now - new_car.time) > button_lockout ) :
+            new_car.time = mon_now
+            new_car()
+            new_car.tick = pi.get_current_tick()
+            new_car.tick_val = val
+        if cb_debug:
+            print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick), new_car.tick, new_car.time)
+        new_car.state = 1  #  Car given buton
+    else:
+        if cb_debug:
+            print(gpio, pigpio.tickDiff(debo,tick), "debounce")
+    if cb_debug:
+        print("debug ", gpio, val, tick, debo)
 
 def cb_green(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
     if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
-        new_car()
+        mon_now=time.monotonic_ns()
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
-        new_car.tick = pi.get_current_tick()
-        new_car.tick_val = val
+        if ( (mon_now - new_car.time) > button_lockout ) :
+            new_car.time = mon_now
+            new_car()
+            new_car.tick = pi.get_current_tick()
+            new_car.tick_val = val
+            new_car.state = 1  #  Car given green
+        else:
+            if (val < new_car.tick_val) :
+                val=val+4294967     # undo the wrap for database entry
+            if (new_car.state != 2) :  #  red lighted
+                new_car.state = 1  #  Car given green
         cur.execute("insert into green_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
-        print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick))
+        if cb_debug:
+            print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick), new_car.tick, new_car.time)
         Green_f.seek(0)
         Green_f.write(str(new_car.curr_car)+"    ")
         Green_f.flush()
-        new_car.state = 1  #  Car given green
     else:
         if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
@@ -146,12 +186,6 @@ def cb_start(gpio, level, tick):
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
-        i=0
-        while (i < 5):
-            if (pigpio.tickDiff(debounce[green_gpio], new_car.tick) < 5000000):
-                break
-            time.sleep(0.2)
-            i=i+1
         if (new_car.state == 1) :  # Got green, and this is first start trigger
           cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
           new_car.state = 2  # Have a start trigger
@@ -163,7 +197,8 @@ def cb_start(gpio, level, tick):
         else :  #  new_car.state == 2   #  Already have a start line trigger
           # Rear wheels slow, next car staging??
           cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, -new_car.curr_car, val))
-        print(gpio, level, val, i)
+        if cb_debug:
+            print(gpio, level, val, i)
         Start_f.seek(0)
         Start_f.write(str(new_car.curr_car)+"    ")
         Start_f.flush()
@@ -181,11 +216,13 @@ def cb_finish(gpio, level, tick):
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
         cur.execute("insert into finish_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
-        print(gpio, level, val)
+        if cb_debug:
+            print(gpio, level, val)
         Finish_f.seek(0)
         Finish_f.write(str(new_car.curr_car)+"    ")
         Finish_f.flush()
         new_car.state = 0  #  Car finished
+        new_car.time = time.monotonic_ns() - button_lockout    #  Clear the new_car  lockout
     else:
         if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
@@ -228,14 +265,17 @@ if normally_hi:
     cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)
     cb3 = pi.callback(finish_gpio, pigpio.FALLING_EDGE, cb_finish)
 else:
+    pi.set_mode(button_gpio, pigpio.INPUT)
     pi.set_mode(green_gpio, pigpio.INPUT)
     pi.set_mode(start_gpio, pigpio.INPUT)
     pi.set_mode(finish_gpio, pigpio.INPUT)
     
+    pi.set_pull_up_down(button_gpio, pigpio.PUD_DOWN)
     pi.set_pull_up_down(green_gpio, pigpio.PUD_DOWN)
     pi.set_pull_up_down(start_gpio, pigpio.PUD_DOWN)
     pi.set_pull_up_down(finish_gpio, pigpio.PUD_DOWN)
     
+    cb0 = pi.callback(button_gpio, pigpio.RISING_EDGE, cb_button)
     cb1 = pi.callback(green_gpio, pigpio.RISING_EDGE, cb_green)
     #cb2 = pi.callback(start_gpio, pigpio.RISING_EDGE, cb_start)
     cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)
