@@ -2,21 +2,51 @@
 
 declare -A signal
 
+signal[button]="SIGRTMIN"
 signal[green]="SIGRTMIN+1"
 signal[start]="SIGRTMIN+2"
 signal[finish]="SIGRTMIN+3"
+
+if [[ '-c' == "$1" ]]
+then
+  copy_car=y
+  shift
+  sqlite3 /data/Track_Time/Track_Time.db "
+    PRAGMA busy_timeout=5000;
+    PRAGMA journal_mode;
+    /* PRAGMA journal_mode=delete; */
+    PRAGMA journal_mode=wal;
+    INSERT INTO next_car VALUES ( 668, 100 );"
+fi
 
 event=$1
 run=$2
 t_pid=$3
 
-sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from green_time where event=$event and run=$run;"  > green_file
-sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from start_time where event=$event and run=$run;"  > start_file
-sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from finish_time where event=$event and run=$run;"  > finish_file
+next_car()
+{
+  car=$1
+  sqlite3 /data/Track_Time/Track_Time.db "
+    PRAGMA busy_timeout=5000;
+    PRAGMA journal_mode;
+    /* PRAGMA journal_mode=delete; */
+    /* PRAGMA journal_mode=wal; */
+    INSERT INTO next_car VALUES ( $car, -1 );"
+}
 
-exec 11<green_file
-exec 12<start_file
-exec 13<finish_file
+if  true
+then
+  exec 11< <( sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from green_time where event=$event and run=$run;" )
+  exec 12< <( sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from start_time where event=$event and run=$run;" )
+  exec 13< <( sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from finish_time where event=$event and run=$run;" )
+else
+  sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from green_time where event=$event and run=$run;"  > green_file
+  sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from start_time where event=$event and run=$run;"  > start_file
+  sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from finish_time where event=$event and run=$run;"  > finish_file
+  exec 11<green_file
+  exec 12<start_file
+  exec 13<finish_file
+fi
 
 
 read green_row <&11
@@ -30,11 +60,20 @@ do
   green=${green_row%%|*}
   start=${start_row%%|*}
   finish=${finish_row%%|*}
+  let button_time=green-300 save_button=button_time
+  (( 9000000 == green )) && button_time=green+300
   let save_green=green save_start=start save_finish=finish
+  (( button_time < curr )) && (( button_time=button_time+4294967 ))
   (( green < curr )) && (( green=green+4294967 ))
   (( start < curr )) && (( start=start+4294967 ))
   (( finish < curr )) && (( finish=finish+4294967 ))
-  if (( green<start && green<finish )); then
+  if (( button_time > curr && button_time < green && button_time<start && button_time<finish )); then
+    let delta=button_time-curr
+    let curr=save_button
+    op=button
+    more="		${green_row#*|}"
+    [[ y = "$copy_car" ]] && next_car "${green_row#*|}"
+  elif (( green<start && green<finish )); then
     let delta=green-curr
     let curr=save_green
     op=green
@@ -52,6 +91,8 @@ do
     read finish_row <&13 || finish_row=9000000
   elif [[ "$green_row$start_row$finish_row" == "900000090000009000000" ]]; then
     break
+  elif [[ "$finish_row" == "9000000" ]]; then
+    break
   else
     echo "Confused!!!"
     echo $green_row $start_row $finish_row
@@ -68,12 +109,14 @@ do
     finish_run=0
   fi
 
-  echo sleep $delta
+  echo m_sleep $delta
   if (( t_pid > 1 )); then
     (( delta > 80000 )) && delta=80000
-    [[ "$op" == 'green' ]] && (( delta > 2000)) && delta=2000
-    let delta=delta-8 delta_s=delta/1000 delta_ms=delta%1000
-    read -t $(printf "%d.%03d" $delta_s $delta_ms)
+    [[ "$op" == 'button' ]] && (( delta > 2000)) && delta=2000
+    if (( delta > 5 )); then
+      let delta=delta-5 delta_s=delta/1000 delta_ms=delta%1000
+      read -t $(printf "%d.%03d" $delta_s $delta_ms)
+    fi
     kill -"${signal[$op]}" "$t_pid"
   fi
   echo "$op	$more"
