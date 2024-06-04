@@ -4,7 +4,7 @@
 cat <<EOF
 HTTP/1.1 301 Moved Permanently
 Content-Type: text/html; charset=UTF-8
-Location: http://192.168.5.1/
+Location: http://192.168.5.1/HSV_Timing/Results/results_ft.html
 Server: Dodgy-Dave-Redirector/10.0
 Date: $(TZ=0 date "+%a, %d %b %Y %T GMT")
 expires: $(TZ=0 date "+%a, %d %b %Y %T GMT")
