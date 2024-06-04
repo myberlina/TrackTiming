@@ -120,11 +120,11 @@
        echo "<td><div style=\"float:left\">";
        $achievement="";
        if ($place_rt[$row["car_num"]] <= 5)
-           $achievement=" RT".$place_rt[$row["car_num"]];
+           $achievement="&nbsp; RT".$place_rt[$row["car_num"]];
        #if ($best_rt[$row["car_num"]] == $purple_rt)
        #    $achievement=" RT";
        if ($best_ft[$row["car_num"]] == $purple_ft)
-           $achievement=" FT";
+           $achievement="&nbsp; FT";
        if ($achievement != "")
            $achievement="</div><div style=\"float:right\"><strong style=\"color: purple; text-align: right;\">" . $achievement . "</strong>";
        echo htmlspecialchars($row["car_name"]) . $achievement . "</div><br/>&nbsp; &nbsp; Place:" . $place_et[$row["car_num"]];
