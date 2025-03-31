@@ -45,6 +45,10 @@
         if (($_POST["col-$i"] == 'info2') && ! isset($col_info2)) $col_info2 = $i;
         if (($_POST["col-$i"] == 'info3') && ! isset($col_info3)) $col_info3 = $i;
         if (($_POST["col-$i"] == 'special') && ! isset($col_special)) $col_special = $i;
+        if (($_POST["col-$i"] == 'class') && ! isset($col_class)) $col_class = $i;
+        if (($_POST["col-$i"] == 'car') && ! isset($col_car)) $col_car = $i;
+        if (($_POST["col-$i"] == 'entrant') && ! isset($col_entrant)) $col_entrant = $i;
+        if (($_POST["col-$i"] == 'order') && ! isset($col_order)) $col_order = $i;
 	$i=$i+1;
       }
       if (! isset($col_name1)) {
@@ -67,7 +71,7 @@
 	  $can_load=false;
 	}
 	else
-	  if (! ($upload_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info, special) VALUES(:event, :num, :name, :info, :special)"))) {
+	  if (! ($upload_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info, special, class, car_car, car_entrant, run_order) VALUES(:event, :num, :name, :info, :special, :class, :car, :entrant, :order)"))) {
 	    $message = $message . "<p style=\"color:red\"> Could not create base INSERT query\n</p><BR>";
 	    $can_load=false;
 	  }
@@ -113,11 +117,35 @@
 	    }
 	    else $special="";
 	    
+	    if (isset($col_class)) {
+	      $class=$row[$col_class];
+	    }
+	    else $class="";
+	    
+	    if (isset($col_car)) {
+	      $car=$row[$col_car];
+	    }
+	    else $car="";
+	    
+	    if (isset($col_entrant)) {
+	      $entrant=$row[$col_entrant];
+	    }
+	    else $entrant="";
+	    
+	    if (isset($col_order)) {
+	      $order=$row[$col_order];
+	    }
+	    else $order="";
+	    
             $upload_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
             $upload_qry->bindValue(':num', 0 + $db->escapeString($num), SQLITE3_INTEGER);
             $upload_qry->bindValue(':name', $name, SQLITE3_TEXT);
             $upload_qry->bindValue(':info', $info, SQLITE3_TEXT);
             $upload_qry->bindValue(':special', $special, SQLITE3_TEXT);
+            $upload_qry->bindValue(':class', $class, SQLITE3_TEXT);
+            $upload_qry->bindValue(':car', $car, SQLITE3_TEXT);
+            $upload_qry->bindValue(':entrant', $entrant, SQLITE3_TEXT);
+            $upload_qry->bindValue(':order', $order, SQLITE3_TEXT);
 	    if ($update_result = $upload_qry->execute()) {
 	      $inserted++;
 	      $good_row[$file_row] = 1;
@@ -204,6 +232,10 @@
 	<option value="info2">Info2</option>
 	<option value="info3">Info3</option>
 	<option value="special">Special</option>
+	<option value="class">Class</option>
+	<option value="car">Car</option>
+	<option value="entrant">Entrant</option>
+	<option value="order">Run Order</option>
     ';
     if ($handle = fopen($save_file, "r")) {
       $sep=''; $sep_count=0;
