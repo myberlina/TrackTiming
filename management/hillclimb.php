@@ -31,30 +31,12 @@
   }
 
   $place=1;
-  $best_qry = $db->query('SELECT * FROM rt_order WHERE event = ' . $db->escapeString($evt) );
-  while($row = $best_qry->fetchArray()) {
-    if ($place == 1)
-      $purple_rt = $row["best_rt"] / 1000;
-    $best_rt[$row["car_num"]] = $row["best_rt"] / 1000;
-    $place_rt[$row["car_num"]] = $place++;
-  }
-
-  $place=1;
   $best_qry = $db->query('SELECT * FROM et_order WHERE event = ' . $db->escapeString($evt) );
   while($row = $best_qry->fetchArray()) {
     if ($place == 1)
       $purple_et = $row["best_et"] / 1000;
     $best_et[$row["car_num"]] = $row["best_et"] / 1000;
     $place_et[$row["car_num"]] = $place++;
-  }
-
-  $place=1;
-  $best_qry = $db->query('SELECT * FROM ft_order WHERE event = ' . $db->escapeString($evt) );
-  while($row = $best_qry->fetchArray()) {
-    if ($place == 1)
-      $purple_ft = $row["best_ft"] / 1000;
-    $best_ft[$row["car_num"]] = $row["best_ft"] / 1000;
-    $place_ft[$row["car_num"]] = $place++;
   }
 
   $best_qry = $db->query('SELECT * FROM et_order
@@ -135,13 +117,6 @@
        echo "<tr class=\"$classname\">";
        echo "<td style=\"text-align: right;\">" . htmlspecialchars($row["car_num"]) . "&nbsp;</td>\n";
        echo "<td><div style=\"float:left\">";
-       #$achievement="";
-       #if ($place_rt[$row["car_num"]] <= 5)
-       #    $achievement="&nbsp; RT".$place_rt[$row["car_num"]];
-       #if ($best_rt[$row["car_num"]] == $purple_rt)
-       #    $achievement=" RT";
-       #if ($best_ft[$row["car_num"]] == $purple_ft)
-       #    $achievement="&nbsp; FT";
        $achievement="";
        if ($place_et[$row["car_num"]] == 1) {
 	 $achievement=" &nbsp; &nbsp; <strong>FTD</strong>";
