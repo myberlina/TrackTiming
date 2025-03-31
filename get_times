@@ -7,17 +7,34 @@ signal[green]="SIGRTMIN+1"
 signal[start]="SIGRTMIN+2"
 signal[finish]="SIGRTMIN+3"
 
-if [[ '-c' == "$1" ]]
-then
-  copy_car=y
-  shift
-  sqlite3 /data/Track_Time/Track_Time.db "
-    PRAGMA busy_timeout=5000;
-    PRAGMA journal_mode;
-    /* PRAGMA journal_mode=delete; */
-    PRAGMA journal_mode=wal;
-    INSERT INTO next_car VALUES ( 668, 100 );"
-fi
+max_cars=-9
+
+while [[ 'x-' == "x${1:0:1}" ]]
+do
+  if [[ '-c' == "$1" ]]
+  then
+    copy_car=y
+    shift
+    sqlite3 /data/Track_Time/Track_Time.db "
+      PRAGMA busy_timeout=5000;
+      PRAGMA journal_mode;
+      /* PRAGMA journal_mode=delete; */
+      PRAGMA journal_mode=wal;
+      INSERT INTO next_car VALUES ( 668, 100 );"
+  fi
+
+  if [[ '-n' == "$1" ]]
+  then
+    max_cars=$2
+    shift 2
+  fi
+
+  if [[ '-b' == "$1" ]]
+  then
+    no_button=y
+    shift
+  fi
+done
 
 event=$1
 run=$2
@@ -60,8 +77,8 @@ do
   green=${green_row%%|*}
   start=${start_row%%|*}
   finish=${finish_row%%|*}
-  let button_time=green-300 save_button=button_time
-  (( 9000000 == green )) && button_time=green+300
+  let button_time=green-500 save_button=button_time
+  (( 9000000 == green )) && button_time=green+10000
   let save_green=green save_start=start save_finish=finish
   (( button_time < curr )) && (( button_time=button_time+4294967 ))
   (( green < curr )) && (( green=green+4294967 ))
@@ -73,6 +90,7 @@ do
     op=button
     more="		${green_row#*|}"
     [[ y = "$copy_car" ]] && next_car "${green_row#*|}"
+    [[ y = "$no_button" ]] && continue
   elif (( green<start && green<finish )); then
     let delta=green-curr
     let curr=save_green
@@ -120,5 +138,14 @@ do
     kill -"${signal[$op]}" "$t_pid"
   fi
   echo "$op	$more"
+
+  if [[ "$op" == 'finish' ]]; then
+    if (( max_cars > 0 )); then
+      if (( --max_cars == 0 )); then
+	exit
+      fi
+      echo " $max_cars cars left"
+    fi
+  fi
   
 done
