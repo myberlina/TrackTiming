@@ -37,7 +37,7 @@
       if (($op == "NR-Load") || ($op == "Load")) {
         if ($op == "NR-Load")
 	  $cur_run++;
-        $load_qry = "INSERT INTO next_car SELECT entrant_info.car_num, ROW_NUMBER() OVER ( ORDER BY entrant_info.car_num ) RowNum
+        $load_qry = "INSERT INTO next_car SELECT entrant_info.car_num, ROW_NUMBER() OVER ( ORDER BY entrant_info.run_order, entrant_info.car_num ) RowNum
 		FROM entrant_info 
                 LEFT JOIN finish_time ON finish_time.car_num = entrant_info.car_num AND finish_time.event = entrant_info.event AND finish_time.run=:run
                 WHERE entrant_info.event=:event AND finish_time.car_num IS NULL";
