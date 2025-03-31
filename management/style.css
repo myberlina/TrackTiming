@@ -68,6 +68,12 @@ border-radius:4px;
 .input_number{
 width:60px;
 }
+.newClass {
+background-color: #AAAAFF;
+font-size:18px;
+font-weight: bold;
+color:#101010;
+}
 .evenRow {
 background-color: #E2EDF9;
 font-size:14px;

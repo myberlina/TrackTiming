@@ -45,6 +45,12 @@ padding: 5px;
 border:#90e090 1px solid;
 border-radius:4px;
 }
+.newClass {
+background-color: #AAAAFF;
+font-size:18px;
+font-weight: bold;
+color:#101010;
+}
 .evenRow {
 background-color: #E2EDF9;
 font-size:14px;
