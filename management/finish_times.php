@@ -116,13 +116,17 @@
     $safe_time=htmlspecialchars($row['time_ms']/1000);
     $safe_delta=htmlspecialchars($row['delta']/1000);
     if ($row_id != $prev_row_id) {
-      echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
+      echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
       echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
     }
     else {
       echo "<td>&nbsp;$safe_num</td>";
     }
-    echo "<td>$safe_delta</td>";
+    $delta_ondblclick="ondblclick=\"tb=document.getElementById('CarNum-$row_id');tb.value = -tb.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(tb.value == '$safe_num')\"";
+    if ( ($safe_delta <= 0) && ($safe_delta > -2.0) )
+      echo "<td style=\"background: red\" $delta_ondblclick>$safe_delta</td>";
+    else
+      echo "<td $delta_ondblclick>$safe_delta</td>";
     echo "<td>$safe_time</td>";
     if ($row_id != $prev_row_id) {
       echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
