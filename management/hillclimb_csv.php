@@ -52,7 +52,7 @@
   }
 
   $res_qry = $db->prepare('
-      SELECT results.event, results.run, results.car_num, car_name, car_info, class, car_car, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
+      SELECT results.event, results.run, results.car_num, car_name, car_entrant, car_info, class, car_car, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
       FROM results, et_order
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
       WHERE results.event = :event AND results.car_num > 0
