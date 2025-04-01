@@ -62,13 +62,28 @@
     $run = $cur_run;
   }
 
-  if ($ent_qry = $db->prepare(
+  if (isset($_GET['hillclimb'])) {
+    $time_title='E/T';
+    $time_colour='Start';
+    $time_query=
+	 'SELECT finish_time.rowid, finish_time.car_num, finish_time.time_ms, finish_time.time_ms - start_time.time_ms delta
+	  FROM finish_time
+	  LEFT JOIN start_time ON start_time.event = finish_time.event AND start_time.run = finish_time.run AND start_time.car_num = finish_time.car_num AND finish_time.time_ms > start_time.time_ms
+	  WHERE finish_time.event = :event AND finish_time.run = :run
+	  ORDER BY finish_time.rowid desc, delta';
+  }
+  else {
+    $time_title='F/T';
+    $time_colour='Green';
+    $time_query=
 	 'SELECT finish_time.rowid, finish_time.car_num, finish_time.time_ms, finish_time.time_ms - green_time.time_ms delta
 	  FROM finish_time
 	  LEFT JOIN green_time ON green_time.event = finish_time.event AND green_time.run = finish_time.run AND green_time.car_num = finish_time.car_num AND finish_time.time_ms > green_time.time_ms
 	  WHERE finish_time.event = :event AND finish_time.run = :run
-	  ORDER BY finish_time.rowid desc, delta'
-    )) {
+	  ORDER BY finish_time.rowid desc, delta';
+  }
+
+  if ($ent_qry = $db->prepare($time_query)) {
     $ent_qry->bindValue(':event', 0 + $evt, SQLITE3_INTEGER);
     $ent_qry->bindValue(':run', 0 + $run, SQLITE3_INTEGER);
     $entrants = $ent_qry->execute();
@@ -97,7 +112,7 @@
    </tr>
    <tr class="listheader">
       <td width=50>Car</td>
-      <td>F/T</td>
+      <td><?php echo $time_title;?></td>
       <td>Time</td>
       <td colspan=3>Operation</td>
    </tr>
@@ -134,7 +149,7 @@
       echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes\" formnovalidate onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
     }
     else {
-      echo "<td colspan=3 style=\"background: pink\"> Dup Green Time</td>\n";
+      echo "<td colspan=3 style=\"background: pink\"> Dup $time_colour Time</td>\n";
     }
     echo "</tr>\n";
     $prev_row_id = $row_id;
