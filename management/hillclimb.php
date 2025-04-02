@@ -103,17 +103,19 @@
      else
        $classname="oddRow";
      if ($row["car_num"] != $prev_car ) {
-       if ($row["class"] != $prev_class ) {
-         echo "</tr>";
-         echo "<tr class=\"newClass\">";
-         echo "<td colspan=$span_cols>";
-         echo "<div style=\"float:left\">" . htmlspecialchars($row["class"]) . "</div>\n";
-	 echo "<div class=\"classInfo\" style=\"float:right\">";
-	 if (isset($row["record"]) && '' != $row["record"])
-	   echo "Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
-	 if (isset($row["class_info"]))
-	   echo htmlspecialchars($row["class_info"]);
-	 echo "</div></td>\n";
+       if ($row["class"] != $prev_class) {
+         if ($row["class"] != "" ) {
+           echo "</tr>";
+           echo "<tr class=\"newClass\">";
+           echo "<td colspan=$span_cols>";
+           echo "<div style=\"float:left\">" . htmlspecialchars($row["class"]) . "</div>\n";
+	   echo "<div class=\"classInfo\" style=\"float:right\">";
+	   if (isset($row["record"]) && '' != $row["record"])
+	     echo "Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
+	   if (isset($row["class_info"]))
+	     echo htmlspecialchars($row["class_info"]);
+	   echo "</div></td>\n";
+         }
          $prev_class=$row["class"];
          $class_place=1;
        }
