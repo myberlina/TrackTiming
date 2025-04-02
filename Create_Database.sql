@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS entrant_info( event INT NOT NULL, car_num INT NOT NUL
 # ALTER TABLE entrant_info ADD car_entrant;
 # ALTER TABLE entrant_info ADD run_order;
 
+CREATE TABLE IF NOT EXISTS class_info( class NOT NULL unique, class_info, record );
 
 CREATE TABLE IF NOT EXISTS event_info( num INT NOT NULL unique, name );
 
