@@ -50,12 +50,13 @@
   }
 
   $res_qry = $db->prepare('
-      SELECT results.event, results.run, results.car_num, car_name, car_info, class, car_car, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
+      SELECT results.event, results.run, results.car_num, car_name, car_info, entrant_info.class, car_car, class_info, record, rt_ms/1000.0 as rt, et_ms/1000.0 as et, ft_ms/1000.0 as ft
       FROM results, et_order
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
+      LEFT JOIN class_info ON entrant_info.class = class_info.class
       WHERE results.event = :event AND results.car_num > 0
         AND results.event = et_order.event AND results.car_num = et_order.car_num
-      ORDER BY results.event, class, et_order.red, et_order.best_et, results.car_num, results.run');
+      ORDER BY results.event, entrant_info.class, et_order.red, et_order.best_et, results.car_num, results.run');
   $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
 
   $results = $res_qry->execute();
@@ -105,8 +106,14 @@
        if ($row["class"] != $prev_class ) {
          echo "</tr>";
          echo "<tr class=\"newClass\">";
-         echo "<td colspan=$span_cols><div style=\"float:left\">";
-         echo htmlspecialchars($row["class"]) . "</div></td>\n";
+         echo "<td colspan=$span_cols>";
+         echo "<div style=\"float:left\">" . htmlspecialchars($row["class"]) . "</div>\n";
+	 echo "<div class=\"classInfo\" style=\"float:right\">";
+	 if (isset($row["record"]) && '' != $row["record"])
+	   echo "Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
+	 if (isset($row["class_info"]))
+	   echo htmlspecialchars($row["class_info"]);
+	 echo "</div></td>\n";
          $prev_class=$row["class"];
          $class_place=1;
        }

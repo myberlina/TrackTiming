@@ -51,6 +51,10 @@ font-size:18px;
 font-weight: bold;
 color:#101010;
 }
+.classInfo {
+font-size:16px;
+font-weight: normal;
+}
 .evenRow {
 background-color: #E2EDF9;
 font-size:14px;
