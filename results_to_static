@@ -12,7 +12,7 @@ function update_pages()
 {
   event=""
   if php "$DIR"/management/results_ft.php |
-   sed '/function showTiming/,+4d
+   sed '/function showTiming/,+5d
     /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
      > "$DIR/Results"/results_ft.html.new
   then
@@ -28,7 +28,7 @@ function update_pages()
   fi
 
   if php "$DIR"/management/results_et.php |
-   sed '/function showTiming/,+4d
+   sed '/function showTiming/,+5d
     /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
      > "$DIR/Results"/results_et.html.new
   then
@@ -44,7 +44,7 @@ function update_pages()
   fi
 
   if php "$DIR"/management/results_rt.php |
-   sed '/function showTiming/,+4d
+   sed '/function showTiming/,+5d
     /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
      > "$DIR/Results"/results_rt.html.new
   then
@@ -60,7 +60,7 @@ function update_pages()
   fi
 
   if php "$DIR"/management/hillclimb.php |
-   sed '/function showTiming/,+4d
+   sed '/function showTiming/,+5d
     /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
      > "$DIR/Results"/hillclimb.html.new
   then
