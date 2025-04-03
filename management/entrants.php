@@ -228,7 +228,7 @@
       <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Car';document.getElementById('frmEntrant').requestSubmit()">Car</td>
       <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Class';document.getElementById('frmEntrant').requestSubmit()">Class</td>
       <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Entrant';document.getElementById('frmEntrant').requestSubmit()">Entrant</td>
-      <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Order';document.getElementById('frmEntrant').requestSubmit()">Order</td>
+      <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Order';document.getElementById('frmEntrant').requestSubmit()" title="NOTE: Alphabetic Order, NotNumeric">Order</td>
       <td> <input id="delete-ALL" type="button" name="delete-ALL" value="Delete ALL" onclick="document.getElementById('really-ALL').disabled=false" class="button"> </td>
       <td> <input id="really-ALL" type="button" name="really-ALL" value="Really?" onclick="document.getElementById('really-delete-ALL').disabled=false" class="button" disabled> </td>
       <td> <input id="really-delete-ALL" type="submit" name="really-delete-ALL" value="Yes!" formnovalidate formaction="?evt=<?php echo $evt;?>&id=ALL" class="button" disabled> </td>
