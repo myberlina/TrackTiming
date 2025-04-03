@@ -47,12 +47,12 @@ border-radius:4px;
 }
 .newClass {
 background-color: #AAAAFF;
-font-size:18px;
+font-size:16px;
 font-weight: bold;
 color:#101010;
 }
 .classInfo {
-font-size:16px;
+font-size:15px;
 font-weight: normal;
 }
 .evenRow {
@@ -76,7 +76,7 @@ border-top:2px #999999 solid;
 }
 .listheader {
 background-color: #a0ffa0;
-font-size:18px;
+font-size:16px;
 font-weight:bold;
 }
 .new_owner {
