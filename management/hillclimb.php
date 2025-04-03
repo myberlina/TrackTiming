@@ -101,7 +101,7 @@
  </select>
 </div>
 <br/>
-  <table align="center" border="2" cellpadding="4">
+  <table align="center" border="1" cellpadding="1">
    <tr class="listheader">
       <td>Num</td>
       <td>Driver</td>
