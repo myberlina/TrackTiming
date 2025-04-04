@@ -159,6 +159,9 @@
    </tr>
    <?php
 
+   $class_size=38;
+   $info_size=34;
+
    $i=0;
    while(isset($class_infos) && $row = $class_infos->fetchArray()) {
     if($i%2==0)
@@ -173,11 +176,11 @@
     $row_id=$row['rowid'];
 
     echo "<input type=\"hidden\" name=\"OrigClass-$row_id\" value=\"$safe_class\" id=\"OrigClass-$row_id\">";
-    echo "<td><input type=\"text\" placeholder=\"Class\" name=\"Class-$row_id\" class=\"txtField\" value=\"$safe_class\"";
+    echo "<td><input type=\"text\" placeholder=\"Class\" size=\"$class_size\" name=\"Class-$row_id\" class=\"txtField\" value=\"$safe_class\"";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigClass-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigClassInfo-$row_id\" value=\"$safe_class_info\" id=\"OrigClassInfo-$row_id\">";
-    echo "<td><input type=\"text\" placeholder=\"Information\" name=\"ClassInfo-$row_id\" class=\"txtField\" value=\"$safe_class_info\"";
+    echo "<td><input type=\"text\" placeholder=\"Information\" size=\"$info_size\" name=\"ClassInfo-$row_id\" class=\"txtField\" value=\"$safe_class_info\"";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigClassInfo-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigRecord-$row_id\" value=\"$safe_record\" id=\"OrigRecord-$row_id\">";
@@ -197,9 +200,9 @@
     $classname="class=\"oddRow\"";
    echo "<tr $classname>";
    $row_id=0; $safe_class=""; $safe_class_info=""; $safe_record="";
-   echo "<td><input type=\"text\" placeholder=\"Class\" name=\"Class-$row_id\" class=\"txtField\" value=\"$safe_class\"";
+   echo "<td><input type=\"text\" placeholder=\"Class\" size=\"$class_size\" name=\"Class-$row_id\" class=\"txtField\" value=\"$safe_class\"";
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_class')\" ></td>\n";
-   echo "<td><input type=\"text\" placeholder=\"Information\" name=\"ClassInfo-$row_id\" class=\"txtField\" value=\"$safe_class_info\"";
+   echo "<td><input type=\"text\" placeholder=\"Information\" size=\"$info_size\" name=\"ClassInfo-$row_id\" class=\"txtField\" value=\"$safe_class_info\"";
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_class_info')\" ></td>\n";
    echo "<td><input type=\"text\" placeholder=\"Record\" size=\"4\" name=\"ClassRecord-$row_id\" class=\"txtField\" value=\"$safe_record\"";
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_record')\" ></td>\n";
