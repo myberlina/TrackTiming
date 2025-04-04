@@ -134,7 +134,7 @@
            echo "<div style=\"float:left\">" . htmlspecialchars($row["class"]) . "</div>\n";
 	   echo "<div class=\"classInfo\" style=\"float:right\">";
 	   if (isset($row["record"]) && '' != $row["record"])
-	     echo "Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
+	     echo " &nbsp; Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
 	   if (isset($row["class_info"]))
 	     echo htmlspecialchars($row["class_info"]);
 	   echo "</div></td>\n";
