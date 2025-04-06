@@ -127,6 +127,37 @@
       }
     }
 
+    if((isset($_POST['submit'])) && ('P3' == $_POST['submit'])) {
+      $move_vals=explode(":", $_POST['move_vals'] . ":" . $_POST["last_ord"]);
+      if ($swap_qry = $db->prepare("UPDATE next_car SET ord = ord-1 WHERE ord <= :new_ord")) {
+	$swap_qry->bindValue(':new_ord', $move_vals[1]);
+	if ($update_result = $swap_qry->execute()) {
+          if ($swap_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) {
+	    $swap_qry->bindValue(':rowid', $move_vals[0]);
+	    $swap_qry->bindValue(':new_ord', $move_vals[1]);
+	    if ($update_result = $swap_qry->execute()) {
+              #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+            }
+	    else{
+	      $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+            }
+	    $swap_qry->close();
+          }
+          else{
+	    $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+          }
+          #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+        }
+	else{
+	  $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+        }
+	$swap_qry->close();
+      }
+      else{
+	$message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+      }
+    }
+
     if((isset($_POST['submit'])) && (('Top' == $_POST['submit']) || ('Bot' == $_POST['submit']))) {
       $move_vals=explode(":", $_POST['move_vals'] . ":" . $_POST["last_ord"]);
       if ($swap_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) {
@@ -238,7 +269,7 @@
 
   </div>
 
-  <table align=center border="2" cellpadding="4">
+  <table align=center border="1" cellpadding="2">
    <tr class="listheader">
       <td width=40>Num</td>
       <td>Driver</td>
@@ -279,6 +310,15 @@
 	$top_data = "";
 	$top=$prev_row['ord'] - 1;
       }
+      if ($i > 2) {
+	$top_2_disable = "";
+	$top_2_data = "$row_id:$top_2_num";
+      }
+      else {
+	$top_2_disable = "disabled";
+	$top_2_data = "";
+	$top_2_num = $prev_row['ord']-1;
+      }
       $safe_num=htmlspecialchars($prev_row['car_num']);
       $safe_name=htmlspecialchars($prev_row['car_name']);
       echo "<td align=\"center\">$safe_num</td>\n";
@@ -290,6 +330,7 @@
       #echo " <input type=\"image\" name=\"Up\" src=\"up_arrow.png\" alt=\"Up\" title=\"Up\" onclick=\"document.getElementById('move_vals').value='$up_data'\" class=\"button\" $up_disable>\n";
       echo "</td><td>";
       echo " <input type=\"submit\" name=\"submit\" value=\"Bot\" onclick=\"document.getElementById('move_vals').value='$row_id'\" class=\"button\" $down_disable>\n";
+      echo " <input type=\"submit\" name=\"submit\" value=\"P3\" onclick=\"document.getElementById('move_vals').value='$top_2_data'\" class=\"button\" $top_2_disable>\n";
       echo " <input type=\"submit\" name=\"submit\" value=\"Top\" onclick=\"document.getElementById('move_vals').value='$top_data'\" class=\"button\" $up_disable>\n";
       #echo " <input type=\"image\" name=\"Bot\" src=\"bottom_arrow.png\" alt=\"Bottom\" title=\"Bottom\" onclick=\"document.getElementById('move_vals').value='$row_id'\" class=\"button\" $down_disable>\n";
       #echo " <input type=\"image\" name=\"Top\" src=\"top_arrow.png\" alt=\"Top\" title=\"Top\" onclick=\"document.getElementById('move_vals').value='$top_data'\" class=\"button\" $up_disable>\n";
