@@ -251,7 +251,7 @@
     $safe_entrant=htmlspecialchars($row['car_entrant']);
     $safe_order=htmlspecialchars($row['run_order']);
     $row_id=$row['rowid'];
-    echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EntNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
+    echo "<td><input type=\"number\" placeholder=\"Num\" size=\"3\" name=\"EntNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num');haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigName-$row_id\" value=\"$safe_name\" id=\"OrigName-$row_id\">";
@@ -271,7 +271,7 @@
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigCar-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigClass-$row_id\" value=\"$safe_class\" id=\"OrigClass-$row_id\">";
-    echo "<td><input type=\"text\" placeholder=\"Class\" name=\"EntClass-$row_id\" class=\"txtField\" value=\"$safe_class\"";
+    echo "<td><input type=\"text\" placeholder=\"Class\" size=\"41\" name=\"EntClass-$row_id\" class=\"txtField\" value=\"$safe_class\"";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigClass-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<input type=\"hidden\" name=\"OrigEntrant-$row_id\" value=\"$safe_entrant\" id=\"OrigEntrant-$row_id\">";
