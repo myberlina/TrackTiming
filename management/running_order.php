@@ -1,7 +1,7 @@
 <?php
   if(count($_POST)>0) {
     include_once 'database.php';
-    #var_dump($_POST);
+    //var_dump($_POST);
 
     $current = $db->query('select current_event, current_run from current_event, current_run;');
     if ($row = $current->fetchArray()) {
@@ -127,34 +127,105 @@
       }
     }
 
-    if((isset($_POST['submit'])) && ('P3' == $_POST['submit'])) {
-      $move_vals=explode(":", $_POST['move_vals'] . ":" . $_POST["last_ord"]);
-      if ($swap_qry = $db->prepare("UPDATE next_car SET ord = ord-1 WHERE ord <= :new_ord")) {
-	$swap_qry->bindValue(':new_ord', $move_vals[1]);
-	if ($update_result = $swap_qry->execute()) {
-          if ($swap_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) {
-	    $swap_qry->bindValue(':rowid', $move_vals[0]);
-	    $swap_qry->bindValue(':new_ord', $move_vals[1]);
-	    if ($update_result = $swap_qry->execute()) {
+    if((!isset($_POST['submit'])) && isset($_POST['move_vals']) && ("Drag:"==substr($_POST['move_vals'],0,5))) {
+      $move_vals=explode(":", $_POST['move_vals']);
+      $orig_row=$move_vals[1];
+      $orig_ord=$move_vals[2];
+      $dest_row=$move_vals[3]; // Dont really care about this
+      $dest_ord=$move_vals[4];
+      $max_order=$_POST['last_ord'] + 3;
+      if ($orig_ord < $dest_ord) {
+	// Shuffle everyone up the order, plus an offset past the end to avoid UNIQUE constraint
+        $qry = "UPDATE next_car SET ord = ord - 1 + :offset WHERE ord <= :dest_ord AND ord > :orig_ord";
+        $offset=$max_order + ( $max_order - $orig_ord );
+      }
+      else {
+        // Shuffle everyone down the order, plus an offset past the end to avoid UNIQUE constraint
+        $qry = "UPDATE next_car SET ord = ord + 1 + :offset WHERE ord >= :dest_ord AND ord < :orig_ord";
+        $offset=$max_order + ( $max_order - $dest_ord );
+      }
+      $db->query("BEGIN");
+      if ( ($set_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) &&
+           ($back_qry = $db->prepare("UPDATE next_car SET ord = ord - :offset WHERE ord  >= :max_order")) &&
+           ($shuffle_qry = $db->prepare($qry)) ) {
+	$shuffle_qry->bindValue(':dest_ord', $dest_ord);
+	$shuffle_qry->bindValue(':orig_ord', $orig_ord);
+	$shuffle_qry->bindValue(':offset', $offset);
+	if ($update_result = $shuffle_qry->execute()) {
+	  $set_qry->bindValue(':rowid', $orig_row);
+	  $set_qry->bindValue(':new_ord', $dest_ord);
+	  if ($update_result = $set_qry->execute()) {
+	    $back_qry->bindValue(':offset', $offset);
+	    $back_qry->bindValue(':max_order', $max_order - 1);
+	    if ($update_result = $back_qry->execute()) {
               #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+              $db->query("COMMIT");
             }
 	    else{
-	      $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	      $message = "<font color=\"#c00000\"> Entrant Move failed Shuffle Back\n<BR>". $db->lastErrorMsg();
+	      $db->query("ROLLBACK");
             }
-	    $swap_qry->close();
           }
-          else{
-	    $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	  else{
+	    $message = "<font color=\"#c00000\"> Entrant Move failed Assign\n<BR>". $db->lastErrorMsg();
+	    $db->query("ROLLBACK");
           }
-          #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
         }
 	else{
-	  $message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	  $message = "<font color=\"#c00000\"> Entrant Move failed First Shuffle\n<BR>". $db->lastErrorMsg();
+	  $db->query("ROLLBACK");
         }
-	$swap_qry->close();
+	$set_qry->close();
+	$back_qry->close();
+	$shuffle_qry->close();
       }
       else{
-	$message = "<font color=\"#c00000\"> Entrant Move failed \n<BR>". $db->lastErrorMsg();
+	$message = "<font color=\"#c00000\"> Entrant Move failed prepairing queries\n<BR>". $db->lastErrorMsg();
+	$db->query("ROLLBACK");
+
+      }
+    }
+
+    if((isset($_POST['submit'])) && ('P3' == $_POST['submit'])) {
+      $move_vals=explode(":", $_POST['move_vals'] . ":" . $_POST["last_ord"]);
+      $rowid=$move_vals[0];
+      $p2_ord=$move_vals[1];
+      $db->query("BEGIN");
+      if ( ($move1_qry = $db->prepare("UPDATE next_car SET ord = ord-1 WHERE ord < :p2_ord")) &&
+           ($move2_qry = $db->prepare("UPDATE next_car SET ord = ord-1 WHERE ord = :p2_ord")) &&
+           ($move3_qry = $db->prepare("UPDATE next_car SET ord = :new_ord WHERE rowid= :rowid")) ) {
+	$move1_qry->bindValue(':p2_ord', $p2_ord);
+	if ($update_result = $move1_qry->execute()) {
+	  $move2_qry->bindValue(':p2_ord', $p2_ord);
+	  if ($update_result = $move2_qry->execute()) {
+	    $move3_qry->bindValue(':rowid', $move_vals[0]);
+	    $move3_qry->bindValue(':new_ord', $move_vals[1]);
+	    if ($update_result = $move3_qry->execute()) {
+              #$message = "<font color=\"#00a000\"> Entrants Move Successfully" ."\n<BR>";
+              $db->query("COMMIT");
+            }
+	    else{
+	      $message = "<font color=\"#c00000\"> Entrant Move failed Assign to P3\n<BR>". $db->lastErrorMsg();
+	      $db->query("ROLLBACK");
+            }
+          }
+	  else{
+	    $message = "<font color=\"#c00000\"> Entrant Move Shuffle Move P2\n<BR>". $db->lastErrorMsg();
+	    $db->query("ROLLBACK");
+          }
+        }
+	else{
+	  $message = "<font color=\"#c00000\"> Entrant Move failed Shuffle P1\n<BR>". $db->lastErrorMsg();
+	  $db->query("ROLLBACK");
+        }
+	$move3_qry->close();
+	$move2_qry->close();
+	$move1_qry->close();
+      }
+      else{
+	$message = "<font color=\"#c00000\"> Entrant Move failed prepairing queries\n<BR>". $db->lastErrorMsg();
+	$db->query("ROLLBACK");
+
       }
     }
 
@@ -253,9 +324,32 @@
     if ((isset($prev_evt) && ($prev_evt != $cur_evt)) || (isset($prev_run) && ($prev_run != $cur_run)))
       echo "<script type=\"text/javascript\"> window.top.location.reload(); </script>\n";
 ?>
+    <script type="text/javascript">
+      function dragstartHandler(ev) {
+        ev.dataTransfer.setData("text/plain", ev.target.id);
+	block_refresh=1;
+      }
+      function dragoverHandler(ev) {
+        const start = ev.dataTransfer.getData("text/plain");
+	end = ev.currentTarget.id;
+	if ( start != end ) {
+          ev.preventDefault();
+	}
+      }
+      function dropHandler(ev) {
+        ev.preventDefault();
+        const start = ev.dataTransfer.getData("text/plain");
+	end = ev.target.id;
+	if ( start != end ) {
+	  document.getElementById('move_vals').value="Drag:" + start + ":" + ev.target.id;
+	  document.getElementById('frmRunOrd').requestSubmit();
+	}
+	block_refresh=0;
+      }
+    </script>
   </head>
 <body>
-  <form name="frmRunOrd" method="post" action="">
+  <form name="frmRunOrd" id="frmRunOrd" method="post" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
     <div align="center" style="padding-bottom:5px;">
       Current Event
@@ -293,6 +387,7 @@
        $classname="class=\"oddRow\"";
       echo "<tr $classname>";
       $row_id=$prev_row['rowid'];
+      $ord=$prev_row['ord'];
       if (is_array($new_row)) {
 	$down_disable = "";
         $down_data="$row_id:" . $new_row['ord'] . ":" . $new_row['rowid'] . ":" . $prev_row['ord'];
@@ -321,7 +416,7 @@
       }
       $safe_num=htmlspecialchars($prev_row['car_num']);
       $safe_name=htmlspecialchars($prev_row['car_name']);
-      echo "<td align=\"center\">$safe_num</td>\n";
+      echo "<td align=\"center\" id=\"$row_id:$ord\" ondrop=\"dropHandler(event)\"   ondragover=\"dragoverHandler(event)\" draggable=\"true\" ondragstart=\"dragstartHandler(event)\">$safe_num</td>\n";
       echo "<td>$safe_name</td>\n";
       echo "<td>";
       echo " <input type=\"submit\" name=\"submit\" value=\"Dn\" onclick=\"document.getElementById('move_vals').value='$down_data'\" class=\"button\" $down_disable>\n";
