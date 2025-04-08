@@ -255,31 +255,33 @@ debounce[green_gpio] = start_tick
 debounce[start_gpio] = start_tick + 2
 debounce[finish_gpio] = start_tick + 4
 
+pi.set_mode(button_gpio, pigpio.INPUT)
+pi.set_mode(green_gpio, pigpio.INPUT)
+pi.set_mode(start_gpio, pigpio.INPUT)
+pi.set_mode(finish_gpio, pigpio.INPUT)
+
+pi.set_pull_up_down(button_gpio, pigpio.PUD_DOWN)
+pi.set_pull_up_down(green_gpio, pigpio.PUD_DOWN)
+pi.set_pull_up_down(start_gpio, pigpio.PUD_DOWN)
+pi.set_pull_up_down(finish_gpio, pigpio.PUD_DOWN)
+    
 normally_hi=0
+hsv_fest=0
 
 if normally_hi:
-    pi.set_pull_up_down(green_gpio, pigpio.PUD_UP)
-    pi.set_pull_up_down(start_gpio, pigpio.PUD_UP)
-    pi.set_pull_up_down(finish_gpio, pigpio.PUD_UP)
-    
     cb1 = pi.callback(green_gpio, pigpio.FALLING_EDGE, cb_green)
     cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)
     cb3 = pi.callback(finish_gpio, pigpio.FALLING_EDGE, cb_finish)
-else:
-    pi.set_mode(button_gpio, pigpio.INPUT)
-    pi.set_mode(green_gpio, pigpio.INPUT)
-    pi.set_mode(start_gpio, pigpio.INPUT)
-    pi.set_mode(finish_gpio, pigpio.INPUT)
-    
-    pi.set_pull_up_down(button_gpio, pigpio.PUD_DOWN)
-    pi.set_pull_up_down(green_gpio, pigpio.PUD_DOWN)
-    pi.set_pull_up_down(start_gpio, pigpio.PUD_DOWN)
-    pi.set_pull_up_down(finish_gpio, pigpio.PUD_DOWN)
-    
+elif hsv_fest:
     cb0 = pi.callback(button_gpio, pigpio.RISING_EDGE, cb_button)
     cb1 = pi.callback(green_gpio, pigpio.RISING_EDGE, cb_green)
     #cb2 = pi.callback(start_gpio, pigpio.RISING_EDGE, cb_start)
-    cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)
+    cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)  # Stage with beam broken
+    cb3 = pi.callback(finish_gpio, pigpio.RISING_EDGE, cb_finish)
+else:
+    cb0 = pi.callback(button_gpio, pigpio.RISING_EDGE, cb_button) # Not necessarily used
+    cb1 = pi.callback(green_gpio, pigpio.RISING_EDGE, cb_green)
+    cb2 = pi.callback(start_gpio, pigpio.RISING_EDGE, cb_start)
     cb3 = pi.callback(finish_gpio, pigpio.RISING_EDGE, cb_finish)
 
 
