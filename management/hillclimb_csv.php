@@ -2,6 +2,11 @@
 
   include_once 'database.php';
 
+  if (isset($_GET['runners_only']))
+    $runners_only = true;
+  else
+    $runners_only = false;
+
   $events = $db->query('SELECT DISTINCT event, name FROM results, event_info WHERE event = num ORDER BY event DESC');
 
   if (isset($_GET['evt'])) {
@@ -41,7 +46,7 @@
     $place_et[$row["car_num"]] = $place++;
   }
 
-  if (false)
+  if ($runners_only)
       $best_qry = $db->query('SELECT * FROM et_order
                          LEFT JOIN entrant_info ON et_order.car_num = entrant_info.car_num and et_order.event = entrant_info.event
                          WHERE et_order.event = ' . $db->escapeString($evt) .
@@ -61,7 +66,7 @@
 	$place_special[$row["car_num"]][$row["special"]] = "";
   }
 
-  if (false) {
+  if ($runners_only) {
     $res_qry = $db->prepare('
       SELECT results.event, results.run, results.car_num, car_name, car_entrant, car_info, class, car_car, et_ms/1000.0 as et
       FROM results, et_order
