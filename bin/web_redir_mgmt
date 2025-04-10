@@ -1,0 +1,43 @@
+#!/bin/bash
+
+ReDirOverideFile='/etc/Management_URL'
+
+Re_Dir_URL='http://192.168.55.1/HSV_Timing/management/management.html'
+if [[ -f "$ReDirOverideFile" && -s "$ReDirOverideFile" ]]
+then
+  read Re_Dir_URL < "$ReDirOverideFile"
+fi
+
+let ContentLen=156+${#Re_Dir_URL}
+
+cat <<EOF
+HTTP/1.1 301 Moved Permanently
+Content-Type: text/html; charset=UTF-8
+Location: $Re_Dir_URL
+Server: Dodgy-Dave-Redirector/10.0
+Date: $(TZ=0 date "+%a, %d %b %Y %T GMT")
+expires: $(TZ=0 date "+%a, %d %b %Y %T GMT")
+pragma: no-cache
+Connection: close
+Content-Length: $ContentLen
+
+<head><title>HSVFest Timing Redirect</title></head>
+<body><h1>HSVFest Timing Redirect</h1>HSVFest Timing Redirect may be found <a HREF="$Re_Dir_URL">here</a></body>
+EOF
+
+received=''
+while read -t 0 krud
+do
+  received="${received}${krud}"
+  read -t 1 krud2
+  received="${received}${krud2}"
+  [[ "$krud$krud2" == '' ]] && break
+done
+
+logger -t web_redir_mgmt -id "${received}"
+date="$(date -Iseconds)"
+echo "${date}: ${received}" | sed 's/\r/#015/g' >> /var/www/log/web_redir_mgmt.log
+
+exec >&-
+exec 2>&-
+exec <&-

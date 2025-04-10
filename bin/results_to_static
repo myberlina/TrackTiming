@@ -1,0 +1,105 @@
+#!/bin/bash
+
+arg0="${0##*/}"
+
+DIR='/var/www/html/HSV_Timing/'
+dbase='/data/Track_Time/Track_Time.db'
+
+data_ts="/dev/shm/.data.ts.$arg0"
+push_ts="/dev/shm/.push.ts.$arg0"
+
+function update_pages()
+{
+  event=""
+  if php "$DIR"/management/results_ft.php |
+   sed '/function showTiming/,+5d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_ft.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/results_ft.html.new "$DIR/Results"/results_ft.html >/dev/null
+    then
+      : No change to results
+    else
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/results_ft.html.new )
+      need_to_refresh=y
+      mv "$DIR/Results"/results_ft.html.new "$DIR/Results"/results_ft.html
+    fi
+  fi
+
+  if php "$DIR"/management/results_et.php |
+   sed '/function showTiming/,+5d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_et.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/results_et.html.new "$DIR/Results"/results_et.html >/dev/null
+    then
+      : No change to results
+    else
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/results_et.html.new )
+      need_to_refresh=y
+      mv "$DIR/Results"/results_et.html.new "$DIR/Results"/results_et.html
+    fi
+  fi
+
+  if php "$DIR"/management/results_rt.php |
+   sed '/function showTiming/,+5d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/results_rt.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/results_rt.html.new "$DIR/Results"/results_rt.html >/dev/null
+    then
+      : No change to results
+    else
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/results_rt.html.new )
+      need_to_refresh=y
+      mv "$DIR/Results"/results_rt.html.new "$DIR/Results"/results_rt.html
+    fi
+  fi
+
+  if php "$DIR"/management/hillclimb.php |
+   sed '/function showTiming/,+5d
+    /meta http-equiv="refresh"/ s/content="[0-9]*"/content="60"/' \
+     > "$DIR/Results"/hillclimb.html.new
+  then
+    touch "$data_ts"
+    if diff "$DIR/Results"/hillclimb.html.new "$DIR/Results"/hillclimb.html >/dev/null
+    then
+      : No change to results
+    else
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/hillclimb.html.new )
+      need_to_refresh=y
+      mv "$DIR/Results"/hillclimb.html.new "$DIR/Results"/hillclimb.html
+    fi
+  fi
+
+  if [[ y = "$need_to_refresh" || "$DIR/Results"/results_et.html -nt "$push_ts" ]]
+  then
+    forward_results "$push_ts" "${event}" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html "$DIR/Results"/results_rt.html "$DIR/Results"/hillclimb.html &&
+     need_to_refresh=''
+  fi
+}
+
+while true
+do
+  if inotifywait -e modify /data/state_Finish -t 120 >/dev/null 2>&1
+  then
+    sleep 2
+    update_pages
+    sleep 20
+  else
+    if [[ "${dbase}" -nt "$data_ts" ||
+          "${dbase}-wal" -nt "$data_ts" ||
+          "${dbase}-shm" -nt "$data_ts" ]]
+    then
+      update_pages
+    elif [[ y = "$need_to_refresh" || "$DIR/Results"/results_et.html -nt "$push_ts" ]]
+    then
+      event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "$DIR/Results"/results_ft.html.new )
+      forward_results "$push_ts" "${event}" "$DIR/Results"/results_et.html "$DIR/Results"/results_ft.html "$DIR/Results"/results_rt.html "$DIR/Results"/hillclimb.html &&
+       need_to_refresh=''
+    fi
+  fi
+done
