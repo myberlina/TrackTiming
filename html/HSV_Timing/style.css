@@ -1,0 +1,98 @@
+body {
+font-family:Arial;
+}
+input {
+font-family:Arial;
+font-size:16px;
+}
+label{
+font-family:Arial;
+font-size:16px;
+color:#999999;
+}
+.tblSaveForm {
+border-top:3px SkyBlue solid;
+background-color: #f8f8f8;
+}
+.header {
+background-color: SkyBlue;
+}
+.tablerow {
+background-color: #A7D6F1;
+color:white;
+}
+.button {
+background-color: SkyBlue;
+padding:5px;
+border-color:white;
+border-radius:4px;
+color:white;
+}
+.del_button {
+background-color: Pink;
+padding:5px;
+border-color:white;
+border-radius:4px;
+color:white;
+}
+.message {
+color: #FF0000;
+text-align: center;
+width: 100%;
+}
+.txtField {
+padding: 5px;
+border:#90e090 1px solid;
+border-radius:4px;
+}
+.newClass {
+background-color: #AAAAFF;
+font-size:16px;
+font-weight: bold;
+color:#101010;
+}
+.classInfo {
+font-size:15px;
+font-weight: normal;
+}
+.evenRow {
+background-color: #E2EDF9;
+font-size:14px;
+color:#101010;
+}
+.evenRow:hover {
+background-color: #a0e0a0;
+}
+.oddRow {
+background-color: #B3E8FF;
+font-size:14px;
+color:#101010;
+}
+.oddRow:hover {
+background-color: #a0e0a0;
+}
+.tblListForm {
+border-top:1px #999999 solid;
+}
+.listheader {
+background-color: #a0ffa0;
+font-size:16px;
+font-weight:bold;
+}
+.new_owner {
+border:7px;
+font-size:16px;
+border-color: #ffe0e0;
+background-color: #ffe0e0;
+}
+.new_owner_add {
+border:7px;
+font-size:14px;
+border-color: #ffe0e0;
+background-color: #ffe0e0;
+}
+.link{
+text-decoration:none;
+color:#5e8fc7;
+font-size:13px;
+}
