@@ -2,10 +2,18 @@
 
   include_once 'database.php';
 
-  if (isset($_GET['runners_only']))
+  if (isset($_GET['runners_only'])) {
     $runners_only = true;
-  else
+    $runners_only_checked = "checked";
+    $runners_url = '&runners_only';
+    $opp_runners_url = '';
+  }
+  else {
     $runners_only = false;
+    $runners_only_checked = "";
+    $runners_url = '';
+    $opp_runners_url = '&runners_only';
+  }
 
   $events = $db->query('SELECT DISTINCT event, name FROM results, event_info WHERE event = num ORDER BY event DESC');
 
@@ -101,9 +109,13 @@
 <body>
 <script type="text/javascript">function showTiming(str){document.location = '?evt='+str;}</script>
 <div align="center" style="padding-bottom:5px;">
- Times for <select name="EventList" style="width: 240px" onchange="showTiming(this.value)">
+ Times for <select name="EventList" style="width: 240px" onchange="showTiming(this.value + '<?php echo $runners_url;?>')">
    <?php echo $event_select;?>
  </select>
+<div style="float:right">
+  <?php echo "<input type=\"checkbox\" id=\"runners_only\" name=\"runners_only\" $runners_only_checked onchange=\"showTiming('$evt$opp_runners_url')\">";?>
+  <label for="runners_only"> Show Runners Only </label>
+</div>
 </div>
 <br/>
   <table align="center" border="1" cellpadding="1">
