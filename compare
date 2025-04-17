@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# 	Local	Dest
+MAP="	html	/var/www/
+	bin	/usr/local/
+	etc	/etc/"
+
+diff_args=''
+while (( $# > 1 ))
+do
+  if [[ 'x-r' == "x$1" ]]
+  then
+    reverse_diff=y
+    shift
+    continue
+  elif [[ "x$1" != "x${1#-}" ]]
+  then
+    diff_args="$diff_args $1"
+    shift
+    continue
+  else
+    break
+  fi
+done
+
+tot=0
+mat=0
+
+echo "$MAP" |
+ while read localdir destdir
+ do
+    find "$localdir" -type f -print |
+     while read f
+     do
+       if diff -q "$f" "$dest/$f" >/dev/null
+       then
+         let mat++
+       else
+         echo -e "\r" >&2
+         echo -e "$f"
+         #ls -l "$f" "$dest/$f"
+         if [[ -n "$diff_args" && -f "$dest/$f" && -f "$f" ]]
+         then
+           if [[ y = "$reverse_diff" ]]
+           then
+             diff $diff_args "$f" "$dest/$f"
+           else
+             diff $diff_args "$dest/$f" "$f"
+           fi
+         fi
+       fi
+       let tot++
+       printf "\r%4d/%d    " $mat $tot >&2
+     done
+     echo >&2
+ done
