@@ -32,20 +32,20 @@ echo "$MAP" |
     find "$localdir" -type f -print |
      while read f
      do
-       if diff -q "$f" "$dest/$f" >/dev/null
+       if diff -q "$f" "$destdir/$f" >/dev/null
        then
          let mat++
        else
          echo -e "\r" >&2
          echo -e "$f"
-         #ls -l "$f" "$dest/$f"
-         if [[ -n "$diff_args" && -f "$dest/$f" && -f "$f" ]]
+         #ls -l "$f" "$destdir/$f"
+         if [[ -n "$diff_args" && -f "$destdir/$f" && -f "$f" ]]
          then
            if [[ y = "$reverse_diff" ]]
            then
-             diff $diff_args "$f" "$dest/$f"
+             diff $diff_args "$f" "$destdir/$f"
            else
-             diff $diff_args "$dest/$f" "$f"
+             diff $diff_args "$destdir/$f" "$f"
            fi
          fi
        fi
