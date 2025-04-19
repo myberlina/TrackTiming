@@ -3,7 +3,11 @@
 # 	Local	Dest
 MAP="	html	/var/www/
 	bin	/usr/local/
-	etc	/etc/"
+	etc	/"
+
+SKIP='/.gitignore
+/i_watcher.c'
+
 
 diff_args=''
 while (( $# > 1 ))
@@ -29,7 +33,7 @@ mat=0
 echo "$MAP" |
  while read localdir destdir
  do
-    find "$localdir" -type f -print |
+    find "$localdir" -type f -print | fgrep -v "$SKIP" |
      while read f
      do
        if diff -q "$f" "$destdir/$f" >/dev/null
