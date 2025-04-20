@@ -6,11 +6,14 @@ MAP="	html	/var/www/
 	etc	/"
 
 SKIP='/.gitignore
+/Makefile
+/Create_Database.sql
 /i_watcher.c'
 
 
+verbose=''
 diff_args=''
-while (( $# > 1 ))
+while (( $# >= 1 ))
 do
   if [[ 'x-r' == "x$1" ]]
   then
@@ -20,6 +23,12 @@ do
   elif [[ "x$1" != "x${1#-}" ]]
   then
     diff_args="$diff_args $1"
+    shift
+    continue
+  elif [[ "x-v" != "x$1" ]]
+  then
+    verbose=y
+    diff_args="$diff_args "
     shift
     continue
   else
