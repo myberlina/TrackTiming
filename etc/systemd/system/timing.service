@@ -1,0 +1,23 @@
+[Unit]
+Description=Track Timing Daemon
+After=pigpiod.service
+Requires=pigpiod.service
+ConditionPathExists=/data/Track_Time/Track_Time.db
+
+[Service]
+Type=simple
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=40
+IOSchedulingClass=best-effort
+IOSchedulingPriority=1
+WorkingDirectory=/data
+StandardError=journal
+StandardOutput=journal
+StandardInput=null
+User=www-data
+Group=www-data
+ExecStart=/usr/local/bin/timing.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+[Unit]
+Description=Web Redirect Per-Connection Server
+
+[Service]
+ExecStart=-/usr/local/bin/web_redir
+StandardInput=socket
+User=www-data
+Group=www-data

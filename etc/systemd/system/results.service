@@ -1,0 +1,19 @@
+[Unit]
+Description=Static Results Generator
+After=timing.service
+ConditionPathExists=/var/www/html/HSV_Timing/management/results_ft.php
+ConditionPathExists=/var/www/html/HSV_Timing/management/results_et.php
+ConditionPathExists=/data/state_Finish
+
+[Service]
+Type=simple
+IOSchedulingClass=best-effort
+IOSchedulingPriority=3
+WorkingDirectory=/data
+User=www-data
+Group=www-data
+ExecStart=/usr/local/bin/results_to_static
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

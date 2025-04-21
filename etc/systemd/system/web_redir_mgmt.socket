@@ -1,0 +1,11 @@
+[Unit]
+Description=Web redirector management wlan Per-Connection Servers
+
+[Socket]
+ListenStream=199
+Accept=yes
+ExecStartPre=/usr/sbin/iptables -t nat -A PREROUTING -s 192.168.55.0/24 ! -d 192.168.55.1/32 -i wlan0 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 199
+ExecStopPre=/usr/sbin/iptables -t nat -D PREROUTING -s 192.168.55.0/24 ! -d 192.168.55.1/32 -i wlan0 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 199
+
+[Install]
+WantedBy=sockets.target
