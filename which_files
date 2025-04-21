@@ -1,0 +1,11 @@
+
+# 	Local	Dest
+MAP="	html	/var/www/
+	bin	/usr/local/
+	etc	/"
+
+SKIP='/.gitignore
+/Makefile
+/Create_Database.sql
+/i_watcher.c'
+

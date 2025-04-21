@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# 	Local	Dest
+MAP="	html	/var/www/
+	bin	/usr/local/
+	etc	/"
+
+SKIP='/.gitignore
+/Makefile
+/Create_Database.sql
+/i_watcher.c'
+
+. which_files
+
+
+echo "$MAP" |
+ while read localdir destdir
+ do
+    find "$localdir" -type f -print | fgrep -v "$SKIP" |
+     while read f
+     do
+       ls -ld "$destdir/$f"
+     done
+ done
