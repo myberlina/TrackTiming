@@ -10,6 +10,8 @@ SKIP='/.gitignore
 /Create_Database.sql
 /i_watcher.c'
 
+. which_files
+
 
 verbose=''
 diff_args=''
@@ -61,6 +63,7 @@ echo "$MAP" |
              diff $diff_args "$destdir/$f" "$f"
            fi
          fi
+	 echo
        fi
        let tot++
        printf "\r%4d/%d    " $mat $tot >&2
