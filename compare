@@ -44,29 +44,30 @@ mat=0
 echo "$MAP" |
  while read localdir destdir
  do
-    find "$localdir" -type f -print | fgrep -v "$SKIP" |
-     while read f
+    exec {file_list}< <(find "$localdir" -type f -print | fgrep -v "$SKIP")
+     while read f <&${file_list}
      do
        if diff -q "$f" "$destdir/$f" >/dev/null
        then
          let mat++
        else
-         echo -e "\r" >&2
+         echo -ne "\r                \r" >&2
          echo -e "$f"
          #ls -l "$f" "$destdir/$f"
          if [[ -n "$diff_args" && -f "$destdir/$f" && -f "$f" ]]
          then
+	   echo
            if [[ y = "$reverse_diff" ]]
            then
              diff $diff_args "$f" "$destdir/$f"
            else
              diff $diff_args "$destdir/$f" "$f"
            fi
+	   echo
          fi
-	 echo
        fi
        let tot++
        printf "\r%4d/%d    " $mat $tot >&2
      done
-     echo >&2
  done
+echo >&2
