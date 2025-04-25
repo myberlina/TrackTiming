@@ -310,7 +310,7 @@
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_special')\" ></td>\n";
    echo "<td><input type=\"text\" placeholder=\"Car\" name=\"EntCar-$row_id\" class=\"txtField\" value=\"$safe_car\"";
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_car')\" ></td>\n";
-   echo "<td><input type=\"text\" placeholder=\"Class\" name=\"EntClass-$row_id\" class=\"txtField\" value=\"$safe_class\"";
+   echo "<td><input type=\"text\" placeholder=\"Class\" size=\"41\" name=\"EntClass-$row_id\" class=\"txtField\" value=\"$safe_class\"";
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_class')\" ></td>\n";
    echo "<td><input type=\"text\" placeholder=\"Entrant\" name=\"EntEntrant-$row_id\" class=\"txtField\" value=\"$safe_entrant\"";
    echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_entrant')\" ></td>\n";

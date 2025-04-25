@@ -243,15 +243,18 @@
         $seps_to_try=array("$form_sep");
       else
         $seps_to_try=array(',', "\t", ':', ';', '|');
-      foreach($seps_to_try as $try) {
-        if ($row = fgetcsv($handle, 0, "$try")) {
-	  if ($sep_count < count($row)) {
-	    $sep = $try;
-	    $sep_count = count($row);
+      $j=0;
+      while (($j++ < 10) && $line=fgets($handle)) {
+        foreach($seps_to_try as $try) {
+          if ($row = str_getcsv($line, "$try")) {
+	    if ($sep_count < count($row)) {
+	      $sep = $try;
+	      $sep_count = count($row);
+            }
           }
         }
-        fseek($handle, 0, SEEK_SET);
       }
+      fseek($handle, 0, SEEK_SET);
       if ("\t" == "$sep")
         echo "Found $sep_count columns using &lt;TAB&gt; as a separator. &nbsp; &nbsp;";
       else
@@ -273,7 +276,7 @@
       if ($row = fgetcsv($handle, 0, "$sep")) {
 	echo "<tr><td>Row</td>";
 	$i=0;
-	foreach($row as $cell) {
+	while($i < $sep_count) {
 	  echo "<td class=\"tight_table\"><select name=\"col-$i\"> $col_type_sel </select></td>";
 	  $i=$i+1;
         }
