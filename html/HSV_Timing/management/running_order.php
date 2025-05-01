@@ -31,7 +31,15 @@
 
     if(isset($_POST['NewRun-1'])) $op = $_POST['NewRun-1'];
     else $op = "";
-    if(isset($_POST['NewRun-2']) && ('Now' == $_POST['NewRun-2']) && ($op != '')) {
+    if(isset($_POST['NewRun-2']) && ('Now' == $_POST['NewRun-2']) && ($op == 'SetOrder')) {
+      if ($db->query("UPDATE set_order SET run_order = new_order;")) {
+        $message = "<font color=\"#00a000\"> Run Order Updated" ."\n<BR>";
+      }
+      else {
+        $message = "<font color=\"#c00000\"> Run Order Update Failed \n<BR>". $db->lastErrorMsg();
+      }
+    }
+    elseif(isset($_POST['NewRun-2']) && ('Now' == $_POST['NewRun-2']) && ($op != '')) {
       $db->query("BEGIN");
       $db->query("DELETE FROM next_car"); # True for all operations
       if (($op == "NR-Load") || ($op == "Load")) {
@@ -471,6 +479,7 @@
     <option value="Load"> Load </option>
     <option value="Clear"> Clear </option>
     <option value="PrevRun"> Prev Run </option>
+    <option value="SetOrder"> Set This Order </option>
    </select>
    <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
   </div>
