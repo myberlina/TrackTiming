@@ -1,0 +1,61 @@
+#!/usr/bin/python
+
+import yaml
+import os.path
+import sys
+import getopt
+
+config_file="/etc/timing/timing.conf"
+# config_file="/etc/timing/timing_HSVFest.conf"
+
+argv = sys.argv[1:]
+verbose = 0
+
+try:
+  opts, args = getopt.getopt(argv, "c:v", ["config ="])
+except getopt.GetoptError as err:
+  print('Bad arguments: ' + str(err), file=sys.stderr)
+  exit(1)
+
+for opt, arg in opts:
+  if opt in ['-c', '--config']: 
+    config_file = arg
+  elif opt == '-v':
+    verbose = verbose + 1
+
+
+if os.path.isfile(config_file):
+  config=yaml.safe_load(open(config_file))
+  if (verbose > 0):
+    print(yaml.dump(config))
+else:
+  print('File does not exist: ' + config_file, file=sys.stderr)
+  exit(1)
+
+if 'database_path' in config :
+  print('dbase="' + config['database_path'] + '"')
+if 'results' in config :
+  if 'web_base' in config['results'] :
+    print('web_base="' + config['results']['web_base'] + '"')
+  if 'php_base' in config['results'] :
+    print('php_base="' + config['results']['php_base'] + '"')
+  if 'static_base' in config['results'] :
+    print('static_base="' + config['results']['static_base'] + '"')
+  if 'static_refresh' in config['results'] :
+    print('static_refresh=' + str(config['results']['static_refresh']))
+  if 'runners_only' in config['results'] :
+    if config['results']['runners_only']:
+      print('runners_only=runners_only')
+    else:
+      print('runners_only=""')
+  if 'result_types' in config['results'] :
+    comma=' '
+    all_results=''
+    for result_type in config['results']['result_types']:
+      all_results = all_results + comma + "'" + result_type + "' "
+    print('result_types=(' + all_results + ')')
+
+
+  if 'forward_results_command' in config['results'] :
+    print('forward_results_command="' + config['results']['forward_results_command'] + '"')
+
