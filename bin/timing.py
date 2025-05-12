@@ -8,7 +8,10 @@ import os
 import signal
 import sys
 
-button_lockout=22 * 1000 * 1000 * 1000  # 22 seconds in nanoseconds
+import yaml
+import getopt
+
+button_lockout=20 * 1000 * 1000 * 1000  # 20 seconds in nanoseconds
 
 def reset_debounce(sig, frame):
     debounce[button_gpio] = start_tick
@@ -66,8 +69,93 @@ signal.signal(signal.SIGRTMIN+1, fake_timing_1)
 signal.signal(signal.SIGRTMIN+2, fake_timing_2)
 signal.signal(signal.SIGRTMIN+3, fake_timing_3)
 
+config_file="/etc/timing/timing.conf"
+database="/data/Track_Time/Track_Time.db"
+verbose=0
+argv = sys.argv[1:]
+
+try:
+  opts, args = getopt.getopt(argv, "c:dD:v", ["config =", "database ="])
+except getopt.GetoptError as err:
+  print('Bad arguments: ' + str(err), file=sys.stderr)
+  exit(1)
+
+# First pass of the options
+for opt, arg in opts:
+  if opt in ['-c', '--config']:
+    config_file = arg
+  elif opt == '-d':
+    debug.cb_debug = 1
+  elif opt == '-v':
+    verbose = verbose + 1
+
+# Read in the config file
+if os.path.isfile(config_file):
+  config=yaml.safe_load(open(config_file))
+  if (verbose > 0):
+    print(yaml.dump(config))
+else:
+  print('File does not exist: ' + config_file, file=sys.stderr)
+  exit(1)
+
+if 'database_path' in config :
+  database=config['database_path']
+
+green_gpio=23
+green_falling_edge=False
+start_gpio=24
+start_falling_edge=False
+finish_gpio=25
+finish_falling_edge=False
+button_gpio=17
+button_falling_edge=False
+
+# Update defaults from the config file
+if 'timing' in config :
+  if 'debug' in config['timing'] :
+    if config['timing']['debug'] :
+      debug.cb_debug = 1
+  if 'inputs' in config['timing'] :
+    inputs=config['timing']['inputs']
+    if 'button' in inputs:
+      if 'gpio' in inputs['button'] :
+        button_gpio = inputs['button']['gpio']
+      if 'falling_edge' in inputs['button'] :
+        button_falling_edge = inputs['button']['falling_edge']
+      if (verbose > 0) :
+        print("  Button gpio = " + str(button_gpio) + ",\tfalling_edge: " + str(button_falling_edge))
+
+    if 'green' in inputs:
+      if 'gpio' in inputs['green'] :
+        green_gpio = inputs['green']['gpio']
+      if 'falling_edge' in inputs['green'] :
+        green_falling_edge = inputs['green']['falling_edge']
+      if (verbose > 0) :
+        print("  Green gpio = " + str(green_gpio) + ",\tfalling_edge: " + str(green_falling_edge))
+
+    if 'start' in inputs:
+      if 'gpio' in inputs['start'] :
+        start_gpio = inputs['start']['gpio']
+      if 'falling_edge' in inputs['start'] :
+        start_falling_edge = inputs['start']['falling_edge']
+      if (verbose > 0) :
+        print("  Start gpio = " + str(start_gpio) + ",\tfalling_edge: " + str(start_falling_edge))
+
+    if 'finish' in inputs:
+      if 'gpio' in inputs['finish'] :
+        finish_gpio = inputs['finish']['gpio']
+      if 'falling_edge' in inputs['finish'] :
+        finish_falling_edge = inputs['finish']['falling_edge']
+      if (verbose > 0) :
+        print("  Finish gpio = " + str(finish_gpio) + ",\tfalling_edge: " + str(finish_falling_edge))
+
+# Second pass of the command line options - might overide values read from config file
+for opt, arg in opts:
+  if opt in ['-D', '--database']:
+    database = arg
+
 import apsw
-conn = apsw.Connection('/data/Track_Time/Track_Time.db', apsw.SQLITE_OPEN_READWRITE)
+conn = apsw.Connection(database, apsw.SQLITE_OPEN_READWRITE)
 cur = conn.cursor()
 cur.execute('pragma busy_timeout=5000')
 cur.execute('pragma wal_checkpoint(full);')
@@ -124,11 +212,6 @@ new_car.state = 0  #  No Car
 
 import time
 debounce = np.empty(60, dtype=np.uint32)
-
-green_gpio=23
-start_gpio=24
-finish_gpio=25
-button_gpio=17
 
 def cb_button(gpio, level, tick):
     debo=debounce[gpio]
@@ -251,38 +334,30 @@ new_car.tick = start_tick
 epoch_time = int(time.time())
 print("start ", epoch_time, "  tick ", start_tick)
 
-debounce[green_gpio] = start_tick
-debounce[start_gpio] = start_tick + 2
-debounce[finish_gpio] = start_tick + 4
+debounce[button_gpio] = start_tick
+debounce[green_gpio] = start_tick + 2 
+debounce[start_gpio] = start_tick + 4
+debounce[finish_gpio] = start_tick + 6
 
-pi.set_mode(button_gpio, pigpio.INPUT)
-pi.set_mode(green_gpio, pigpio.INPUT)
-pi.set_mode(start_gpio, pigpio.INPUT)
-pi.set_mode(finish_gpio, pigpio.INPUT)
-
-pi.set_pull_up_down(button_gpio, pigpio.PUD_DOWN)
-pi.set_pull_up_down(green_gpio, pigpio.PUD_DOWN)
-pi.set_pull_up_down(start_gpio, pigpio.PUD_DOWN)
-pi.set_pull_up_down(finish_gpio, pigpio.PUD_DOWN)
+#  Note:  The input board has a pull down resistor but set it on the gpio
+#   also, incase the input board is not mounted.
     
-normally_hi=0
-hsv_fest=0
-
-if normally_hi:
-    cb1 = pi.callback(green_gpio, pigpio.FALLING_EDGE, cb_green)
-    cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)
-    cb3 = pi.callback(finish_gpio, pigpio.FALLING_EDGE, cb_finish)
-elif hsv_fest:
-    cb0 = pi.callback(button_gpio, pigpio.RISING_EDGE, cb_button)
-    cb1 = pi.callback(green_gpio, pigpio.RISING_EDGE, cb_green)
-    #cb2 = pi.callback(start_gpio, pigpio.RISING_EDGE, cb_start)
-    cb2 = pi.callback(start_gpio, pigpio.FALLING_EDGE, cb_start)  # Stage with beam broken
-    cb3 = pi.callback(finish_gpio, pigpio.RISING_EDGE, cb_finish)
-else:
-    cb0 = pi.callback(button_gpio, pigpio.RISING_EDGE, cb_button) # Not necessarily used
-    cb1 = pi.callback(green_gpio, pigpio.RISING_EDGE, cb_green)
-    cb2 = pi.callback(start_gpio, pigpio.RISING_EDGE, cb_start)
-    cb3 = pi.callback(finish_gpio, pigpio.RISING_EDGE, cb_finish)
+if (button_gpio > 0):
+    pi.set_mode(button_gpio, pigpio.INPUT)
+    pi.set_pull_up_down(button_gpio, pigpio.PUD_DOWN)
+    cb0 = pi.callback(button_gpio, (pigpio.FALLING_EDGE if button_falling_edge else pigpio.RISING_EDGE), cb_button) # Not necessarily used
+if (green_gpio > 0):
+    pi.set_mode(green_gpio, pigpio.INPUT)
+    pi.set_pull_up_down(green_gpio, pigpio.PUD_DOWN)
+    cb1 = pi.callback(green_gpio,  (pigpio.FALLING_EDGE if  green_falling_edge else pigpio.RISING_EDGE), cb_green)
+if (start_gpio > 0):
+    pi.set_mode(start_gpio, pigpio.INPUT)
+    pi.set_pull_up_down(start_gpio, pigpio.PUD_DOWN)
+    cb2 = pi.callback(start_gpio,  (pigpio.FALLING_EDGE if  start_falling_edge else pigpio.RISING_EDGE), cb_start)
+if (finish_gpio > 0):
+    pi.set_mode(finish_gpio, pigpio.INPUT)
+    pi.set_pull_up_down(finish_gpio, pigpio.PUD_DOWN)
+    cb3 = pi.callback(finish_gpio, (pigpio.FALLING_EDGE if finish_falling_edge else pigpio.RISING_EDGE), cb_finish)
 
 
 prev_tick = pi.get_current_tick()
