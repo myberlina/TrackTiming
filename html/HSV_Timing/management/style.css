@@ -1,5 +1,6 @@
 body {
 font-family:Arial;
+font-size:16px;
 }
 input {
 font-family:Arial;
@@ -8,7 +9,10 @@ font-size:16px;
 label{
 font-family:Arial;
 font-size:16px;
-color:#999999;
+}
+select{
+font-family:Arial;
+font-size:16px;
 }
 .tight_table {
 border: 1px solid black;

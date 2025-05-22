@@ -10,6 +10,11 @@
   else
     $run = 0;
 
+  if (isset($_GET['title']))
+    $title = htmlspecialchars($_GET['title']);
+  else
+    $title = "Green";
+
   if (count($_POST)>0) {
     include_once 'database.php';
     if (isset($_POST['tgt_evt'])) $evt = $_POST['tgt_evt'];
@@ -75,7 +80,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Green Times <?php echo htmlspecialchars($evt).":".htmlspecialchars($run);?></title>
+    <title><?php echo "$title Times ".htmlspecialchars($evt).":".htmlspecialchars($run);?></title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
@@ -86,7 +91,7 @@
    <input type="hidden" id="tgt_evt" name="tgt_evt" value="<?php echo htmlspecialchars($evt);?>">
    <input type="hidden" id="tgt_run" name="tgt_run" value="<?php echo htmlspecialchars($run);?>">
    <tr>
-      <td colspan=1>Green</td>
+      <td colspan=1><?php echo $title;?></td>
       <td colspan=1>Run <?php echo $run;?></td>
       <td colspan=3 align="right"><a href=""> Refresh </a></td>
    </tr>

@@ -1,5 +1,5 @@
 <?php
-  // Results_Info:  Hillclimb style ignore reaction time
+  // Results_Info:  Hillclimb style no reaction time, Green light => Button
   include_once 'database.php';
 
   if (isset($_GET['runners_only'])) {
@@ -15,7 +15,7 @@
     $opp_runners_url = '&runners_only';
   }
 
-  $events = $db->query('SELECT DISTINCT event, name FROM results, event_info WHERE event = num ORDER BY event DESC');
+  $events = $db->query('SELECT DISTINCT event, name FROM hc_results, event_info WHERE event = num ORDER BY event DESC');
 
   if (isset($_GET['evt'])) {
     $evt = $_GET['evt'];
@@ -38,32 +38,32 @@
   }
 
   $max_runs=5;
-  $best_qry = $db->query('SELECT MAX(run) AS max_runs FROM results WHERE event = ' . $db->escapeString($evt) );
+  $best_qry = $db->query('SELECT MAX(run) AS max_runs FROM hc_results WHERE event = ' . $db->escapeString($evt) );
   if ($row = $best_qry->fetchArray()) {
     $max_runs = $row["max_runs"];
   }
 
   $place=1;
-  $best_qry = $db->query('SELECT * FROM et_order WHERE event = ' . $db->escapeString($evt) );
+  $best_qry = $db->query('SELECT * FROM hc_order WHERE event = ' . $db->escapeString($evt) );
   while($row = $best_qry->fetchArray()) {
     if ($place == 1)
-      $purple_et = $row["best_et"] / 1000;
-    $best_et[$row["car_num"]] = $row["best_et"] / 1000;
-    $place_et[$row["car_num"]] = $place++;
+      $purple_ft = $row["best_ft"] / 1000;
+    $best_ft[$row["car_num"]] = $row["best_ft"] / 1000;
+    $place_ft[$row["car_num"]] = $place++;
   }
 
   if ($runners_only)
-      $best_qry = $db->query('SELECT * FROM et_order
-                         LEFT JOIN entrant_info ON et_order.car_num = entrant_info.car_num and et_order.event = entrant_info.event
-                         WHERE et_order.event = ' . $db->escapeString($evt) .
+      $best_qry = $db->query('SELECT * FROM hc_order
+                         LEFT JOIN entrant_info ON hc_order.car_num = entrant_info.car_num and hc_order.event = entrant_info.event
+                         WHERE hc_order.event = ' . $db->escapeString($evt) .
                         ' AND special != ""
-                          ORDER BY et_order.red, et_order.best_et, et_order.run, et_order.car_num');
+                          ORDER BY hc_order.red, hc_order.best_ft, hc_order.run, hc_order.car_num');
   else
-      $best_qry = $db->query('SELECT entrant_info.car_num, special, et_order.run FROM entrant_info
-                         LEFT JOIN et_order ON et_order.car_num = entrant_info.car_num and et_order.event = entrant_info.event
+      $best_qry = $db->query('SELECT entrant_info.car_num, special, hc_order.run FROM entrant_info
+                         LEFT JOIN hc_order ON hc_order.car_num = entrant_info.car_num and hc_order.event = entrant_info.event
                          WHERE entrant_info.event = ' . $db->escapeString($evt) .
                         ' AND special != ""
-                          ORDER BY et_order.red NULLS LAST, et_order.best_et, et_order.run, et_order.car_num');
+                          ORDER BY hc_order.red NULLS LAST, hc_order.best_ft, hc_order.run, hc_order.car_num');
   while($row = $best_qry->fetchArray()) {
     if (! isset($place_sp[$row["special"]])) $place_sp[$row["special"]] = 1;
     if (isset($row["run"]))
@@ -74,24 +74,24 @@
 
   if ($runners_only) {
     $res_qry = $db->prepare('
-      SELECT results.event, results.run, results.car_num, car_name, car_info, entrant_info.class, car_car, class_info, record, et_ms/1000.0 as et
-      FROM results, et_order
+      SELECT results.event, results.run, results.car_num, car_name, car_info, entrant_info.class, car_car, class_info, record, ft_ms/1000.0 as ft
+      FROM hc_results as results, hc_order
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
       LEFT JOIN class_info ON entrant_info.class = class_info.class
       WHERE results.event = :event AND results.car_num > 0
-        AND results.event = et_order.event AND results.car_num = et_order.car_num
-      ORDER BY results.event, entrant_info.class, et_order.red, et_order.best_et, results.car_num, results.run');
+        AND results.event = hc_order.event AND results.car_num = hc_order.car_num
+      ORDER BY results.event, entrant_info.class, hc_order.red, hc_order.best_ft, results.car_num, results.run');
     $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
   }
   else {
     $res_qry = $db->prepare('
-      SELECT entrant_info.event, results.run, entrant_info.car_num, car_name, car_info, entrant_info.class, car_car, class_info, record, et_ms/1000.0 as et
+      SELECT entrant_info.event, results.run, entrant_info.car_num, car_name, car_info, entrant_info.class, car_car, class_info, record, ft_ms/1000.0 as ft
       FROM entrant_info
       LEFT JOIN class_info ON entrant_info.class = class_info.class
-      LEFT JOIN results ON results.car_num = entrant_info.car_num AND results.event = entrant_info.event
-      LEFT JOIN et_order ON results.event = et_order.event AND results.car_num = et_order.car_num
+      LEFT JOIN hc_results AS results ON results.car_num = entrant_info.car_num AND results.event = entrant_info.event
+      LEFT JOIN hc_order ON results.event = hc_order.event AND results.car_num = hc_order.car_num
       WHERE entrant_info.event = :event AND entrant_info.car_num > 0
-      ORDER BY entrant_info.event, entrant_info.class, et_order.red ASC NULLS LAST, et_order.best_et, results.car_num, results.run');
+      ORDER BY entrant_info.event, entrant_info.class, hc_order.red ASC NULLS LAST, hc_order.best_ft, results.car_num, results.run');
     $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
   }
 
@@ -164,7 +164,7 @@
        echo "<td style=\"text-align: right;\">" . htmlspecialchars($row["car_num"]) . "&nbsp;</td>\n";
        echo "<td><div style=\"float:left\">";
        $achievement="";
-       if (isset($place_et[$row["car_num"]]) && ($place_et[$row["car_num"]] == 1)) {
+       if (isset($place_ft[$row["car_num"]]) && ($place_ft[$row["car_num"]] == 1)) {
 	 $achievement=" &nbsp; &nbsp; <strong>FTD</strong>";
        }
        if (isset($place_special[$row["car_num"]])) {
@@ -179,8 +179,8 @@
        #echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br/>" . htmlspecialchars($row["car_info"]) . "</td>\n";
        echo "</td><td>" . htmlspecialchars($row["car_car"]) . "</td>\n";
        if (!isset($row["run"])) continue;
-       if (isset($place_et[$row["car_num"]])) {
-         echo "<td><div style=\"float:left\">" . $class_place . "</div><div style=\"float:right\"><font size='2'/>(" . $place_et[$row["car_num"]] . ")</td>\n";
+       if (isset($place_ft[$row["car_num"]])) {
+         echo "<td><div style=\"float:left\">" . $class_place . "</div><div style=\"float:right\"><font size='2'/>(" . $place_ft[$row["car_num"]] . ")</td>\n";
          $class_place++;
        }
        else {
@@ -195,13 +195,13 @@
      while ($row["run"] > $tab_run++)
          echo "<td></td>";
      echo "<td><font size='3' style=\"float:right\"/>";
-     if ($best_et[$row["car_num"]] == $row["et"])
-         if ($purple_et == $row["et"])
-             printf("<strong style=\"color: purple\">%3.2f</strong>", $row["et"]);
+     if ($best_ft[$row["car_num"]] == $row["ft"])
+         if ($purple_ft == $row["ft"])
+             printf("<strong style=\"color: purple\">%3.2f</strong>", $row["ft"]);
          else
-             printf("<strong>%3.2f</strong>", $row["et"]);
+             printf("<strong>%3.2f</strong>", $row["ft"]);
      else
-         printf("%3.2f", $row["et"]);
+         printf("%3.2f", $row["ft"]);
      echo "</td>";
      $prev_run = $row["run"];
    }

@@ -62,7 +62,7 @@
     $run = $cur_run;
   }
 
-  if (isset($_GET['hillclimb'])) {
+  if (isset($_GET['ET'])) {
     $time_title='E/T';
     $time_colour='Start';
     $time_query=
