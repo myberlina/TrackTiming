@@ -85,12 +85,11 @@ as select event, run, car_num, ft_ms, red from results group by event, car_num o
 
 
 DROP VIEW IF EXISTS hc_results;
-CREATE VIEW hc_results (event , run , car_num , rt_ms , et_ms , ft_ms , red )
+CREATE VIEW hc_results (event , run , car_num , rt_ms , et_ms , ft_ms )
 as select green_time.event, green_time.run, green_time.car_num,
        (start_time.time_ms - green_time.time_ms),
        (finish_time.time_ms - start_time.time_ms),
-       (finish_time.time_ms - green_time.time_ms),
-       (start_time.time_ms < green_time.time_ms)
+       (finish_time.time_ms - green_time.time_ms)
 from green_time
  left join finish_time on green_time.event = finish_time.event
                      and green_time.run = finish_time.run
@@ -99,9 +98,9 @@ from green_time
  left join start_time on green_time.event = start_time.event
                      and green_time.run = start_time.run
                      and green_time.car_num = start_time.car_num
-                     and green_time.time_ms-2000 < start_time.time_ms
+                     and green_time.time_ms < start_time.time_ms
 where green_time.time_ms < finish_time.time_ms
-/* hc_results(event,run,car_num,rt_ms,et_ms,ft_ms,red) */;
+/* hc_results(event,run,car_num,rt_ms,et_ms,ft_ms) */;
 
 DROP VIEW IF EXISTS hc_order;
 CREATE VIEW hc_order (event , run , car_num, best_ft)
