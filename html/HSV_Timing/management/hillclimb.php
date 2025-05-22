@@ -57,13 +57,13 @@
                          LEFT JOIN entrant_info ON hc_order.car_num = entrant_info.car_num and hc_order.event = entrant_info.event
                          WHERE hc_order.event = ' . $db->escapeString($evt) .
                         ' AND special != ""
-                          ORDER BY hc_order.red, hc_order.best_ft, hc_order.run, hc_order.car_num');
+                          ORDER BY hc_order.best_ft, hc_order.run, hc_order.car_num');
   else
       $best_qry = $db->query('SELECT entrant_info.car_num, special, hc_order.run FROM entrant_info
                          LEFT JOIN hc_order ON hc_order.car_num = entrant_info.car_num and hc_order.event = entrant_info.event
                          WHERE entrant_info.event = ' . $db->escapeString($evt) .
                         ' AND special != ""
-                          ORDER BY hc_order.red NULLS LAST, hc_order.best_ft, hc_order.run, hc_order.car_num');
+                          ORDER BY hc_order.best_ft NULLS LAST, hc_order.run, hc_order.car_num');
   while($row = $best_qry->fetchArray()) {
     if (! isset($place_sp[$row["special"]])) $place_sp[$row["special"]] = 1;
     if (isset($row["run"]))
@@ -80,7 +80,7 @@
       LEFT JOIN class_info ON entrant_info.class = class_info.class
       WHERE results.event = :event AND results.car_num > 0
         AND results.event = hc_order.event AND results.car_num = hc_order.car_num
-      ORDER BY results.event, entrant_info.class, hc_order.red, hc_order.best_ft, results.car_num, results.run');
+      ORDER BY results.event, entrant_info.class, hc_order.best_ft, results.car_num, results.run');
     $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
   }
   else {
@@ -91,7 +91,7 @@
       LEFT JOIN hc_results AS results ON results.car_num = entrant_info.car_num AND results.event = entrant_info.event
       LEFT JOIN hc_order ON results.event = hc_order.event AND results.car_num = hc_order.car_num
       WHERE entrant_info.event = :event AND entrant_info.car_num > 0
-      ORDER BY entrant_info.event, entrant_info.class, hc_order.red ASC NULLS LAST, hc_order.best_ft, results.car_num, results.run');
+      ORDER BY entrant_info.event, entrant_info.class, hc_order.best_ft NULLS LAST, results.car_num, results.run');
     $res_qry->bindValue(':event', $evt, SQLITE3_INTEGER);
   }
 

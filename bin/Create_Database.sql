@@ -104,9 +104,9 @@ where green_time.time_ms < finish_time.time_ms
 /* hc_results(event,run,car_num,rt_ms,et_ms,ft_ms,red) */;
 
 DROP VIEW IF EXISTS hc_order;
-CREATE VIEW hc_order (event , run , car_num, best_ft, red)
-as select event, run, car_num, ft_ms, red from hc_results group by event, car_num order by red, min(red*10000000+ft_ms)
-/* hc_order(event,run,car_num,best_ft,red) */;
+CREATE VIEW hc_order (event , run , car_num, best_ft)
+as select event, run, car_num, ft_ms from hc_results group by event, car_num order by min(ft_ms)
+/* hc_order(event,run,car_num,best_ft) */;
 
 
 DROP VIEW IF EXISTS set_order;
