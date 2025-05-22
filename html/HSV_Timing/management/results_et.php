@@ -1,5 +1,5 @@
 <?php
-
+  // Results_Info:  Drag style results, ordered on Elapsed Time
   include_once 'database.php';
 
   $events = $db->query('SELECT DISTINCT event, name FROM results, event_info WHERE event = num ORDER BY event DESC');

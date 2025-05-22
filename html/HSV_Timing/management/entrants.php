@@ -215,9 +215,7 @@
    <?php echo $event_select;?>
  </select>
   <a href="events.php"> Return to Events </a>
-</div/
-<br>
-  <br>
+</div>
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
   <table align=center border="2" cellpadding="4">
    <tr class="listheader">
