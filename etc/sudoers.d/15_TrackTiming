@@ -1,0 +1,5 @@
+# Allow the web server to restart the timing and results services
+
+Cmnd_Alias TIMING_RESTART_COMMANDS = /usr/bin/systemctl restart timing.service, /usr/bin/systemctl restart results.service
+
+www-data ALL=(ALL) NOPASSWD: TIMING_RESTART_COMMANDS

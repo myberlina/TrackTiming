@@ -1,39 +1,42 @@
 <?php
   $config_base="/etc/timing/";
-  var_dump($_POST);
-  var_dump($_FILES);
+  //var_dump($_POST);
+  //var_dump($_FILES);
   function check_changed($name) {
     return (isset($_POST[$name])&&isset($_POST["Orig".$name])&&($_POST[$name]!=$_POST["Orig".$name]));
   }
 
   if(count($_POST)>0) {
+    $restart_timing = 0;
+    $restart_results = 0;
+    $file_changed = 0;
     if(isset($_POST['submit-changes'])&&('Save Changes' == $_POST['submit-changes'])&&
        isset($_POST['update_list'])&&('' != $_POST['update_list'])) {
-      $config = yaml_parse_file( "$config_base/timing.conf");
+      $config = yaml_parse_file( "$config_base/timing.conf");	// Read in current config
       if(!isset($_POST['save_ver'])||($_POST['save_ver']!=htmlspecialchars($config['save_ver']))) {
         $message = "<font color=\"#c00000\"> Save Failed: Miss-matched config file </font>";
       }
       else {
-        if(check_changed('Title')) $config['title'] = $_POST['Title'];
-        if(check_changed('Comment')) $config['comment'] = $_POST['Comment'];
-        if(check_changed('DbPath')) $config['database_path'] = $_POST['DbPath'];
-        if(check_changed('ButtonGPIO')) $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);
-        if(check_changed('ButtonEdge')) $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);
-        if(check_changed('GreenGPIO')) $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);
-        if(check_changed('GreenEdge')) $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);
-        if(check_changed('StartGPIO')) $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);
-        if(check_changed('StartEdge')) $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);
-        if(check_changed('FinishGPIO')) $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);
-        if(check_changed('FinishEdge')) $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);
-        if(check_changed('TimDebug')) $config['timing']['debug'] = ('true' == $_POST['TimDebug']);
-        if(check_changed('WebBase')) $config['results']['web_base'] = $_POST['WebBase'];
-        if(check_changed('PHPBase')) $config['results']['php_base'] = $_POST['PHPBase'];
-        if(check_changed('StaticBase')) $config['results']['static_base'] = $_POST['StaticBase'];
-        if(check_changed('FwdCmd')) $config['results']['forward_results_command'] = $_POST['FwdCmd'];
-        if(check_changed('Interval')) $config['results']['static_refresh'] = intval($_POST['Interval']);
-        if(check_changed('RunnersOnly')) $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);
+        if(check_changed('Title'))	{ $config['title'] = $_POST['Title']; };
+        if(check_changed('Comment'))	{ $config['comment'] = $_POST['Comment']; };
+        if(check_changed('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];	$restart_timing=1; $restart_results=1; };
+        if(check_changed('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);	$restart_timing=1; };
+        if(check_changed('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
+        if(check_changed('GreenGPIO'))	{ $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);	$restart_timing=1; };
+        if(check_changed('GreenEdge'))	{ $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);	$restart_timing=1; };
+        if(check_changed('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);	$restart_timing=1; };
+        if(check_changed('StartEdge'))	{ $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);	$restart_timing=1; };
+        if(check_changed('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);	$restart_timing=1; };
+        if(check_changed('FinishEdge'))	{ $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);	$restart_timing=1; };
+        if(check_changed('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);	$restart_timing=1; };
+        if(check_changed('WebBase'))	{ $config['results']['web_base'] = $_POST['WebBase'];	$restart_results=1; };
+        if(check_changed('PHPBase'))	{ $config['results']['php_base'] = $_POST['PHPBase'];	$restart_results=1; };
+        if(check_changed('StaticBase'))	{ $config['results']['static_base'] = $_POST['StaticBase'];	$restart_results=1; };
+        if(check_changed('FwdCmd'))	{ $config['results']['forward_results_command'] = $_POST['FwdCmd'];	$restart_results=1; };
+        if(check_changed('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);	$restart_results=1; };
+        if(check_changed('RunnersOnly')){ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
         $list_change=0;
-	$i=0;
+        $i=0;
         $new_list=array();
         foreach($_POST as $name => $value) {
           if (substr($name,0,3)=='RP_') {
@@ -47,20 +50,25 @@
         }
         if ($list_change == 1) {
           $config['results']['result_types'] = $new_list;
+          $restart_results=1;
           //foreach($config['results']['result_types'] as $num => $file) {
           //  echo "[$num] => '$file' <br>\n";
           //}
         }
         $config['save_ver']++;
         if (yaml_emit_file("$config_base/_timing.conf", $config))
-          if (rename("$config_base/_timing.conf", "$config_base/timing.conf"))
+          if (rename("$config_base/_timing.conf", "$config_base/timing.conf")) {
             $message = "<font color=\"#00a000\"> Config Saved </font>";
+            $file_changed = 1;
+            $restart_timing = 1;
+            $restart_results = 1;
+          }
           else {
-	    $errors = error_get_last();
+            $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
           }
         else {
-	  $errors = error_get_last();
+          $errors = error_get_last();
           $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
         }
       }
@@ -79,7 +87,7 @@
             $message = "<font color=\"#00a000\"> Config Saved </font>";
           }
           else {
-	    $errors = error_get_last();
+            $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
           }
         }
@@ -97,9 +105,12 @@
         else {
           if (copy("$config_base/$name", "$config_base/timing.conf")) {
             $message = "<font color=\"#00a000\"> Config Loaded </font>";
+            $file_changed = 1;
+            $restart_timing = 1;
+            $restart_results = 1;
           }
           else {
-	    $errors = error_get_last();
+            $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Load Failed: " . $errors['message'] . "</font>";
           }
         }
@@ -119,7 +130,7 @@
             $message = "<font color=\"#00a000\"> Config Deleted </font>";
           }
           else {
-	    $errors = error_get_last();
+            $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Delete Failed: " . $errors['message'] . "</font>";
           }
         }
@@ -137,14 +148,43 @@
       elseif (isset($config['timing']['inputs'])) {
           if (rename($_FILES["Upload_Config"]["tmp_name"], "$config_base/timing.conf")) {
             $message = "<font color=\"#00a000\"> Config Loaded </font>";
+            $file_changed = 1;
+            $restart_timing = 1;
+            $restart_results = 1;
           }
           else {
-	    $errors = error_get_last();
+            $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Load Failed: " . $errors['message'] . "</font>";
           }
       }
     }
 
+    if ($file_changed == 1) {
+      if ($restart_timing == 1) {
+        unset($results);
+        if (!(false === exec("sudo /usr/bin/systemctl restart timing.service 2>&1", $results, $rc)) && ($rc == 0)) {
+          $message = $message."<br><font color=\"#00a000\"> Timing service restarted </font>";
+        }
+        else {
+          $error_text="";
+          foreach($results as $num => $line) $error_text=$error_text."$line<br>";
+          if(!(strpos($error_text, "sudo: ")===false)) $error_text="sudo not correctly setup";
+          $message = $message."<br><font color=\"#c00000\"> Timing restart failed: $rc: $error_text</font>";
+        }
+      }
+      if ($restart_results == 1) {
+        unset($results);
+        if (!(false === exec("sudo /usr/bin/systemctl restart results.service 2>&1", $results, $rc)) && ($rc == 0)) {
+          $message = $message."<br><font color=\"#00a000\"> Results service restarted </font>";
+        }
+        else {
+          $error_text="";
+          foreach($results as $num => $line) $error_text=$error_text."$line<br>";
+          if(!(strpos($error_text, "sudo: ")===false)) $error_text="sudo not correctly setup";
+          $message = $message."<br><font color=\"#c00000\"> Results restart failed: $rc: $error_text</font>";
+        }
+      }
+    }
   }
 
   unset($config);
@@ -240,22 +280,22 @@
   <script type="text/javascript">
     function haveUpdate(){
             update_list="";
-	    update_count=0;
-	    input_fields=document.getElementsByTagName("input");
-	    for (let i = 0; i < input_fields.length; i++) {
+            update_count=0;
+            input_fields=document.getElementsByTagName("input");
+            for (let i = 0; i < input_fields.length; i++) {
               if (input_fields[i].name.substr(0,4) == "Orig") {
-		new_field=document.getElementById(input_fields[i].name.substr(4));
-		if (new_field != null) {
-		  if (input_fields[i].value != new_field.value) {
-	            update_list=update_list + ";" + input_fields[i].name.substr(4);
-		    update_count++;
+                new_field=document.getElementById(input_fields[i].name.substr(4));
+                if (new_field != null) {
+                  if (input_fields[i].value != new_field.value) {
+                    update_list=update_list + ";" + input_fields[i].name.substr(4);
+                    update_count++;
                   }
                 }
               }
             }
-	    document.getElementById('update_list').value=update_list;
-	    document.getElementById('submit-changes').disabled=(update_count == 0);
-	    document.getElementById('submit-changes').value = "ppp" + a + ":" + b + ":" + c + ":" + update_count;
+            document.getElementById('update_list').value=update_list;
+            document.getElementById('submit-changes').disabled=(update_count == 0);
+            document.getElementById('submit-changes').value = "ppp" + a + ":" + b + ":" + c + ":" + update_count;
     };
   </script>
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
