@@ -6,6 +6,5 @@ MAP="	html	/var/www/
 
 SKIP='/.gitignore
 /Makefile
-/Create_Database.sql
 /i_watcher.c'
 
