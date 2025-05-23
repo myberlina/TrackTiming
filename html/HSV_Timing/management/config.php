@@ -41,11 +41,11 @@
         foreach($_POST as $name => $value) {
           if (substr($name,0,3)=='RP_') {
             if ($_POST[$name] == 'true') $new_list[$i++] = substr($name,3);
-            if (check_changed($name)) $list_change = 1;
+            if (check_changed($name))  $list_change = 1;
           }
           elseif (substr($name,0,7)=='OrigRP_') {
-            $base=substr($name,7);
-            if (!isset($_POST[$base])&&($_POST[$name]=='true')) $list_change = 1;
+            $base=substr($name,4);
+            if (!isset($_POST[$base])&&($_POST[$name]=='true'))  $list_change = 1;
           }
         }
         if ($list_change == 1) {
@@ -60,8 +60,6 @@
           if (rename("$config_base/_timing.conf", "$config_base/timing.conf")) {
             $message = "<font color=\"#00a000\"> Config Saved </font>";
             $file_changed = 1;
-            $restart_timing = 1;
-            $restart_results = 1;
           }
           else {
             $errors = error_get_last();
@@ -160,7 +158,7 @@
     }
 
     if ($file_changed == 1) {
-      if ($restart_timing == 1) {
+      if ($restart_timing >= 1) {
         unset($results);
         if (!(false === exec("sudo /usr/bin/systemctl restart timing.service 2>&1", $results, $rc)) && ($rc == 0)) {
           $message = $message."<br><font color=\"#00a000\"> Timing service restarted </font>";
@@ -172,7 +170,7 @@
           $message = $message."<br><font color=\"#c00000\"> Timing restart failed: $rc: $error_text</font>";
         }
       }
-      if ($restart_results == 1) {
+      if ($restart_results >= 1) {
         unset($results);
         if (!(false === exec("sudo /usr/bin/systemctl restart results.service 2>&1", $results, $rc)) && ($rc == 0)) {
           $message = $message."<br><font color=\"#00a000\"> Results service restarted </font>";

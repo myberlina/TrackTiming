@@ -2,6 +2,9 @@
   // Results_Info:  Hillclimb style no reaction time, Green light => Button
   include_once 'database.php';
 
+  if($argc>1)
+    parse_str(implode('&',array_slice($argv, 1)), $_GET);
+
   if (isset($_GET['runners_only'])) {
     $runners_only = true;
     $runners_only_checked = "checked";
