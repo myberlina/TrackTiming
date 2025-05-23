@@ -32,7 +32,7 @@ function update_pages()
 
   for result_type in "${result_types[@]}"
   do
-    if [[ -f "${php_base}/${result_type}.php" ]] && php "${php_base}/${result_type}.php" |
+    if [[ -f "${php_base}/${result_type}.php" ]] && php "${php_base}/${result_type}.php" $runners_only |
      sed '/function showTiming/,+5d
       /meta http-equiv="refresh"/ s/content="[0-9]*"/content="'"${static_refresh}"'"/' \
        > "${static_base}/${result_type}".html.new
