@@ -270,8 +270,12 @@
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
-<center>
-<h2>Configuration</h2>
+  <div style="float:right">
+   <a href="management.html">Main Menu</a>&nbsp; &nbsp; 
+  </div>
+ <div align="center" style="padding-bottom:5px;">
+  <h2>Configuration</h2>
+ </div>
   <form name="frmConfig" id="frmConfig" method="post" action="">
     <input type="hidden" name="update_list" value="" id="update_list">
     <input type="hidden" name="save_ver" value="<?php echo "$safe_save_ver";?>">
