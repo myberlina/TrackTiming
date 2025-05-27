@@ -1,0 +1,14 @@
+Package: TrackTiming
+Version: 0.9-1
+Section: base
+Priority: optional
+Architecture: all
+Depends: lighttpd (>=1.4.50), php-cgi, php-cli, php-common, php-sqlite3, 
+Maintainer: David Deaves <HSV_Timing@dd.id.au>
+Description: Track Timing software
+ Track Timing software
+ .
+ Turn a Raspberry Pi into an all in one solution for timing track events
+ where start, finish, splits are triggered by breaking a beam.
+ One car on the track at a time.
+ Like a Hill Climb
