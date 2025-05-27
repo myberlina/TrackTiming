@@ -3,7 +3,7 @@ Version: 0.9-1
 Section: base
 Priority: optional
 Architecture: all
-Depends: lighttpd (>=1.4.50), php-cgi, php-cli, php-common, php-sqlite3, 
+Depends: lighttpd (>=1.4.50), php-cgi, php-cli, php-common, php-sqlite3, python3-pigpio, python3-yaml, python3-numpy, python3-gpiozero, python3-apsw, php-yaml
 Maintainer: David Deaves <HSV_Timing@dd.id.au>
 Description: Track Timing software
  Track Timing software
