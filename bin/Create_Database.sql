@@ -133,5 +133,4 @@ END;
 /* select * from set_order;	*/;
 /* update set_order set run_order = new_order;	*/;
 
-COMMIT;
 
