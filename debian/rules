@@ -9,6 +9,9 @@
 
 
 execute_after_dh_fixperms:
-	chown www-data:www-data $(DESTDIR)/data $(DESTDIR)/data/Track_Time
-	chmod 2775 $(DESTDIR)/data
-	chmod 2770 $(DESTDIR)/data/Track_Time
+	chown www-data:www-data debian/tracktiming/data debian/tracktiming/etc/lighttpd/auth/lighttpd.user
+	chmod 400 debian/tracktiming/data debian/tracktiming/etc/lighttpd/auth/lighttpd.user
+	chown www-data:www-data debian/tracktiming/data debian/tracktiming/data/Track_Time
+	chmod 2775 debian/tracktiming/data
+	chmod 2770 debian/tracktiming/data/Track_Time
+
