@@ -7,7 +7,7 @@ Build-Depends: debhelper-compat (= 13)
 
 Package: tracktiming
 Architecture: any
-Depends: lighttpd (>=1.4.50), php-cgi, php-cli, php-common, php-sqlite3, python3, python3-pigpio, python3-yaml, python3-numpy, python3-gpiozero, python3-apsw, php-yaml, libc,  ${misc:Depends}, ${shlibs:Depends}
+Depends: lighttpd (>=1.4.50), php-cgi, php-cli, php-common, php-sqlite3, python3, python3-pigpio, python3-yaml, python3-numpy, python3-gpiozero, python3-apsw, php-yaml, libc6,  ${misc:Depends}, ${shlibs:Depends}
 Description: Track Timing software
  Turn a Raspberry Pi into an all in one solution for timing track events
  where start, finish, splits are triggered by breaking a beam.
