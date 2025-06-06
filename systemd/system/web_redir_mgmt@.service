@@ -2,7 +2,7 @@
 Description=Web Redirect Management wlan Per-Connection Server
 
 [Service]
-ExecStart=-/usr/local/bin/web_redir_mgmt
+ExecStart=-/usr/sbin/web_redir_mgmt
 StandardInput=socket
 User=www-data
 Group=www-data

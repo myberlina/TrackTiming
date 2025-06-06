@@ -16,7 +16,7 @@ StandardOutput=journal
 StandardInput=null
 User=www-data
 Group=www-data
-ExecStart=/usr/local/bin/timing.py
+ExecStart=/usr/bin/timingd
 Restart=on-failure
 
 [Install]

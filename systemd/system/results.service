@@ -12,7 +12,7 @@ IOSchedulingPriority=3
 WorkingDirectory=/data
 User=www-data
 Group=www-data
-ExecStart=/usr/local/bin/results_to_static
+ExecStart=/usr/bin/results_to_static
 Restart=always
 
 [Install]

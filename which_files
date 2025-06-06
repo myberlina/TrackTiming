@@ -1,7 +1,7 @@
 
 # 	Local	Dest
 MAP="	html	/var/www/
-	bin	/usr/local/
+	bin	/usr/
 	etc	/"
 
 SKIP='/.gitignore
