@@ -8,7 +8,7 @@
 echo "TrackTiming post install  $0 $*"
 
 if [ "$1" = "configure" ]; then
-    echo "####  Adding some links to enable features in lighttps
+    echo "####  Adding some links to enable features in lighttps"
     ln -s ../conf-available/10-accesslog.conf ../conf-available/10-dir-listing.conf ../conf-available/10-fastcgi.conf ../conf-available/15-fastcgi-php.conf /etc/lighttpd/conf-enabled
 fi
 
