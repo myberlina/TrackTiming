@@ -408,13 +408,13 @@
   <div align="center">
    
    <select name="LoadConfig" style="width: 240px" onchange="document.getElementById('submit-load').disabled=(this.value == '');document.getElementById('del').disabled=(this.value == '')"><?php echo $conf_file_list;?></select>
-   <input id="submit-load" type="submit" name="submit-load" value="Load" disabled formenctype="multipart/form-data"> &nbsp; 
+   <input id="submit-load" type="submit" name="submit-load" value="Load" disabled formnovalidate formenctype="multipart/form-data"> &nbsp; 
    <input id="del" type="button" name="del" value="Del" disabled onclick="document.getElementById('submit-really').disabled=false">
-   <input id="submit-really" type="submit" name="submit-really" value="Really" disabled formenctype="multipart/form-data"> <br>
+   <input id="submit-really" type="submit" name="submit-really" value="Really" disabled formnovalidate formenctype="multipart/form-data"> <br>
    <input type="text" size="30" placeholder="Save Name" name="SaveName" class="txtField" value="" oninput="document.getElementById('submit-save1').disabled=(this.value == '')">
    <input id="submit-save1" type="submit" name="submit-save1" value="Save" disabled formenctype="multipart/form-data"> <br> <br>
    <input type="file" name="Upload_Config" oninput="document.getElementById('submit-upload').disabled=false">
-   <input id="submit-upload" type="submit" name="submit" value="Upload" disabled formenctype="multipart/form-data">
+   <input id="submit-upload" type="submit" name="submit" value="Upload" disabled formnovalidate formenctype="multipart/form-data">
    <a href="config_save.php"> Download Config </a>
   </div>
   </form>
