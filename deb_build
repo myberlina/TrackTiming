@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -x 
+
+TMP_BUILD=tmp_build
+mkdir -p "${TMP_BUILD}" || exit $?
+BUILD_DIR=tracktiming-0.9
+mkdir -p "${TMP_BUILD}"/"${BUILD_DIR}" || exit $?
+#cp -pr bin debian etc systemd html Makefile "${TMP_BUILD}"/"${BUILD_DIR}/"
+cp -pr debian "${TMP_BUILD}"/"${BUILD_DIR}/"
+
+#pax -w -d -s "/^.\//${BUILD_DIR}\//" -j -f "${TMP_BUILD}"/tracktiming_0.9.orig.tar.bz2 ./bin ./etc ./systemd ./html ./Makefile
+find ./bin ./etc ./systemd ./html ./Makefile -print |
+ fgrep -v -e .gitignore -e .swp |
+  pax -w -s "/^.\//${BUILD_DIR}\//" -j -f "${TMP_BUILD}"/tracktiming_0.9.orig.tar.bz2
+
+( cd "${TMP_BUILD}" && tar xvf tracktiming_0.9.orig.tar.bz2 )
+
+
+cd "${TMP_BUILD}"/"${BUILD_DIR}"
+debuild -us -uc
+
+

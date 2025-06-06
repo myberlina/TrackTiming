@@ -1,0 +1,11 @@
+usr/bin
+usr/sbin
+etc/
+etc/systemd
+etc/systemd/system
+etc/sudoers.d
+etc/lighttpd
+etc/lighttpd/conf-enabled
+etc/lighttpd/auth
+etc/timing
+lib/systemd
