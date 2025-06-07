@@ -317,13 +317,20 @@ def cb_finish(gpio, level, tick):
 cur.execute("SELECT current_event, current_run "
       "FROM current_event LEFT JOIN current_run");
 result=cur.fetchall()
-if (len(result) == 1) :
+if (len(result) >= 1) :
     new_car.event = result[0][0]
     new_car.run_num = result[0][1]
     print("Timing for event", new_car.event, "  Run", new_car.run_num)
 else :
     new_car.event = -2
     print("No current event specified, storing with event", new_car.event)
+
+if (len(result) > 1) :
+    # Damn, too many entries in one or both of current_event,current_run
+    cur.execute("delete FROM current_event where rowid!=1")
+    cur.execute("delete FROM current_run where rowid!=1")
+    print("Too many entries in current_event and/or current_run, extras cleaned out")
+
 
 pi = pigpio.pi()       # pi  accesses the local Pi's GPIO
 
