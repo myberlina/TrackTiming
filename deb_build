@@ -11,8 +11,8 @@ cp -pr debian "${TMP_BUILD}"/"${BUILD_DIR}/"
 
 #pax -w -d -s "/^.\//${BUILD_DIR}\//" -j -f "${TMP_BUILD}"/tracktiming_0.9.orig.tar.bz2 ./bin ./etc ./systemd ./html ./Makefile
 find ./bin ./etc ./systemd ./html ./Makefile -print |
- fgrep -v -e .gitignore -e .swp -e web_redir_mgmt |
-  pax -w -s "/^.\//${BUILD_DIR}\//" -j -f "${TMP_BUILD}"/tracktiming_0.9.orig.tar.bz2
+ fgrep -v -e .gitignore -e .swp -e web_redir |
+  pax -w -s "/^.\//${BUILD_DIR}\//" -j -d -f "${TMP_BUILD}"/tracktiming_0.9.orig.tar.bz2
 
 ( cd "${TMP_BUILD}" && tar xvf tracktiming_0.9.orig.tar.bz2 )
 
