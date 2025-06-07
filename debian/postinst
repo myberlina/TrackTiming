@@ -11,8 +11,8 @@ if [ "$1" = "configure" ]; then
     echo "####  Adding some links to enable features in lighttps"
     ln -s ../conf-available/10-accesslog.conf ../conf-available/10-dir-listing.conf ../conf-available/10-fastcgi.conf ../conf-available/15-fastcgi-php.conf /etc/lighttpd/conf-enabled ||
      true
-    touch /data/state_Green /data/state_Finish /data/state_Split1 /data/state_Split2 /data/state_Start ||
-     true
+    #touch /data/state_Green /data/state_Finish /data/state_Split1 /data/state_Split2 /data/state_Start ||
+    #  true
 fi
 
 
