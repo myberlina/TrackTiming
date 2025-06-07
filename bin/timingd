@@ -160,6 +160,7 @@ cur = conn.cursor()
 cur.execute('pragma busy_timeout=5000')
 cur.execute('pragma wal_checkpoint(full);')
 
+NewCar_f = open("/data/state_NewCar", "w")
 Green_f = open("/data/state_Green", "w")
 Start_f = open("/data/state_Start", "w")
 Finish_f = open("/data/state_Finish", "w")
@@ -191,6 +192,9 @@ def new_car():
         cur.execute("delete from next_car where car_num = ?", (new_car.curr_car, ))
         cur.execute("update current_car set current_car = ? where ROWID = 1", (new_car.curr_car, ))
         cur.execute("COMMIT")
+        NewCar_f.seek(0)
+        NewCar_f.write(str(new_car.curr_car)+"    ")
+        NewCar_f.flush()
     else :
         new_car.curr_car = new_car.next_missing_car
         new_car.next_missing_car = new_car.next_missing_car - 1
