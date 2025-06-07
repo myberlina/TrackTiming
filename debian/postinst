@@ -9,11 +9,18 @@ echo "TrackTiming post install  $0 $*"
 
 if [ "$1" = "configure" ]; then
     echo "####  Adding some links to enable features in lighttps"
-    ln -s ../conf-available/10-accesslog.conf ../conf-available/10-dir-listing.conf ../conf-available/10-fastcgi.conf ../conf-available/15-fastcgi-php.conf /etc/lighttpd/conf-enabled ||
-     true
-    #touch /data/state_Green /data/state_Finish /data/state_Split1 /data/state_Split2 /data/state_Start ||
-    #  true
+    #ln -s ../conf-available/10-accesslog.conf ../conf-available/10-dir-listing.conf ../conf-available/10-fastcgi.conf ../conf-available/15-fastcgi-php.conf /etc/lighttpd/conf-enabled
+    #for conf in 10-accesslog.conf 10-dir-listing.conf 10-fastcgi.conf 15-fastcgi-php.conf
+    for conf in 10-dir-listing.conf 10-fastcgi.conf 15-fastcgi-php.conf
+    do
+      test -f /etc/lighttpd/conf-enabled/"${conf}" ||
+        ln -s ../conf-available/"${conf}" /etc/lighttpd/conf-enabled
+    done
 fi
 
+
+#DEBHELPER#
+
+exit 0
 
 
