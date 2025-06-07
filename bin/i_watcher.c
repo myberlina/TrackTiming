@@ -84,7 +84,22 @@ int main (int argc, char **argv) {
 
   watch_id = inotify_add_watch(notify_fd, argv[optind], IN_MODIFY);
 
-  if (watch_id < 0) my_abort("Trying inotify_add_watch");
+  if (watch_id < 0) {
+    if (errno != ENOENT) {
+      my_abort("Trying inotify_add_watch");
+    }
+    /* Try to create the file */
+    int		fd;
+    fd = creat(argv[optind], 0554);
+    if (fd == -1) {
+      my_abort("Trying to create missing target");
+    }
+    close(fd);
+    watch_id = inotify_add_watch(notify_fd, argv[optind], IN_MODIFY);
+    if (watch_id < 0) {
+      my_abort("Trying inotify_add_watch on freshly created file");
+    }
+  }
 
   watch[NOTIFY].fd = notify_fd;
   watch[NOTIFY].events = POLLIN;

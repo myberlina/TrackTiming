@@ -7,32 +7,38 @@ signal[green]="SIGRTMIN+1"
 signal[start]="SIGRTMIN+2"
 signal[finish]="SIGRTMIN+3"
 
+source_database=/data/Track_Time/Track_Time.db
+database=/data/Track_Time/Track_Time.db
+
 max_cars=-9
 
 while [[ 'x-' == "x${1:0:1}" ]]
 do
-  if [[ '-c' == "$1" ]]
+  if [[ '-s' == "$1" ]]
+  then
+    source_database=$2
+    shift 2
+  elif [[ '-c' == "$1" ]]
   then
     copy_car=y
     shift
-    sqlite3 /data/Track_Time/Track_Time.db "
+    sqlite3 "$database" "
       PRAGMA busy_timeout=5000;
       PRAGMA journal_mode;
       /* PRAGMA journal_mode=delete; */
       PRAGMA journal_mode=wal;
       INSERT INTO next_car VALUES ( 668, 100 );"
-  fi
-
-  if [[ '-n' == "$1" ]]
+  elif [[ '-n' == "$1" ]]
   then
     max_cars=$2
     shift 2
-  fi
-
-  if [[ '-b' == "$1" ]]
+  elif [[ '-b' == "$1" ]]
   then
     no_button=y
     shift
+  else
+    echo "Unrecognised option"
+    exit 1
   fi
 done
 
@@ -43,7 +49,7 @@ t_pid=$3
 next_car()
 {
   car=$1
-  sqlite3 /data/Track_Time/Track_Time.db "
+  sqlite3 "$database" "
     PRAGMA busy_timeout=5000;
     PRAGMA journal_mode;
     /* PRAGMA journal_mode=delete; */
@@ -53,13 +59,13 @@ next_car()
 
 if  true
 then
-  exec 11< <( sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from green_time where event=$event and run=$run;" )
-  exec 12< <( sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from start_time where event=$event and run=$run;" )
-  exec 13< <( sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from finish_time where event=$event and run=$run;" )
+  exec 11< <( sqlite3 "$source_database" "select time_ms, car_num from green_time where event=$event and run=$run;" )
+  exec 12< <( sqlite3 "$source_database" "select time_ms, car_num from start_time where event=$event and run=$run;" )
+  exec 13< <( sqlite3 "$source_database" "select time_ms, car_num from finish_time where event=$event and run=$run;" )
 else
-  sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from green_time where event=$event and run=$run;"  > green_file
-  sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from start_time where event=$event and run=$run;"  > start_file
-  sqlite3 /data/Track_Time/Track_Time.db "select time_ms, car_num from finish_time where event=$event and run=$run;"  > finish_file
+  sqlite3 "$source_database" "select time_ms, car_num from green_time where event=$event and run=$run;"  > green_file
+  sqlite3 "$source_database" "select time_ms, car_num from start_time where event=$event and run=$run;"  > start_file
+  sqlite3 "$source_database" "select time_ms, car_num from finish_time where event=$event and run=$run;"  > finish_file
   exec 11<green_file
   exec 12<start_file
   exec 13<finish_file
