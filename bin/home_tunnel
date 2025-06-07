@@ -6,7 +6,7 @@ while true
 do
   echo "Starting Connection at $(date)" >&2
   sleep 900 &  # Dont start more often than once every 15mins
-  ssh -p 2122 -o ServerAliveInterval=540 -R 3122:127.0.0.1:22 -N tun4@www.dd.id.au
+  ssh -p 2122 -o ServerAliveInterval=540 -R 3922:127.0.0.1:22 -N tunx@www.dd.id.au
   echo "Connection exit at $(date)  rc=$?" >&2
   sleep 60
   wait

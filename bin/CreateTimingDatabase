@@ -1,0 +1,35 @@
+#!/bin/bash
+
+dbase_default=/data/Track_Time/Track_Time.db
+
+dbase=''
+
+if [[ "$1" == "-d" ]]
+then
+  cmd_line_dbase="$2"
+  shift 2
+fi
+
+if [[ -f /etc/timing/timing.conf ]]
+then
+  eval $( results_conf )
+else
+  if [[ -n "$cmd_line_dbase" ]]
+  then
+    echo "WARNING: No config file"
+  else
+    echo "WARNING: No config file - using default $dbase_default"
+    dbase="$dbase_default"
+  fi
+fi
+
+[[ -n "$cmd_line_dbase" ]] && dbase="$cmd_line_dbase"
+
+umask 002
+
+sqlite3 "$dbase" < /usr/share/tracktiming/Create_Database.sql
+chmod 664 "$dbase"*
+#chown www-data "$dbase"*
+chgrp www-data "$dbase"*
+
+
