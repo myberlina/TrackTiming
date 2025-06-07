@@ -137,8 +137,8 @@
 	    }
 	    else $order="";
 	    
-            $upload_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-            $upload_qry->bindValue(':num', 0 + $db->escapeString($num), SQLITE3_INTEGER);
+            $upload_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
+            $upload_qry->bindValue(':num', intval($db->escapeString($num)), SQLITE3_INTEGER);
             $upload_qry->bindValue(':name', $name, SQLITE3_TEXT);
             $upload_qry->bindValue(':info', $info, SQLITE3_TEXT);
             $upload_qry->bindValue(':special', $special, SQLITE3_TEXT);

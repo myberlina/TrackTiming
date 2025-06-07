@@ -190,6 +190,40 @@
 
   $rising = '<option value="False" selected>Rising  ^</option> <option value="True">Falling  v</option>';
   $falling = '<option value="False">Rising  ^</option> <option value="True" selected>Falling  v</option>';
+  $off = '<option value="false" selected> Off </option> <option value="true"> On </option>';
+  $on = '<option value="false"> Off </option> <option value="true" selected> On </option>';
+  $all_entered = '<option value="false" selected>All Enrants</option> <option value="true">Runners Only</option>';
+  $runners = '<option value="false">All Enrants</option> <option value="true" selected>Runners Only</option>';
+
+  if (false === $config) {
+    $message = "<font color=\"#c00000\"> No Config File </font>";
+    $safe_title="";
+    $safe_comment="";
+    $safe_db_path="";
+    $safe_button_gpio="22";
+    $safe_button_edge="False";
+    $safe_button_edge_opt=$rising;
+    $safe_green_gpio="23";
+    $safe_green_edge="False";
+    $safe_green_edge_opt=$rising;
+    $safe_start_gpio="24";
+    $safe_start_edge="False";
+    $safe_start_edge_opt=$rising;
+    $safe_finish_gpio="25";
+    $safe_finish_edge="False";
+    $safe_finish_edge_opt=$rising;
+    $safe_tim_debug="false";
+    $safe_tim_debug_opt=$off;
+    $safe_web_base="";
+    $safe_php_base="";
+    $safe_static_base="";
+    $safe_fwd_cmd="";
+    $safe_refresh_time="";
+    $safe_runners_only="false";
+    $safe_runners_only_opt=$all_entered;
+    $safe_save_ver="0";
+  }
+  else {
   $safe_title=htmlspecialchars($config['title'],ENT_QUOTES);
   $safe_comment=htmlspecialchars($config['comment'],ENT_QUOTES);
   $safe_db_path=htmlspecialchars($config['database_path'],ENT_QUOTES);
@@ -205,8 +239,6 @@
   $safe_finish_gpio=htmlspecialchars($config['timing']['inputs']['finish']['gpio']);
   $safe_finish_edge=($config['timing']['inputs']['finish']['falling_edge'])?"True":"False";
   $safe_finish_edge_opt=($config['timing']['inputs']['finish']['falling_edge'])?$falling:$rising;
-  $off = '<option value="false" selected> Off </option> <option value="true"> On </option>';
-  $on = '<option value="false"> Off </option> <option value="true" selected> On </option>';
   $safe_tim_debug=($config['timing']['debug'])?"true":"false";
   $safe_tim_debug_opt=($config['timing']['debug'])?$on:$off;
   $safe_web_base=htmlspecialchars($config['results']['web_base'],ENT_QUOTES);
@@ -214,11 +246,10 @@
   $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
   $safe_fwd_cmd=htmlspecialchars($config['results']['forward_results_command'],ENT_QUOTES);
   $safe_refresh_time=htmlspecialchars($config['results']['static_refresh']);
-  $all_entered = '<option value="false" selected>All Enrants</option> <option value="true">Runners Only</option>';
-  $runners = '<option value="false">All Enrants</option> <option value="true" selected>Runners Only</option>';
   $safe_runners_only=($config['results']['runners_only'])?"true":"false";
   $safe_runners_only_opt=($config['results']['runners_only'])?$runners:$all_entered;
   $safe_save_ver=htmlspecialchars($config['save_ver']);
+  }
 
   $possible_configs=scandir("$config_base", SCANDIR_SORT_ASCENDING);
   // var_dump($possible_configs);
@@ -255,10 +286,12 @@
   pclose($list);
   // Add any that are in the config, but not found
   // echo "type of  \$config['results']['result_types'] is " . gettype($config['results']['result_types']) . "<br>";
-  foreach($config['results']['result_types'] as $num => $file) {
-    $result_enabled[$file] = true;
-    if (! isset($result_list[$file])) {
-      $result_list[$file] = "";
+  if (!(false === $config)) {
+    foreach($config['results']['result_types'] as $num => $file) {
+      $result_enabled[$file] = true;
+      if (! isset($result_list[$file])) {
+        $result_list[$file] = "";
+      }
     }
   }
   // var_dump($result_list);
