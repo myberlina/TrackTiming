@@ -10,6 +10,8 @@
 #include <strings.h>
 #include <string.h>
 #include <getopt.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 #define USAGE "[-d] file\n"
