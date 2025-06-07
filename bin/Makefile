@@ -1,7 +1,8 @@
 
 BIN_SCRIPTS = timingd results_conf results_to_static forward_results get_times
 
-SBIN_SCRIPTS = home_tunnel web_redir web_redir_mgmt CreateTimingDatabase
+#SBIN_SCRIPTS = home_tunnel web_redir web_redir_mgmt CreateTimingDatabase
+SBIN_SCRIPTS = home_tunnel CreateTimingDatabase
 
 CreateDatabase = Create_Database.sql
 
