@@ -1,0 +1,5 @@
+/sbin/web_redir
+/sbin/web_redir_mgmt
+/bin/home_tunnel
+/bin/forward_results
+/etc/lighttpd/auth/timing.user

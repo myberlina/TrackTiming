@@ -92,7 +92,7 @@ int main (int argc, char **argv) {
     }
     /* Try to create the file */
     int		fd;
-    fd = creat(argv[optind], 0554);
+    fd = creat(argv[optind], 0664);
     if (fd == -1) {
       my_abort("Trying to create missing target");
     }
