@@ -15,10 +15,11 @@ INSERT INTO current_car VALUES ( 0 );
 
 CREATE TABLE IF NOT EXISTS current_event( current_event INT);
 INSERT INTO current_event VALUES ( 0 );
-
+DELETE FROM current_event where rowid!=1;
 
 CREATE TABLE IF NOT EXISTS current_run( current_run INT);
 INSERT INTO current_run VALUES ( 0 );
+DELETE FROM current_run where rowid!=1;
 
 
 #CREATE TABLE IF NOT EXISTS entrant_info( event INT NOT NULL, car_num INT NOT NULL, car_name NOT NULL, car_info,
