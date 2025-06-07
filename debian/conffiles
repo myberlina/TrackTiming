@@ -1,5 +1,3 @@
-/usr/sbin/web_redir
-/usr/sbin/web_redir_mgmt
 /usr/sbin/home_tunnel
 /usr/bin/forward_results
 /etc/lighttpd/auth/timing.user
