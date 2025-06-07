@@ -1,9 +1,8 @@
 [Unit]
 Description=Static Results Generator
 After=timing.service
-ConditionPathExists=/var/www/html/HSV_Timing/management/results_ft.php
-ConditionPathExists=/var/www/html/HSV_Timing/management/results_et.php
-ConditionPathExists=/data/state_Finish
+ConditionPathExists=/etc/timing/timing.conf
+ConditionPathExists=/data
 
 [Service]
 Type=simple

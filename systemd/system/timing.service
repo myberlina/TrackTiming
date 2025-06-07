@@ -2,7 +2,7 @@
 Description=Track Timing Daemon
 After=pigpiod.service
 Requires=pigpiod.service
-ConditionPathExists=/data/Track_Time/Track_Time.db
+ConditionPathExists=/etc/timing/timing.conf
 
 [Service]
 Type=simple
