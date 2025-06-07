@@ -18,3 +18,6 @@ execute_after_dh_fixperms:
 	chown www-data:www-data debian/tracktiming/data debian/tracktiming/data/Track_Time
 	chmod 2775 debian/tracktiming/data
 	chmod 2770 debian/tracktiming/data/Track_Time
+	mkdir -p debian/tracktiming/var/www/html/HSV_Timing/Results
+	chown www-data:www-data debian/tracktiming/var/www/html/HSV_Timing/Results
+
