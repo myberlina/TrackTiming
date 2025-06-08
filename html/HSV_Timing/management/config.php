@@ -299,7 +299,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Configuration</title>
+    <title>Configutation</title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
@@ -351,23 +351,24 @@
     echo "<input type=\"text\" size=\"50\" placeholder=\"Database File Path\" name=\"DbPath\" id=\"DbPath\" class=\"txtField\" required value=\"$safe_db_path\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
-    echo "<tr>\n <th class=\"listheader\"> Inputs </th><th>GPIO</th><th>Trigger Edge</th></tr>\n";
+    echo "<tr>\n <th colspan=\"3\" class=\"listheader\"> Inputs </th></tr>\n";
+    echo "<tr>\n <th class=\"listheader\"> Drag / HillClimb</th><th>GPIO</th><th>Trigger Edge</th></tr>\n";
 
-    echo "<tr>\n <th class=\"listheader\"> Button </th>\n";
+    echo "<tr>\n <th class=\"listheader\"> Button / Green </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonGPIO\" value=\"$safe_button_gpio\" id=\"OrigButtonGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"ButtonGPIO\" id=\"ButtonGPIO\" class=\"input_number\" required value=\"$safe_button_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonEdge\" value=\"$safe_button_edge\" id=\"OrigButtonEdge\">";
     echo "<select name=\"ButtonEdge\" id=\"ButtonEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_button_edge_opt</select></td>";
     echo "</tr>\n";
 
-    echo "<tr>\n <th class=\"listheader\"> Green </th>\n";
+    echo "<tr>\n <th class=\"listheader\"> Green / Start </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigGreenGPIO\" value=\"$safe_green_gpio\" id=\"OrigGreenGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"GreenGPIO\" id=\"GreenGPIO\" class=\"input_number\" required value=\"$safe_green_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigGreenEdge\" value=\"$safe_green_edge\" id=\"OrigGreenEdge\">";
     echo "<select name=\"GreenEdge\" id=\"GreenEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_green_edge_opt</select></td>";
     echo "</tr>\n";
 
-    echo "<tr>\n <th class=\"listheader\"> Start </th>\n";
+    echo "<tr>\n <th class=\"listheader\"> Start / Split </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartGPIO\" value=\"$safe_start_gpio\" id=\"OrigStartGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"StartGPIO\" id=\"StartGPIO\" class=\"input_number\" required value=\"$safe_start_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartEdge\" value=\"$safe_start_edge\" id=\"OrigStartEdge\">";
