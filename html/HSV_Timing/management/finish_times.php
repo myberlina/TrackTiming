@@ -129,7 +129,7 @@
     echo "<tr $classname>";
     $safe_num=htmlspecialchars($row['car_num']);
     $safe_time=htmlspecialchars($row['time_ms']/1000);
-    $safe_delta=htmlspecialchars($row['delta']/1000);
+    $safe_delta=round(htmlspecialchars($row['delta']/10))/100;
     if ($row_id != $prev_row_id) {
       echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
       echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";

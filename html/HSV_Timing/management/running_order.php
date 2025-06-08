@@ -494,7 +494,7 @@
     echo "   function refesh_page() { if (block_refresh == 0) location.reload(true); };";
 ?>
   /*refesh_timeout=setTimeout(refesh_page, 3000);*/
-  var ws = new WebSocket('ws://'+location.host+'/ws/status/green/');
+  var ws = new WebSocket('ws://'+location.host+'/ws/status/newcar/');
   ws.onclose = function()       { refesh_page(); };
   ws.onmessage = function(event){ refesh_page(); };
  </script>

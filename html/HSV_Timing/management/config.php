@@ -299,7 +299,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Entrant Management</title>
+    <title>Configuration</title>
     <link rel="stylesheet" href="style.css">
   </head>
 <body>
