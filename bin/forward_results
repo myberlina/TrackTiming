@@ -2,6 +2,8 @@
 
 arg0="${0##*/}"
 
+test -f  /var/www/creds/web_push || exit
+
 LOCK=/dev/shm/.lck.$arg0
 
 exec 9<>$LOCK
