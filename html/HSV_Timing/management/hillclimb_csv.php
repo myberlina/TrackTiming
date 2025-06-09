@@ -10,6 +10,20 @@
   else
     $runners_only = false;
 
+  if (isset($_GET['split']))
+    $with_split = true;
+  else
+    $with_split = false;
+
+  if (isset($_GET['quote']))
+    $quote = '"';
+  else
+    $quote = '';
+
+  if (!(false === $config) && isset($config['results']) && isset($config['results']['csv_quotes']) && $config['results']['csv_quotes']) {
+    $quote = '"';
+  }
+
   $events = $db->query('SELECT DISTINCT event, name FROM hc_results, event_info WHERE event = num ORDER BY event DESC');
 
   if (isset($_GET['evt'])) {
@@ -71,7 +85,7 @@
 
   if ($runners_only) {
     $res_qry = $db->prepare('
-      SELECT results.event, results.run, results.car_num, car_name, car_entrant, car_info, class, car_car, ft_ms/1000.0 as ft
+      SELECT results.event, results.run, results.car_num, car_name, car_entrant, car_info, class, car_car, ft_ms/1000.0 as ft, rt_ms/1000.0 as rt
       FROM hc_results as results, hc_order
       LEFT JOIN entrant_info ON results.car_num = entrant_info.car_num and results.event = entrant_info.event
       WHERE results.event = :event AND results.car_num > 0
@@ -80,7 +94,7 @@
   }
   else {
     $res_qry = $db->prepare('
-      SELECT entrant_info.event, results.run, entrant_info.car_num, car_name, car_entrant, car_info, entrant_info.class, car_car, class_info, record, ft_ms/1000.0 as ft
+      SELECT entrant_info.event, results.run, entrant_info.car_num, car_name, car_entrant, car_info, entrant_info.class, car_car, class_info, record, ft_ms/1000.0 as ft, rt_ms/1000.0 as rt
       FROM entrant_info
       LEFT JOIN class_info ON entrant_info.class = class_info.class
       LEFT JOIN hc_results as results ON results.car_num = entrant_info.car_num AND results.event = entrant_info.event
@@ -93,12 +107,15 @@
 
   $results = $res_qry->execute();
 
-   echo "\"" . $event_name . "\"\n\n";
-   echo "\"Num\", \"Entrant\", \"Driver\", \"Car\", \"Info\", \"Special\"";
-   echo ", \"Class Pos\", \"Outright\", \"Best\"";
+   echo $quote . $event_name . "${quote}\n\n";
+   echo "${quote}Num${quote}, ${quote}Entrant${quote}, ${quote}Driver${quote}, ${quote}Car${quote}, ${quote}Info${quote}, ${quote}Special${quote}";
+   echo ", ${quote}Class Pos${quote}, ${quote}Outright${quote}, ${quote}Best${quote}";
    $i=0;
    while(++$i <= $max_runs) {
-       echo ", \"Run $i\"";
+     if ($with_split)
+       echo ", ${quote}Split${quote}, ${quote}Run $i${quote}";
+     else
+       echo ", ${quote}Run $i${quote}";
    }
    $i=0;
    $prev_car = "";
@@ -110,22 +127,22 @@
    while($row = $results->fetchArray()) {
      if ($row["car_num"] != $prev_car ) {
        if ($row["class"] != $prev_class ) {
-         echo "\n\n\"" . htmlspecialchars($row["class"]) . "\"";
+         echo "\n\n" . $quote . htmlspecialchars($row["class"]) . $quote;
 	 if (($row["class_info"] != "") || (isset($row["record"]) && '' != $row["record"]) ) {
-	   echo ",,,,,,\"";
+	   echo ",,,,,," . $quote;
 	   if (isset($row["record"]) && '' != $row["record"])
 	     echo "Record: " . htmlspecialchars($row["record"]) . " ";
-	   echo htmlspecialchars($row["class_info"]) . "\"";
+	   echo htmlspecialchars($row["class_info"]) . $quote;
 	 }
          $prev_class=$row["class"];
          $class_place=1;
        }
        echo "\n";
        echo htmlspecialchars($row["car_num"]) . ", ";
-       echo "\"" . htmlspecialchars($row["car_entrant"]) . "\", ";
-       echo "\"" . htmlspecialchars($row["car_name"]) . "\", ";
-       echo "\"" . htmlspecialchars($row["car_car"]) . "\", ";
-       echo "\"" . htmlspecialchars($row["car_info"]) . "\", ";
+       echo $quote . htmlspecialchars($row["car_entrant"]) . $quote . ", ";
+       echo $quote . htmlspecialchars($row["car_name"]) . $quote . ", ";
+       echo $quote . htmlspecialchars($row["car_car"]) . $quote . ", ";
+       echo $quote . htmlspecialchars($row["car_info"]) . $quote . ", ";
        $achievement="";
        if (isset($place_ft[$row["car_num"]]) && ($place_ft[$row["car_num"]] == 1)) {
 	 $achievement="FTD  ";
@@ -135,7 +152,7 @@
            $achievement=$achievement. "  $type:$place";
          }
        }
-       echo "\"" . $achievement . "\", ";
+       echo $quote . $achievement . $quote . ", ";
        if (!isset($row["run"])) continue;
        echo $class_place . ", ";
        $class_place++;
@@ -148,7 +165,16 @@
      }
      elseif ($row["run"] == $prev_run ) continue;
      while ($row["run"] > $tab_run++)
+       if ($with_split)
+         echo ", , ";
+       else
          echo ", ";
+     if ($with_split) {
+       if (isset($row["rt"]))
+         printf(", %3.2f", $row["rt"]);
+       else
+         echo ", ";
+     }
      printf(", %3.2f", $row["ft"]);
      $prev_run = $row["run"];
    }

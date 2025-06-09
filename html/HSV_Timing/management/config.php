@@ -19,22 +19,23 @@
       else {
         if(check_changed('Title'))	{ $config['title'] = $_POST['Title']; };
         if(check_changed('Comment'))	{ $config['comment'] = $_POST['Comment']; };
-        if(check_changed('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];	$restart_timing=1; $restart_results=1; };
-        if(check_changed('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);	$restart_timing=1; };
+        if(check_changed('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];				$restart_timing=1; $restart_results=1; };
+        if(check_changed('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);			$restart_timing=1; };
         if(check_changed('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
-        if(check_changed('GreenGPIO'))	{ $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);	$restart_timing=1; };
+        if(check_changed('GreenGPIO'))	{ $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);			$restart_timing=1; };
         if(check_changed('GreenEdge'))	{ $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);	$restart_timing=1; };
-        if(check_changed('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);	$restart_timing=1; };
+        if(check_changed('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);			$restart_timing=1; };
         if(check_changed('StartEdge'))	{ $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);	$restart_timing=1; };
-        if(check_changed('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);	$restart_timing=1; };
+        if(check_changed('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);			$restart_timing=1; };
         if(check_changed('FinishEdge'))	{ $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);	$restart_timing=1; };
-        if(check_changed('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);	$restart_timing=1; };
-        if(check_changed('WebBase'))	{ $config['results']['web_base'] = $_POST['WebBase'];	$restart_results=1; };
-        if(check_changed('PHPBase'))	{ $config['results']['php_base'] = $_POST['PHPBase'];	$restart_results=1; };
-        if(check_changed('StaticBase'))	{ $config['results']['static_base'] = $_POST['StaticBase'];	$restart_results=1; };
-        if(check_changed('FwdCmd'))	{ $config['results']['forward_results_command'] = $_POST['FwdCmd'];	$restart_results=1; };
-        if(check_changed('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);	$restart_results=1; };
+        if(check_changed('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);					$restart_timing=1; };
+        if(check_changed('WebBase'))	{ $config['results']['web_base'] = $_POST['WebBase'];				$restart_results=1; };
+        if(check_changed('PHPBase'))	{ $config['results']['php_base'] = $_POST['PHPBase'];				$restart_results=1; };
+        if(check_changed('StaticBase'))	{ $config['results']['static_base'] = $_POST['StaticBase'];			$restart_results=1; };
+        if(check_changed('FwdCmd'))	{ $config['results']['forward_results_command'] = $_POST['FwdCmd'];		$restart_results=1; };
+        if(check_changed('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);		$restart_results=1; };
         if(check_changed('RunnersOnly')){ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
+        if(check_changed('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
         $list_change=0;
         $i=0;
         $new_list=array();
@@ -195,60 +196,80 @@
   $all_entered = '<option value="false" selected>All Enrants</option> <option value="true">Runners Only</option>';
   $runners = '<option value="false">All Enrants</option> <option value="true" selected>Runners Only</option>';
 
+  $safe_title="";
+  $safe_comment="";
+  $safe_db_path="";
+  $safe_button_gpio="";
+  $safe_button_edge="False";
+  $safe_button_edge_opt=$rising;
+  $safe_green_gpio="";
+  $safe_green_edge="False";
+  $safe_green_edge_opt=$rising;
+  $safe_start_gpio="";
+  $safe_start_edge="False";
+  $safe_start_edge_opt=$rising;
+  $safe_finish_gpio="";
+  $safe_finish_edge="False";
+  $safe_finish_edge_opt=$rising;
+  $safe_tim_debug="false";
+  $safe_tim_debug_opt=$off;
+  $safe_web_base="";
+  $safe_php_base="";
+  $safe_static_base="";
+  $safe_fwd_cmd="";
+  $safe_refresh_time="";
+  $safe_runners_only="false";
+  $safe_runners_only_opt=$all_entered;
+  $safe_csv_quotes="false";
+  $safe_csv_quotes_opt=$off;
+  $safe_save_ver="0";
   if (false === $config) {
     $message = "<font color=\"#c00000\"> No Config File </font>";
-    $safe_title="";
-    $safe_comment="";
-    $safe_db_path="";
-    $safe_button_gpio="22";
-    $safe_button_edge="False";
-    $safe_button_edge_opt=$rising;
-    $safe_green_gpio="23";
-    $safe_green_edge="False";
-    $safe_green_edge_opt=$rising;
-    $safe_start_gpio="24";
-    $safe_start_edge="False";
-    $safe_start_edge_opt=$rising;
-    $safe_finish_gpio="25";
-    $safe_finish_edge="False";
-    $safe_finish_edge_opt=$rising;
-    $safe_tim_debug="false";
-    $safe_tim_debug_opt=$off;
-    $safe_web_base="";
-    $safe_php_base="";
-    $safe_static_base="";
-    $safe_fwd_cmd="";
-    $safe_refresh_time="";
-    $safe_runners_only="false";
-    $safe_runners_only_opt=$all_entered;
-    $safe_save_ver="0";
   }
   else {
-  $safe_title=htmlspecialchars($config['title'],ENT_QUOTES);
-  $safe_comment=htmlspecialchars($config['comment'],ENT_QUOTES);
-  $safe_db_path=htmlspecialchars($config['database_path'],ENT_QUOTES);
-  $safe_button_gpio=htmlspecialchars($config['timing']['inputs']['button']['gpio']);
-  $safe_button_edge=($config['timing']['inputs']['button']['falling_edge'])?"True":"False";
-  $safe_button_edge_opt=($config['timing']['inputs']['button']['falling_edge'])?$falling:$rising;
-  $safe_green_gpio=htmlspecialchars($config['timing']['inputs']['green']['gpio']);
-  $safe_green_edge=($config['timing']['inputs']['green']['falling_edge'])?"True":"False";
-  $safe_green_edge_opt=($config['timing']['inputs']['green']['falling_edge'])?$falling:$rising;
-  $safe_start_gpio=htmlspecialchars($config['timing']['inputs']['start']['gpio']);
-  $safe_start_edge=($config['timing']['inputs']['start']['falling_edge'])?"True":"False";
-  $safe_start_edge_opt=($config['timing']['inputs']['start']['falling_edge'])?$falling:$rising;
-  $safe_finish_gpio=htmlspecialchars($config['timing']['inputs']['finish']['gpio']);
-  $safe_finish_edge=($config['timing']['inputs']['finish']['falling_edge'])?"True":"False";
-  $safe_finish_edge_opt=($config['timing']['inputs']['finish']['falling_edge'])?$falling:$rising;
-  $safe_tim_debug=($config['timing']['debug'])?"true":"false";
-  $safe_tim_debug_opt=($config['timing']['debug'])?$on:$off;
-  $safe_web_base=htmlspecialchars($config['results']['web_base'],ENT_QUOTES);
-  $safe_php_base=htmlspecialchars($config['results']['php_base'],ENT_QUOTES);
-  $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
-  $safe_fwd_cmd=htmlspecialchars($config['results']['forward_results_command'],ENT_QUOTES);
-  $safe_refresh_time=htmlspecialchars($config['results']['static_refresh']);
-  $safe_runners_only=($config['results']['runners_only'])?"true":"false";
-  $safe_runners_only_opt=($config['results']['runners_only'])?$runners:$all_entered;
-  $safe_save_ver=htmlspecialchars($config['save_ver']);
+    $safe_title=htmlspecialchars($config['title'],ENT_QUOTES);
+    $safe_comment=htmlspecialchars($config['comment'],ENT_QUOTES);
+    $safe_db_path=htmlspecialchars($config['database_path'],ENT_QUOTES);
+    if (isset($config['timing'])) {
+      if (isset($config['timing']['inputs'])) {
+        if (isset($config['timing']['inputs']['button'])) {
+          $safe_button_gpio=htmlspecialchars($config['timing']['inputs']['button']['gpio']);
+          $safe_button_edge=($config['timing']['inputs']['button']['falling_edge'])?"True":"False";
+          $safe_button_edge_opt=($config['timing']['inputs']['button']['falling_edge'])?$falling:$rising;
+        }
+        if (isset($config['timing']['inputs']['green'])) {
+          $safe_green_gpio=htmlspecialchars($config['timing']['inputs']['green']['gpio']);
+          $safe_green_edge=($config['timing']['inputs']['green']['falling_edge'])?"True":"False";
+          $safe_green_edge_opt=($config['timing']['inputs']['green']['falling_edge'])?$falling:$rising;
+        }
+        if (isset($config['timing']['inputs']['start'])) {
+          $safe_start_gpio=htmlspecialchars($config['timing']['inputs']['start']['gpio']);
+          $safe_start_edge=($config['timing']['inputs']['start']['falling_edge'])?"True":"False";
+          $safe_start_edge_opt=($config['timing']['inputs']['start']['falling_edge'])?$falling:$rising;
+        }
+        if (isset($config['timing']['inputs']['finish'])) {
+          $safe_finish_gpio=htmlspecialchars($config['timing']['inputs']['finish']['gpio']);
+          $safe_finish_edge=($config['timing']['inputs']['finish']['falling_edge'])?"True":"False";
+          $safe_finish_edge_opt=($config['timing']['inputs']['finish']['falling_edge'])?$falling:$rising;
+        }
+      }
+      $safe_tim_debug=($config['timing']['debug'])?"true":"false";
+      $safe_tim_debug_opt=($config['timing']['debug'])?$on:$off;
+    }
+    if (isset($config['results'])) {
+      $safe_web_base=htmlspecialchars($config['results']['web_base'],ENT_QUOTES);
+      $safe_php_base=htmlspecialchars($config['results']['php_base'],ENT_QUOTES);
+      $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
+      $safe_fwd_cmd=htmlspecialchars($config['results']['forward_results_command'],ENT_QUOTES);
+      $safe_refresh_time=htmlspecialchars($config['results']['static_refresh']);
+      $safe_runners_only=($config['results']['runners_only'])?"true":"false";
+      $safe_runners_only_opt=($config['results']['runners_only'])?$runners:$all_entered;
+      if (isset($config['results']['csv_quotes']) && $config['results']['csv_quotes']) {
+        $safe_csv_quotes=true;
+        $safe_csv_quotes_opt=$on;
+      }
+    }
+    $safe_save_ver=htmlspecialchars($config['save_ver']);
   }
 
   $possible_configs=scandir("$config_base", SCANDIR_SORT_ASCENDING);
@@ -433,6 +454,11 @@
     echo "<tr>\n <th class=\"listheader\"> Show in Results </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
     echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
+    echo "</tr>\n";
+
+    echo "<tr>\n <th class=\"listheader\"> Quotes in CSV </th>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigCSV_Quotes\" value=\"$safe_csv_quotes\" id=\"OrigCSV_Quotes\">";
+    echo "<select name=\"CSV_Quotes\" id=\"CSV_Quotes\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_csv_quotes_opt</select></td>";
     echo "<td align=right style=\"border: 0px\"><input id=\"submit-changes\" type=\"submit\" name=\"submit-changes\" value=\"Save Changes\" disabled formenctype=\"multipart/form-data\"></td>";
     echo "</tr>\n";
 

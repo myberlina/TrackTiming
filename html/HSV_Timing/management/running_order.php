@@ -458,7 +458,7 @@
      echo "<tr $classname><td colspan=2>";
      echo " &nbsp; &nbsp; <select name=\"AddEntrant\" style=\"width: 180px\" onfocus=\"block_refresh=1\" oninput=\"document.getElementById('AddEnt').disabled=(this.value == '')\">";
      foreach($entrants as $car => $name) {
-      echo "<option value=\"$car\"> $car &nbsp &nbsp " . $name . "</option>";
+      echo "<option value=\"$car\"> $car &nbsp; &nbsp; " . $name . "</option>";
      }
      echo "<option value=\"\" selected> --  ReRun Entrant -- </option>";
      echo "</select></td><td>";
