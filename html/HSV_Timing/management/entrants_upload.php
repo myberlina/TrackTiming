@@ -195,7 +195,7 @@
     <title>Entrants File Upload</title>
     <link rel="stylesheet" href="style.css">
 <?php
-  $icon_file="icons.inc";
+  $icon_file=dirname(__FILE__) . "/icons.inc";
   if (file_exists($icon_file))
     readfile($icon_file);
 ?>
