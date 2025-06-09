@@ -9,6 +9,8 @@ install:
 	mkdir -p $(DESTDIR)/usr/share/tracktiming
 	find html | fgrep -v -e .gitignore -e .swp | cpio -pvdum $(DESTDIR)/var/www
 	#find html | fgrep -v -e .gitignore -e .swp | cpio -pvdum $(DESTDIR)/usr/share/tracktiming/
+	mkdir -p $(DESTDIR)/var/www/html/icons
+	cp icons/StopWatch-*.png icons/Timing.webmanifest $(DESTDIR)/var/www/html/icons
 	echo find etc to $(DESTDIR)/
 	find etc | fgrep -v -e .gitignore -e .swp | cpio -pvdum $(DESTDIR)
 	echo find systemd to $(DESTDIR)/usr/lib

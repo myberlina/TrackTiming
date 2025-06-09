@@ -103,6 +103,11 @@
   <head>
     <title>Results</title>
     <link rel="stylesheet" href="/HSV_Timing/style.css"/>
+<?php
+  $icon_file="icons.inc";
+  if (file_exists($icon_file))
+    readfile($icon_file);
+?>
     <meta http-equiv="refresh" content="20"/>
     <!-- Timing_Event_Num='<?php echo $evt;?>' -->
   </head>

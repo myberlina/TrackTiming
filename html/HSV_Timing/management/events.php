@@ -55,6 +55,11 @@
   <head>
     <title>Event Management</title>
     <link rel="stylesheet" href="style.css">
+<?php
+  $icon_file="icons.inc";
+  if (file_exists($icon_file))
+    readfile($icon_file);
+?>
   </head>
 <body>
 <center><h2>Event Management</h2>

@@ -194,6 +194,11 @@
   <head>
     <title>Entrants File Upload</title>
     <link rel="stylesheet" href="style.css">
+<?php
+  $icon_file="icons.inc";
+  if (file_exists($icon_file))
+    readfile($icon_file);
+?>
   </head>
 <body>
 <form name="frmEntrantUpload" method="post" action="">

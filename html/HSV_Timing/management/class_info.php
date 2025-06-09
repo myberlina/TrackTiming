@@ -111,6 +111,11 @@
   <head>
     <title>Class Infomation</title>
     <link rel="stylesheet" href="style.css">
+<?php
+  $icon_file="icons.inc";
+  if (file_exists($icon_file))
+    readfile($icon_file);
+?>
   </head>
 <body>
 <center>
