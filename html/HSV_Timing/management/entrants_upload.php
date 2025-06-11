@@ -84,8 +84,11 @@
 	  $file_row=$file_row+1;
 	  if ($file_row >= $data_start) {
 	    if (isset($col_num)) {
-	      $num = $row[$col_num];
-	      if ($num < 1) continue;
+	      $num = intval($row[$col_num]);
+	      if ($num < 1) {
+	        $bad_row[$file_row] = 1;
+                continue;
+              }
 	    }else {
 	      $num = $next_num++;
 	    }
