@@ -6,6 +6,8 @@
     return (isset($_POST[$name])&&isset($_POST["Orig".$name])&&($_POST[$name]!=$_POST["Orig".$name]));
   }
 
+  $message="";
+
   if(count($_POST)>0) {
     $restart_timing = 0;
     $restart_results = 0;
@@ -14,7 +16,10 @@
        isset($_POST['update_list'])&&('' != $_POST['update_list'])) {
       $config = yaml_parse_file( "$config_base/timing.conf");	// Read in current config
       if(!isset($_POST['save_ver'])||($_POST['save_ver']!=htmlspecialchars($config['save_ver']))) {
-        $message = "<font color=\"#c00000\"> Save Failed: Miss-matched config file </font>";
+        if($_POST['save_ver']<htmlspecialchars($config['save_ver']))
+          $message = "<font color=\"#c00000\"> Save Failed: Miss-matched config file - form from an older version </font>";
+        else
+          $message = "<font color=\"#c00000\"> Save Failed: Miss-matched config file </font>";
       }
       else {
         if(check_changed('Title'))	{ $config['title'] = $_POST['Title']; };
@@ -93,6 +98,29 @@
       }
       else {
         $message = "<font color=\"#c00000\"> No save name specified </font>";
+      }
+    }
+    if(isset($_POST['submit-createdb'])&&('Create' == $_POST['submit-createdb'])) {
+      $config = yaml_parse_file( "$config_base/timing.conf");	// Read in current config
+      if(isset($_POST['save_ver'])&&($_POST['save_ver']==htmlspecialchars($config['save_ver']))
+         && !check_changed('DbPath') && ($config['database_path'] == $_POST['DbPath'])
+        ) {
+        unset($results);
+        if (!(false === exec("/usr/sbin/CreateTimingDatabase 2>&1", $results, $rc)) && ($rc == 0)) {
+          $message = "<font color=\"#00a000\"> Creating Database </font>";
+          $file_changed = 1;
+          $restart_timing = 1;
+          $restart_results = 1;
+        }
+        else {
+          $error_text="";
+          foreach($results as $num => $line) $error_text=$error_text."$line<br>";
+          #if(!(strpos($error_text, "sudo: ")===false)) $error_text="sudo not correctly setup";
+          $message = $message."<br><font color=\"#c00000\"> Create Database failed: $rc: $error_text</font>";
+        }
+      }
+      else {
+        $message = "<font color=\"#c00000\"> Problem with form - database not created </font>";
       }
     }
     if(isset($_POST['submit-load'])&&('Load' == $_POST['submit-load'])) {
@@ -230,6 +258,16 @@
     $safe_title=htmlspecialchars($config['title'],ENT_QUOTES);
     $safe_comment=htmlspecialchars($config['comment'],ENT_QUOTES);
     $safe_db_path=htmlspecialchars($config['database_path'],ENT_QUOTES);
+    $show_create_database_button = false;
+    if (!file_exists($safe_db_path)) {
+      $message = $message."<br><font color=\"#c00000\"> Database does not exist </font>";
+      if (file_exists(dirname($safe_db_path)) && is_dir(dirname($safe_db_path))) {
+        $show_create_database_button = true;
+      }
+      else {
+        $message = $message."<br><font color=\"#c00000\"> Database directory does not exist </font>";
+      }
+    }
     if (isset($config['timing'])) {
       if (isset($config['timing']['inputs'])) {
         if (isset($config['timing']['inputs']['button'])) {
@@ -320,7 +358,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Configutation</title>
+    <title>Configuration</title>
     <link rel="stylesheet" href="style.css">
 <?php
   $icon_file=dirname(__FILE__) . "/icons.inc";
@@ -374,8 +412,11 @@
 
     echo "<tr>\n <th class=\"listheader\"> Database File Path </th>\n";
     echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigDbPath\" value=\"$safe_db_path\" id=\"OrigDbPath\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Database File Path\" name=\"DbPath\" id=\"DbPath\" class=\"txtField\" required value=\"$safe_db_path\" oninput=\"haveUpdate()\" ></td>\n";
-    echo "</tr>\n";
+    echo "<input type=\"text\" size=\"50\" placeholder=\"Database File Path\" name=\"DbPath\" id=\"DbPath\" class=\"txtField\" required value=\"$safe_db_path\" oninput=\"haveUpdate()\" >\n";
+    if (true === $show_create_database_button) {
+      echo "<input id=\"submit-createdb\" type=\"submit\" name=\"submit-createdb\" value=\"Create\" formnovalidate formenctype=\"multipart/form-data\">";
+    }
+    echo "</td></tr>\n";
 
     echo "<tr>\n <th colspan=\"3\" class=\"listheader\"> Inputs </th></tr>\n";
     echo "<tr>\n <th class=\"listheader\"> Drag / HillClimb</th><th>GPIO</th><th>Trigger Edge</th></tr>\n";
@@ -432,7 +473,7 @@
 
     echo "<tr>\n <th class=\"listheader\"> Forward Command </th>\n";
     echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigFwdCmd\" value=\"$safe_fwd_cmd\" id=\"OrigFwdCmd\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" required value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"text\" size=\"50\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types </th></tr>\n";
