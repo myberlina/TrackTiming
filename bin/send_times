@@ -1,0 +1,119 @@
+#!/bin/bash
+
+declare -A signal
+
+dbase=/data/Track_Time/Track_Time.db
+eval $( results_conf )
+database="$dbase"
+
+signal[button]="SIGRTMIN"
+signal[green]="SIGRTMIN+1"
+signal[start]="SIGRTMIN+2"
+signal[finish]="SIGRTMIN+3"
+
+max_cars=-9
+
+while [[ 'x-' == "x${1:0:1}" ]]
+do
+  if [[ '-s' == "$1" ]]
+  then
+    source_database=$2
+    shift 2
+  elif [[ '-c' == "$1" ]]
+  then
+    copy_car=y
+    shift
+    sqlite3 "$database" "
+      PRAGMA busy_timeout=5000;
+      PRAGMA journal_mode;
+      /* PRAGMA journal_mode=delete; */
+      PRAGMA journal_mode=wal;
+      INSERT INTO next_car VALUES ( 668, 100 );"
+  elif [[ '-n' == "$1" ]]
+  then
+    max_cars=$2
+    shift 2
+  elif [[ '-b' == "$1" ]]
+  then
+    no_button=y
+    shift
+  else
+    echo "Unrecognised option"
+    exit 1
+  fi
+done
+
+#event=$1
+#run=$2
+#t_pid=$3
+t_pid=$1
+
+next_car()
+{
+  car=$1
+  echo -n "'$car'             "
+  sqlite3 "$database" "
+    PRAGMA busy_timeout=5000;
+    INSERT INTO next_car VALUES ( $car, -$car );"
+}
+
+to_ms()
+{
+  sec="${1%%.*}"
+  dec="${1##*.}"
+  [[ "$1" != "$sec.$dec" ]]  &&  dec="000"
+  dec="${dec}000"
+  echo "$sec${dec:0:3}"
+}
+
+to_sec()
+{
+  ms=$1
+  echo "${ms:0: -3}.${ms: -3}"
+}
+
+curr=0
+while true
+do
+    IFS="$IFS," read car split final krud || break
+
+    echo "$car   $split    $final"
+
+    [[ 0 -eq ${split/./} ]] && [[ 0 -eq ${final/./} ]] && continue
+    [[ 0 -eq ${final/./} ]] && continue
+
+    split_ms=$(to_ms "$split")
+    final_ms=$(to_ms "$final")
+
+    let split_ms=split_ms/10 final_ms=final_ms/10
+    
+    [[ y == "$copy_car" ]] && next_car "$car"
+
+    if [[ y != "$no_button" ]]
+    then
+        sleep 0.1
+        kill -"${signal[button]}" "$t_pid"
+        echo -n "Button     "
+    fi
+
+    sleep 0.1
+    kill -"${signal[green]}" "$t_pid"
+        echo -n "Green     "
+
+    if [[ 0 -lt ${split/./} ]]
+    then
+        sleep $(to_sec $split_ms)
+        let final_ms=final_ms-split_ms
+        kill -"${signal[start]}" "$t_pid"
+        echo -n "Split     "
+    fi
+
+    if [[ 0 -lt ${final/./} ]]
+    then
+        sleep $(to_sec $final_ms)
+        kill -"${signal[finish]}" "$t_pid"
+        echo -n "Finish     "
+    fi
+
+    echo
+done
