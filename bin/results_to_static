@@ -72,7 +72,8 @@ do
           "${dbase}-shm" -nt "$data_ts" ]]
     then
       update_pages
-    elif [[ y = "$need_to_refresh" || "${static_base}/${result_types}".html -nt "$push_ts" ]]
+    elif [[ y = "$need_to_refresh" || "${static_base}/${result_types}".html -nt "$push_ts" ]] &&
+         type "${forward_results_command}" >/dev/null 2>&1
     then
       event=$(sed -n 's/.*<!-- Timing_Event_Num='"'\(.*\)'"' -->.*/\1/p' "${static_base}/${result_types}".html )
       "${forward_results_command}" "$push_ts" "${event}" "${result_list[@]}" &&
