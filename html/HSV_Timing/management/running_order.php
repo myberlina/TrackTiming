@@ -14,11 +14,13 @@
     $refetch_current_run = false;
     if(isset($_POST['Change-Event']) && ('Now' == $_POST['Change-Event']) && ($_POST["Event"] != $cur_evt)) {
       if ($post_qry = $db->prepare("UPDATE current_event set current_event=:num WHERE rowid=1")) {
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', intval($db->escapeString($_POST["Event"])), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute()) {
           $message = "<font color=\"#00a000\"> Event Set Successfully";
-	  $db->query('UPDATE current_run SET current_run = 0 WHERE rowid=1');
-	  $db->query('DELETE FROM next_car');
+	  $db->query('UPDATE current_run SET current_run = 1 WHERE rowid=1');
+	  //$db->query('DELETE FROM next_car');
+	  $_POST['NewRun-2'] = 'Now';
+          $_POST['NewRun-1'] = "Load";
 	}
         else
           $message = "<font color=\"#c00000\"> Event Set failed for &nbsp; ".$_POST["Event"]."\n<BR>" . $db->lastErrorMsg();
@@ -51,8 +53,8 @@
                 WHERE entrant_info.event=:event AND finish_time.car_num IS NULL";
         #  $load_qry = "INSERT INTO next_car SELECT car_num, ROW_NUMBER() OVER ( ORDER BY car_num ) RowNum FROM entrant_info WHERE event=:event";
         if ($post_qry = $db->prepare($load_qry)) {
-          $post_qry->bindValue(':event', 0 + $db->escapeString($_POST["Event"]), SQLITE3_INTEGER);
-          $post_qry->bindValue(':run', 0 + $cur_run, SQLITE3_INTEGER);
+          $post_qry->bindValue(':event', intval($db->escapeString($_POST["Event"])), SQLITE3_INTEGER);
+          $post_qry->bindValue(':run', intval($cur_run), SQLITE3_INTEGER);
           if ($update_result = $post_qry->execute()) {
             #$message = "<font color=\"#00a000\"> Entrants Loaded Successfully" ."\n<BR>";
 	    if ($op == "NR-Load") {
@@ -257,8 +259,8 @@
 
     if((isset($_POST['ReallyAdd'])) && ('Add' == $_POST['ReallyAdd'])) {
       if ($post_qry = $db->prepare("INSERT INTO next_car VALUES (:car, :ord)")) {
-        $post_qry->bindValue(':car', 0 + $db->escapeString($_POST["AddEntrant"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':ord', 0 + $db->escapeString($_POST["last_ord"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':car', intval($db->escapeString($_POST["AddEntrant"])), SQLITE3_INTEGER);
+        $post_qry->bindValue(':ord', intval($db->escapeString($_POST["last_ord"])), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute()) {
           $message = "<font color=\"#00a000\"> Entrant Re-added Successfully" ."\n<BR>";
 	}
@@ -311,7 +313,7 @@
 
 
   if ($entrant_qry = $db->prepare("SELECT car_num, car_name FROM entrant_info WHERE event=:event")) {
-    $entrant_qry->bindValue(':event', 0 + $cur_evt, SQLITE3_INTEGER);
+    $entrant_qry->bindValue(':event', intval($cur_evt), SQLITE3_INTEGER);
     if ($entrants_res = $entrant_qry->execute()) {
       while ($row = $entrants_res->fetchArray()) {
         $entrants[$row['car_num']] = $row['car_name'];
