@@ -220,7 +220,10 @@
          echo "<td><div style=\"float:left\">" . $class_place . "</div><div style=\"float:right\"><font size='2'/>(" . $place_ft[$row["car_num"]] . ")</td>\n";
          $class_place++;
          if ($points > 0) {
-	   $club_tot[$row["car_entrant"]] = $club_tot[$row["car_entrant"]] + $points;
+	   if (isset( $club_tot[$row["car_entrant"]]))
+	     $club_tot[$row["car_entrant"]] = $club_tot[$row["car_entrant"]] + $points;
+	   else
+	     $club_tot[$row["car_entrant"]] = $points;
            echo "<td style=\"text-align: center; font-weight: bold\">$points</td>\n";
            $points--;
          }
