@@ -115,11 +115,12 @@
    $tab_run = 1;
 
    while($row = $results->fetchArray()) {
-     if($i%2==0)
-       $classname="evenRow";
-     else
-       $classname="oddRow";
      if ($row["car_num"] != $prev_car ) {
+       if($i%2==0)
+         $classname="evenRow";
+       else
+         $classname="oddRow";
+       $i++;
        echo "</tr>";
        echo "<tr class=\"$classname\">";
        echo "<td><div style=\"float:left\">";
@@ -141,7 +142,6 @@
        echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br/>" . htmlspecialchars($row["car_info"]) . "</td>\n";
        $prev_car = $row["car_num"];
        $tab_run = 1;
-       $i++;
      }
      elseif ($row["run"] == $prev_run ) continue;
      while ($row["run"] > $tab_run++)

@@ -157,11 +157,12 @@
    $span_cols = 4 + $max_runs;
 
    while($row = $results->fetchArray()) {
-     if($i%2==0)
-       $classname="evenRow";
-     else
-       $classname="oddRow";
      if ($row["car_num"] != $prev_car ) {
+       if($i%2==0)
+         $classname="evenRow";
+       else
+         $classname="oddRow";
+       $i++;
        if ($row["class"] != $prev_class) {
          if ($row["class"] != "" ) {
            echo "</tr>";
@@ -211,7 +212,6 @@
        }
        $prev_car = $row["car_num"];
        $tab_run = 1;
-       $i++;
      }
      elseif ($row["run"] == $prev_run ) continue;
      if (!isset($row["run"])) continue;
