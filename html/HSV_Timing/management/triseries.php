@@ -2,7 +2,11 @@
   // Results_Info:  Hillclimb style with split, and club for TriSeries
   include_once 'database.php';
 
-  include_once 'TriSeriesScores.php';
+  $event_name = array();
+  $scores = array();
+  $prev_results_file = '/etc/timing/TriSeriesScores.php';
+  if (file_exists($prev_results_file))
+    include_once $prev_results_file;
 
   if(isset($argc) && ($argc>1))
     parse_str(implode('&',array_slice($argv, 1)), $_GET);
@@ -301,7 +305,7 @@
        $all_points[$club] = $tot;
      }
      foreach ($event_name as $rnd => $rnd_name) {
-       if (isset($scores[$rnd]))
+       if (array_key_exists($rnd,$scores))
          foreach ($scores[$rnd] as $club => $points) {
 	   if (isset($all_points[$club]))
 	     $all_points[$club] += $points;
