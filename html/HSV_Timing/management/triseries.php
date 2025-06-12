@@ -301,12 +301,13 @@
        $all_points[$club] = $tot;
      }
      foreach ($event_name as $rnd => $rnd_name) {
-       foreach ($scores[$rnd] as $club => $points) {
-	 if (isset($all_points[$club]))
-	   $all_points[$club] += $points;
-         else
-	   $all_points[$club] = $points;
-       }
+       if (isset($scores[$rnd]))
+         foreach ($scores[$rnd] as $club => $points) {
+	   if (isset($all_points[$club]))
+	     $all_points[$club] += $points;
+           else
+	     $all_points[$club] = $points;
+         }
      }
    ?>
    <tbody>
