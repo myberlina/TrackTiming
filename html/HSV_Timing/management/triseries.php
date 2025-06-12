@@ -324,7 +324,10 @@
       foreach ($all_points as $club => $tot) {
         echo "<tr><td>$club</td>";
         foreach ($event_name as $rnd => $rnd_name)
-          echo "<td align=\"right\">" . $scores[$rnd][$club] . "</td>";
+          if (isset($scores[$rnd]) && isset($scores[$rnd][$club]))
+            echo "<td align=\"right\">" . $scores[$rnd][$club] . "</td>";
+	  else
+            echo "<td align=\"right\"></td>";
         echo "<td align=\"right\">" . $club_tot[$club] . "</td><td align=\"right\">" . $all_points[$club] . "</td></tr>";
       }
    ?>
