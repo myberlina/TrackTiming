@@ -1,11 +1,11 @@
 <?php
   if (isset($_GET['evt']))
-    $evt = 0 + $_GET['evt'];
+    $evt = intval($_GET['evt']);
   else
     $evt = 0;
 
   if (isset($_GET['run']))
-    $run = 0 + $_GET['run'];
+    $run = intval($_GET['run']);
   else
     $run = 0;
 
@@ -17,10 +17,10 @@
     else $row_id = 0;
     if ((isset($_POST['submit']))&&('Fix' == $_POST['submit'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("UPDATE finish_time set car_num=:num WHERE rowid=:row AND event=:event AND run=:run")){
-        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["CarNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':run', 0 + $db->escapeString($run), SQLITE3_INTEGER);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', intval($db->escapeString($_POST["CarNum-$row_id"])), SQLITE3_INTEGER);
+        $post_qry->bindValue(':run', intval($db->escapeString($run)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "";
         else
@@ -33,10 +33,10 @@
 
     if((isset($_POST['really-delete']))&&('Yes' == $_POST['really-delete'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("DELETE FROM finish_time WHERE event=:event AND run=:run AND car_num=:num AND rowid=:row")){
-        $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':run', 0 + $db->escapeString($run), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["CarNum-$row_id"]), SQLITE3_INTEGER);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':run', intval($db->escapeString($run)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', intval($db->escapeString($_POST["CarNum-$row_id"])), SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "";
         else
@@ -84,8 +84,8 @@
   }
 
   if ($ent_qry = $db->prepare($time_query)) {
-    $ent_qry->bindValue(':event', 0 + $evt, SQLITE3_INTEGER);
-    $ent_qry->bindValue(':run', 0 + $run, SQLITE3_INTEGER);
+    $ent_qry->bindValue(':event', intval($evt), SQLITE3_INTEGER);
+    $ent_qry->bindValue(':run', intval($run), SQLITE3_INTEGER);
     $entrants = $ent_qry->execute();
   }
   else

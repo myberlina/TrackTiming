@@ -1,6 +1,6 @@
 <?php
   if (isset($_GET['id']) && is_numeric($_GET['id']))
-    $row_id = 0 + $_GET['id'];
+    $row_id = intval($_GET['id']);
   else
     $row_id = 0;
 
@@ -22,7 +22,7 @@
         $post_qry->bindValue(':class', htmlspecialchars_decode($_POST["Class-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':class_info', htmlspecialchars_decode($_POST["ClassInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':record', htmlspecialchars_decode($_POST["ClassRecord-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
         else
@@ -52,7 +52,7 @@
         $post_qry->bindValue(':class', htmlspecialchars_decode($_POST["Class-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':class_info', htmlspecialchars_decode($_POST["ClassInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':record', htmlspecialchars_decode($_POST["ClassRecord-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Deleted Successfully for ".$_POST["Class-$row_id"]."\n<BR>";
         else
@@ -77,7 +77,7 @@
             $post_qry->bindValue(':class', htmlspecialchars_decode($_POST["Class-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':class_info', htmlspecialchars_decode($_POST["ClassInfo-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':record', htmlspecialchars_decode($_POST["ClassRecord-$row_id"]), SQLITE3_TEXT);
-            $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+            $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
             if ($update_result = $post_qry->execute())
               $good++;
             else

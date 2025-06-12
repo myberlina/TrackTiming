@@ -2,7 +2,7 @@
   include_once 'database.php';
 
   if (isset($_GET['evt']))
-    $evt = 0 + $_GET['evt'];
+    $evt = intval($_GET['evt']);
   else
     $evt = 0;
 
@@ -103,7 +103,7 @@
 	      }
 	    }
 
-            $upload_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
+            $upload_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
 	    if (isset($col_info1)) {
 	      $info=$row[$col_info1];
 	      if (isset($col_info2)) {

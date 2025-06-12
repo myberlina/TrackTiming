@@ -1,12 +1,12 @@
 <?php
 
   if (isset($_GET['evt']) && is_numeric($_GET['evt']))
-    $evt = 0 + $_GET['evt'];
+    $evt = intval($_GET['evt']);
   else
     $evt = 0;
 
   if (isset($_GET['id']) && is_numeric($_GET['id']))
-    $row_id = 0 + $_GET['id'];
+    $row_id = intval($_GET['id']);
   else
     $row_id = 0;
 
@@ -30,8 +30,8 @@
     include_once 'database.php';
     if(isset($_POST['submit'])&&('Update' == $_POST['submit'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("UPDATE entrant_info set car_num=:num, car_name=:name, car_info=:info, special=:special, class=:class, car_car=:car, car_entrant=:entrant, run_order=:run_order WHERE rowid=:row AND event=:event")){
-        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', intval(htmlspecialchars_decode($evt)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', intval(htmlspecialchars_decode($_POST["EntNum-$row_id"])), SQLITE3_INTEGER);
         $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
@@ -39,7 +39,7 @@
         $post_qry->bindValue(':car', htmlspecialchars_decode($_POST["EntCar-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':entrant', htmlspecialchars_decode($_POST["EntEntrant-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':run_order', htmlspecialchars_decode($_POST["EntOrder-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
         else
@@ -52,8 +52,8 @@
 
     if(isset($_POST['submit']) && ('Create' == $_POST['submit'])) {
       if ($post_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info, special, class, car_car, car_entrant, run_order) VALUES(:event, :num, :name, :info, :special, :class, :car, :entrant, :run_order)")){
-        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', intval(htmlspecialchars_decode($evt)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', intval(htmlspecialchars_decode($_POST["EntNum-$row_id"])), SQLITE3_INTEGER);
         $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
@@ -72,12 +72,12 @@
     }
     if(isset($_POST['really-delete'])&&('Yes!' == $_POST['really-delete'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event AND car_num=:num AND car_name=:name AND car_info=:info AND special=:special AND rowid=:row")){
-        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
-        $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', intval(htmlspecialchars_decode($evt)), SQLITE3_INTEGER);
+        $post_qry->bindValue(':num', intval(htmlspecialchars_decode($_POST["EntNum-$row_id"])), SQLITE3_INTEGER);
         $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Deleted Successfully for ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>";
         else
@@ -98,8 +98,8 @@
 	  $bad_message="";
           foreach($update_list as $row_id) {
 	    if ($row_id < 1) continue;
-            $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
-            $post_qry->bindValue(':num', 0 + htmlspecialchars_decode($_POST["EntNum-$row_id"]), SQLITE3_INTEGER);
+            $post_qry->bindValue(':event', intval(htmlspecialchars_decode($evt)), SQLITE3_INTEGER);
+            $post_qry->bindValue(':num', intval(htmlspecialchars_decode($_POST["EntNum-$row_id"])), SQLITE3_INTEGER);
             $post_qry->bindValue(':name', htmlspecialchars_decode($_POST["EntName-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':info', htmlspecialchars_decode($_POST["EntInfo-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':special', htmlspecialchars_decode($_POST["EntSpecial-$row_id"]), SQLITE3_TEXT);
@@ -107,7 +107,7 @@
             $post_qry->bindValue(':car', htmlspecialchars_decode($_POST["EntCar-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':entrant', htmlspecialchars_decode($_POST["EntEntrant-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':run_order', htmlspecialchars_decode($_POST["EntOrder-$row_id"]), SQLITE3_TEXT);
-            $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+            $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
             if ($update_result = $post_qry->execute())
               $good++;
             else
@@ -125,7 +125,7 @@
     }
     if(isset($_POST['really-delete-ALL'])&&('Yes!' == $_POST['really-delete-ALL'])) {
       if ($post_qry = $db->prepare("DELETE FROM entrant_info WHERE event=:event")){
-        $post_qry->bindValue(':event', 0 + htmlspecialchars_decode($evt), SQLITE3_INTEGER);
+        $post_qry->bindValue(':event', intval(htmlspecialchars_decode($evt)), SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> All Entrants Deleted Successfully for Event ".$evt.", \"".$_POST["EventList"]."\"\n<BR>";
         else
@@ -167,7 +167,7 @@
   }
 
   if ($ent_qry = $db->prepare("SELECT rowid, car_num, car_name, car_info, special, class, car_car, car_entrant, run_order FROM entrant_info WHERE event = :event ORDER BY $orderbyq")) {
-    $ent_qry->bindValue(':event', 0 + $evt, SQLITE3_INTEGER);
+    $ent_qry->bindValue(':event', intval($evt), SQLITE3_INTEGER);
     $entrants = $ent_qry->execute();
   }
   else
