@@ -1,6 +1,8 @@
 <?php
-  // Results_Info:  Hillclimb style with split, no reaction time, Green light => Button
+  // Results_Info:  Hillclimb style with split, and club for TriSeries
   include_once 'database.php';
+
+  include_once 'TriSeriesScores.php';
 
   if(isset($argc) && ($argc>1))
     parse_str(implode('&',array_slice($argv, 1)), $_GET);
@@ -147,7 +149,10 @@
 </div>
 </div>
 <br/>
-  <table align="center" border="1" cellpadding="1">
+ <table align="center" border="0" cellpadding="0">
+ <tr><td>
+  <table border="1" cellpadding="1">
+   <tbody>
    <tr class="listheader">
       <td>Num</td>
       <td>Driver</td>
@@ -166,14 +171,15 @@
    $tab_run = 1;
    $prev_class = "lksfjlasjfiwfl";
    $class_place=1;
-   $span_cols = 4 + $max_runs;
+   $span_cols = 6 + $max_runs;
 
    while($row = $results->fetchArray()) {
-     if($i%2==0)
-       $classname="evenRow";
-     else
-       $classname="oddRow";
      if ($row["car_num"] != $prev_car ) {
+       if($i%2==0)
+         $classname="evenRow";
+       else
+         $classname="oddRow";
+       $i++;
        if ($row["class"] != $prev_class) {
          if ($row["class"] != "" ) {
            echo "</tr>";
@@ -237,7 +243,6 @@
        }
        $prev_car = $row["car_num"];
        $tab_run = 1;
-       $i++;
      }
      elseif ($row["run"] == $prev_run ) continue;
      if (!isset($row["run"])) continue;
@@ -270,8 +275,12 @@
    $res_qry->close();
    ?>
    </tr>
+   </tbody>
   </table>
+ </td></tr>
+ <tr><td>
   <table border="1" cellpadding="1">
+   <tbody>
    <tr class="listheader">
       <td>Club Name</td>
       <td>Points</td>
@@ -282,6 +291,46 @@
         echo "<tr><td>$club</td><td>$tot</td></tr>";
       }
    ?>
+   </tbody>
   </table>
+ </td></tr>
+ <tr><td>
+  <table border="1" cellpadding="1">
+   <?php
+     foreach ($club_tot as $club => $tot) {
+       $all_points[$club] = $tot;
+     }
+     foreach ($event_name as $rnd => $rnd_name) {
+       foreach ($scores[$rnd] as $club => $points) {
+	 if (isset($all_points[$club]))
+	   $all_points[$club] += $points;
+         else
+	   $all_points[$club] = $points;
+       }
+     }
+   ?>
+   <tbody>
+   <tr class="listheader">
+      <td>Club Name</td>
+      <?php
+        foreach ($event_name as $rnd => $rnd_name)
+          echo "<td align=\"right\">$rnd_name</td>";
+      ?>
+      <td>WSCC</td>
+      <td>Total</td>
+   </tr>
+   <?php
+      arsort($all_points, SORT_NUMERIC);
+      foreach ($all_points as $club => $tot) {
+        echo "<tr><td>$club</td>";
+        foreach ($event_name as $rnd => $rnd_name)
+          echo "<td align=\"right\">" . $scores[$rnd][$club] . "</td>";
+        echo "<td align=\"right\">" . $club_tot[$club] . "</td><td align=\"right\">" . $all_points[$club] . "</td></tr>";
+      }
+   ?>
+   </tbody>
+  </table>
+ </td></tr>
+ </table>
  </body>
 </html>
