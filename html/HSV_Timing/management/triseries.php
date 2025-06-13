@@ -24,6 +24,11 @@
     $opp_runners_url = '&runners_only';
   }
 
+  if (isset($config) && isset($config['results']) && isset($config['results']['split_line']) && $config['results']['split_line'])
+    $split_br="<br>";
+  else
+    $split_br="&nbsp;";
+
   $events = $db->query('SELECT DISTINCT event, name FROM hc_results, event_info WHERE event = num ORDER BY event DESC');
 
   if (isset($_GET['evt'])) {
@@ -254,7 +259,6 @@
          echo "<td></td>";
      echo "<td><font size='3' style=\"float:right\"/>";
      if (isset($row["rt"])) {
-       #echo "<sub>";
        echo "<font size='2'>";
        if ($best_rt[$row["car_num"]] == $row["rt"])
          if ($purple_rt == $row["rt"])
@@ -263,8 +267,7 @@
              printf("<strong>$split_fmt</strong> ", $row["rt"]);
        else
          printf("$split_fmt ", $row["rt"]);
-       echo "</font><br>";
-       #echo "</sub>";
+       echo "</font>$split_br";
      }
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])

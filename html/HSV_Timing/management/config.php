@@ -2,7 +2,7 @@
   $config_base="/etc/timing/";
   //var_dump($_POST);
   //var_dump($_FILES);
-  function check_changed($name) {
+  function chk_chnged($name) {
     return (isset($_POST[$name])&&isset($_POST["Orig".$name])&&($_POST[$name]!=$_POST["Orig".$name]));
   }
 
@@ -22,58 +22,71 @@
           $message = "<font color=\"#c00000\"> Save Failed: Miss-matched config file </font>";
       }
       else {
-        if(check_changed('Title'))	{ $config['title'] = $_POST['Title']; };
-        if(check_changed('Comment'))	{ $config['comment'] = $_POST['Comment']; };
-        if(check_changed('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];				$restart_timing=1; $restart_results=1; };
-        if(check_changed('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);			$restart_timing=1; };
-        if(check_changed('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
-        if(check_changed('GreenGPIO'))	{ $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);			$restart_timing=1; };
-        if(check_changed('GreenEdge'))	{ $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);	$restart_timing=1; };
-        if(check_changed('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);			$restart_timing=1; };
-        if(check_changed('StartEdge'))	{ $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);	$restart_timing=1; };
-        if(check_changed('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);			$restart_timing=1; };
-        if(check_changed('FinishEdge'))	{ $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);	$restart_timing=1; };
-        if(check_changed('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);					$restart_timing=1; };
-        if(check_changed('WebBase'))	{ $config['results']['web_base'] = $_POST['WebBase'];				$restart_results=1; };
-        if(check_changed('PHPBase'))	{ $config['results']['php_base'] = $_POST['PHPBase'];				$restart_results=1; };
-        if(check_changed('StaticBase'))	{ $config['results']['static_base'] = $_POST['StaticBase'];			$restart_results=1; };
-        if(check_changed('FwdCmd'))	{ $config['results']['forward_results_command'] = $_POST['FwdCmd'];		$restart_results=1; };
-        if(check_changed('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);		$restart_results=1; };
-        if(check_changed('RunnersOnly')){ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
-        if(check_changed('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
-        $list_change=0;
-        $i=0;
-        $new_list=array();
-        foreach($_POST as $name => $value) {
-          if (substr($name,0,3)=='RP_') {
-            if ($_POST[$name] == 'true') $new_list[$i++] = substr($name,3);
-            if (check_changed($name))  $list_change = 1;
-          }
-          elseif (substr($name,0,7)=='OrigRP_') {
-            $base=substr($name,4);
-            if (!isset($_POST[$base])&&($_POST[$name]=='true'))  $list_change = 1;
+        if (str_contains($_POST['update_list'], 'DefaultReport') && isset($_POST['DefaultReport'])
+          && isset($config['results']) && isset($config['results']['php_base']) && isset($config['results']['static_base']) ) {
+          $safe_php_base=htmlspecialchars($config['results']['php_base'],ENT_QUOTES);
+          $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
+          $new_def_report = $_POST['DefaultReport'];
+          if (file_exists($safe_php_base . "/" . $new_def_report . ".php")) {  // Is a real report
+            unlink($safe_static_base . "/default.html");
+            symlink($new_def_report . ".html", $safe_static_base . "/default.html");
           }
         }
-        if ($list_change == 1) {
-          $config['results']['result_types'] = $new_list;
-          $restart_results=1;
-          //foreach($config['results']['result_types'] as $num => $file) {
-          //  echo "[$num] => '$file' <br>\n";
-          //}
-        }
-        $config['save_ver']++;
-        if (yaml_emit_file("$config_base/_timing.conf", $config))
-          if (rename("$config_base/_timing.conf", "$config_base/timing.conf")) {
-            $message = "<font color=\"#00a000\"> Config Saved </font>";
-            $file_changed = 1;
+        if ($_POST['update_list'] != ';DefaultReport') {
+          if(chk_chnged('Title'))	{ $config['title'] = $_POST['Title']; };
+          if(chk_chnged('Comment'))	{ $config['comment'] = $_POST['Comment']; };
+          if(chk_chnged('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];				$restart_timing=1; $restart_results=1; };
+          if(chk_chnged('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);			$restart_timing=1; };
+          if(chk_chnged('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
+          if(chk_chnged('GreenGPIO'))	{ $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);			$restart_timing=1; };
+          if(chk_chnged('GreenEdge'))	{ $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);	$restart_timing=1; };
+          if(chk_chnged('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);			$restart_timing=1; };
+          if(chk_chnged('StartEdge'))	{ $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);	$restart_timing=1; };
+          if(chk_chnged('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);			$restart_timing=1; };
+          if(chk_chnged('FinishEdge'))	{ $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);	$restart_timing=1; };
+          if(chk_chnged('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);					$restart_timing=1; };
+          if(chk_chnged('WebBase'))	{ $config['results']['web_base'] = $_POST['WebBase'];				$restart_results=1; };
+          if(chk_chnged('PHPBase'))	{ $config['results']['php_base'] = $_POST['PHPBase'];				$restart_results=1; };
+          if(chk_chnged('StaticBase'))	{ $config['results']['static_base'] = $_POST['StaticBase'];			$restart_results=1; };
+          if(chk_chnged('FwdCmd'))	{ $config['results']['forward_results_command'] = $_POST['FwdCmd'];		$restart_results=1; };
+          if(chk_chnged('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);		$restart_results=1; };
+          if(chk_chnged('RunnersOnly'))	{ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
+          if(chk_chnged('SplitLine'))	{ $config['results']['split_line'] = ('true' == $_POST['SplitLine']); };
+          if(chk_chnged('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
+          $list_change=0;
+          $i=0;
+          $new_list=array();
+          foreach($_POST as $name => $value) {
+            if (substr($name,0,3)=='RP_') {
+              if ($_POST[$name] == 'true') $new_list[$i++] = substr($name,3);
+              if (chk_chnged($name))  $list_change = 1;
+            }
+            elseif (substr($name,0,7)=='OrigRP_') {
+              $base=substr($name,4);
+              if (!isset($_POST[$base])&&($_POST[$name]=='true'))  $list_change = 1;
+            }
           }
+          if ($list_change == 1) {
+            $config['results']['result_types'] = $new_list;
+            $restart_results=1;
+            //foreach($config['results']['result_types'] as $num => $file) {
+            //  echo "[$num] => '$file' <br>\n";
+            //}
+          }
+          $config['save_ver']++;
+          if (yaml_emit_file("$config_base/_timing.conf", $config))
+            if (rename("$config_base/_timing.conf", "$config_base/timing.conf")) {
+              $message = "<font color=\"#00a000\"> Config Saved </font>";
+              $file_changed = 1;
+            }
+            else {
+              $errors = error_get_last();
+              $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
+            }
           else {
             $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
           }
-        else {
-          $errors = error_get_last();
-          $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
         }
       }
     }
@@ -103,7 +116,7 @@
     if(isset($_POST['submit-createdb'])&&('Create' == $_POST['submit-createdb'])) {
       $config = yaml_parse_file( "$config_base/timing.conf");	// Read in current config
       if(isset($_POST['save_ver'])&&($_POST['save_ver']==htmlspecialchars($config['save_ver']))
-         && !check_changed('DbPath') && ($config['database_path'] == $_POST['DbPath'])
+         && !chk_chnged('DbPath') && ($config['database_path'] == $_POST['DbPath'])
         ) {
         unset($results);
         if (!(false === exec("/usr/sbin/CreateTimingDatabase 2>&1", $results, $rc)) && ($rc == 0)) {
@@ -223,6 +236,8 @@
   $on = '<option value="false"> Off </option> <option value="true" selected> On </option>';
   $all_entered = '<option value="false" selected>All Enrants</option> <option value="true">Runners Only</option>';
   $runners = '<option value="false">All Enrants</option> <option value="true" selected>Runners Only</option>';
+  $same_line = '<option value="false" selected>Splits Same Line</option> <option value="true">Splits Own Line</option>';
+  $new_line = '<option value="false">Splits Same Line</option> <option value="true" selected>Splits Own Line</option>';
 
   $safe_title="";
   $safe_comment="";
@@ -248,6 +263,8 @@
   $safe_refresh_time="";
   $safe_runners_only="false";
   $safe_runners_only_opt=$all_entered;
+  $safe_split_line="false";
+  $safe_split_line_opt=$same_line;
   $safe_csv_quotes="false";
   $safe_csv_quotes_opt=$off;
   $safe_save_ver="0";
@@ -302,6 +319,8 @@
       $safe_refresh_time=htmlspecialchars($config['results']['static_refresh']);
       $safe_runners_only=($config['results']['runners_only'])?"true":"false";
       $safe_runners_only_opt=($config['results']['runners_only'])?$runners:$all_entered;
+      $safe_split_line=($config['results']['split_line'])?"true":"false";
+      $safe_split_line_opt=($config['results']['split_line'])?$new_line:$same_line;
       if (isset($config['results']['csv_quotes']) && $config['results']['csv_quotes']) {
         $safe_csv_quotes=true;
         $safe_csv_quotes_opt=$on;
@@ -319,9 +338,11 @@
     if (substr($conf_file,0,1) == ".") { continue ; };
     if ($conf_file == "timing.conf") { continue ; };
     $contents = yaml_parse_file( "$config_base/$conf_file");
-    $title = $contents['title'];
-    $comment = $contents['comment'];
-    $conf_file_list = $conf_file_list . "<option value=\"$conf_file\" title=\"$comment\"> $conf_file &nbsp; : &nbsp; $title </option>";
+    if (!(false === $contents) && isset($contents['title'])) {
+      $title = $contents['title'];
+      $comment = $contents['comment'];
+      $conf_file_list = $conf_file_list . "<option value=\"$conf_file\" title=\"$comment\"> $conf_file &nbsp; : &nbsp; $title </option>";
+    }
   }
 
   // Get the list of result programs
@@ -343,6 +364,12 @@
     $result_list[$file] = $comment;
   }
   pclose($list);
+  $def_report="";
+  if (is_link($safe_static_base . "/default.html")) {
+    $def_report = readlink($safe_static_base . "/default.html");
+    if (".html" == substr($def_report,-5))
+      $def_report = substr($def_report,0,-5);
+  }
   // Add any that are in the config, but not found
   // echo "type of  \$config['results']['result_types'] is " . gettype($config['results']['result_types']) . "<br>";
   if (!(false === $config)) {
@@ -380,6 +407,13 @@
     function haveUpdate(){
             update_list="";
             update_count=0;
+            orig_val="";
+            var radioButtons = document.getElementsByName("DefaultReport");
+            for (var i = 0; i < radioButtons.length; i++) {
+              if (radioButtons[i].checked) {
+                orig_val=radioButtons[i].value;
+              }
+            }
             input_fields=document.getElementsByTagName("input");
             for (let i = 0; i < input_fields.length; i++) {
               if (input_fields[i].name.substr(0,4) == "Orig") {
@@ -390,11 +424,17 @@
                     update_count++;
                   }
                 }
+                else if ((input_fields[i].name == "OrigDefaultReport")&&(input_fields[i].value != orig_val)) {
+                  report=document.getElementById("RP_" + orig_val);
+                  if ((report != null) && report.checked) {
+                    update_list=update_list + ";" + input_fields[i].name.substr(4);
+                    update_count++;
+                  }
+                }
               }
             }
             document.getElementById('update_list').value=update_list;
             document.getElementById('submit-changes').disabled=(update_count == 0);
-            document.getElementById('submit-changes').value = "ppp" + a + ":" + b + ":" + c + ":" + update_count;
     };
   </script>
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
@@ -476,30 +516,43 @@
     echo "<input type=\"text\" size=\"50\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
-    echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types </th></tr>\n";
+    echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types <div style=\"float:right\">&nbsp;<sub>Def</sub></div></th><th colspan=\"2\" align=\"left\"><sub>Enabled</sub>&nbsp;-$def_report-</th></tr>\n";
+    echo "<input type=\"hidden\" name=\"OrigDefaultReport\" value=\"$def_report\" id=\"OrigDefaultReport\">";
     foreach($result_list as $name => $comment) {
       if (isset($result_enabled[$name])) {
         $is_set="true";
         $is_checked="checked";
+        $radio_dis="";
+        if ($name == $def_report)
+          $radio_checked="checked";
+        else
+          $radio_checked="";
       }
       else {
         $is_set="false";
         $is_checked="";
+        $radio_dis="disabled";
+        $radio_checked="";
       }
-      echo "<tr>\n <td align=right> <label for=\"RP_$name\"> $name </label></td>\n";
+      echo "<tr>\n <td align=right>";
+      echo " <label for=\"RP_$name\"> $name </label>\n";
+      echo " <input type=\"radio\" id=\"def_$name\" name=\"DefaultReport\" $radio_checked $radio_dis value=\"$name\" oninput=\"haveUpdate();\">";
+      echo "</td>\n";
       echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigRP_$name\" value=\"$is_set\" id=\"OrigRP_$name\">";
-      echo "<input type=\"checkbox\" name=\"RP_$name\" id=\"RP_$name\" value=\"$is_set\" $is_checked oninput=\"this.value=(this.checked?'true':'false');haveUpdate()\"><label for=\"RP_$name\"> $comment </label></td>\n";
+      echo "<input type=\"checkbox\" name=\"RP_$name\" id=\"RP_$name\" value=\"$is_set\" $is_checked oninput=\"this.value=(this.checked?'true':'false');haveUpdate();document.getElementById('def_$name').disabled=!this.checked\"><label for=\"RP_$name\"> $comment </label></td>\n";
       echo "</tr>\n";
     }
-
-    echo "<tr>\n <th class=\"listheader\"> Refresh Interval </th>\n";
-    echo "<td><input type=\"hidden\" name=\"OrigInterval\" value=\"$safe_refresh_time\" id=\"OrigInterval\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"20\" name=\"Interval\" id=\"Interval\" class=\"input_number\" required value=\"$safe_refresh_time\" oninput=\"haveUpdate()\" > Seconds</td>\n";
-    echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Show in Results </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
     echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
+    echo "<td><input type=\"hidden\" name=\"OrigSplitLine\" value=\"$safe_split_line\" id=\"OrigSplitLine\">";
+    echo "<select name=\"SplitLine\" id=\"SplitLine\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_split_line_opt</select></td>";
+    echo "</tr>\n";
+
+    echo "<tr>\n <th class=\"listheader\"> Refresh Interval </th>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigInterval\" value=\"$safe_refresh_time\" id=\"OrigInterval\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"20\" name=\"Interval\" id=\"Interval\" class=\"input_number\" required value=\"$safe_refresh_time\" oninput=\"haveUpdate()\" > Seconds</td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Quotes in CSV </th>\n";
