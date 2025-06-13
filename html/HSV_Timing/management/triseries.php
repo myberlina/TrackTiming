@@ -169,11 +169,11 @@
       <td>Car</td>
       <td>Place</td>
       <td>Points</td>
-      <td>Run 1</td>
+      <td align="right">Run 1</td>
    <?php
    $i=1;
    while(++$i <= $max_runs) {
-       echo "<td>Run $i</td>";
+       echo "<td align=\"right\">Run $i</td>";
    }
    $i=0;
    $prev_car = "";
