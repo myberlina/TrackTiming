@@ -28,8 +28,12 @@
           $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
           $new_def_report = $_POST['DefaultReport'];
           if (file_exists($safe_php_base . "/" . $new_def_report . ".php")) {  // Is a real report
-            unlink($safe_static_base . "/default.html");
-            symlink($new_def_report . ".html", $safe_static_base . "/default.html");
+            if (file_exists($safe_static_base . "/default.html"))
+              unlink($safe_static_base . "/default.html");
+            if (symlink($new_def_report . ".html", $safe_static_base . "/default.html"))
+              $message = "<font color=\"#00a000\"> default result type changed </font><br>";
+            else
+              $message = "<font color=\"#c00000\"> Could not update default result type </font><br>";
           }
         }
         if ($_POST['update_list'] != ';DefaultReport') {
@@ -76,16 +80,16 @@
           $config['save_ver']++;
           if (yaml_emit_file("$config_base/_timing.conf", $config))
             if (rename("$config_base/_timing.conf", "$config_base/timing.conf")) {
-              $message = "<font color=\"#00a000\"> Config Saved </font>";
+              $message = $message . "<font color=\"#00a000\"> Config Saved </font>";
               $file_changed = 1;
             }
             else {
               $errors = error_get_last();
-              $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
+              $message = $message . "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
             }
           else {
             $errors = error_get_last();
-            $message = "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
+            $message = $message . "<font color=\"#c00000\"> Save Failed: " . $errors['message'] . "</font>";
           }
         }
       }
@@ -535,7 +539,8 @@
         $radio_checked="";
       }
       echo "<tr>\n <td align=right>";
-      echo " <label for=\"RP_$name\"> $name </label>\n";
+      //echo " <label for=\"RP_$name\"> $name </label>\n";
+      echo " <label for=\"def_$name\"> $name </label>\n";
       echo " <input type=\"radio\" id=\"def_$name\" name=\"DefaultReport\" $radio_checked $radio_dis value=\"$name\" oninput=\"haveUpdate();\">";
       echo "</td>\n";
       echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigRP_$name\" value=\"$is_set\" id=\"OrigRP_$name\">";
