@@ -516,7 +516,7 @@
     echo "<input type=\"text\" size=\"50\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
-    echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types <div style=\"float:right\">&nbsp;<sub>Def</sub></div></th><th colspan=\"2\" align=\"left\"><sub>Enabled</sub>&nbsp;-$def_report-</th></tr>\n";
+    echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types <div style=\"float:right\">&nbsp;<sub>Def</sub></div></th><th colspan=\"2\" align=\"left\"><sub>Enabled</sub>&nbsp;</th></tr>\n";
     echo "<input type=\"hidden\" name=\"OrigDefaultReport\" value=\"$def_report\" id=\"OrigDefaultReport\">";
     foreach($result_list as $name => $comment) {
       if (isset($result_enabled[$name])) {
