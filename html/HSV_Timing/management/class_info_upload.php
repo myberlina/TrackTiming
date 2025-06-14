@@ -1,11 +1,6 @@
 <?php
   include_once 'database.php';
 
-  if (isset($_GET['evt']))
-    $evt = intval($_GET['evt']);
-  else
-    $evt = 0;
-
   $save_dir="/var/tmp/Timing_uploads/";
   $good_row[0] = 1;
   $bad_row[0] = 1;
@@ -28,38 +23,27 @@
     if (isset($_POST['data_start'])) $data_start = $_POST['data_start'];
   }
 
-  if (($evt<1)||(count($_POST)<1)||(('Upload'!=$_POST['submit'])&&('Submit'!=$_POST['submit'])&&('Rescan'!=$_POST['submit'])))
+  if ((count($_POST)<1)||(('Upload'!=$_POST['submit'])&&('Submit'!=$_POST['submit'])&&('Rescan'!=$_POST['submit'])))
     die;
 
   $message="";
 
-  if(($evt>0)&&(count($_POST)>0)) {
+  if(count($_POST)>0) {
     if('Submit' == $_POST['submit']) {
       $can_load=true;
       $i=0; while (isset($_POST["col-$i"])) {
-        if (($_POST["col-$i"] == 'number') && ! isset($col_num)) $col_num = $i;
-        if (($_POST["col-$i"] == 'name1') && ! isset($col_name1)) $col_name1 = $i;
-        if (($_POST["col-$i"] == 'name2') && ! isset($col_name2)) $col_name2 = $i;
-        if (($_POST["col-$i"] == 'name3') && ! isset($col_name3)) $col_name3 = $i;
+        if (($_POST["col-$i"] == 'class1') && ! isset($col_class1)) $col_class1 = $i;
+        if (($_POST["col-$i"] == 'class2') && ! isset($col_class2)) $col_class2 = $i;
+        if (($_POST["col-$i"] == 'class3') && ! isset($col_class3)) $col_class3 = $i;
         if (($_POST["col-$i"] == 'info1') && ! isset($col_info1)) $col_info1 = $i;
         if (($_POST["col-$i"] == 'info2') && ! isset($col_info2)) $col_info2 = $i;
         if (($_POST["col-$i"] == 'info3') && ! isset($col_info3)) $col_info3 = $i;
-        if (($_POST["col-$i"] == 'special') && ! isset($col_special)) $col_special = $i;
-        if (($_POST["col-$i"] == 'class') && ! isset($col_class)) $col_class = $i;
-        if (($_POST["col-$i"] == 'car') && ! isset($col_car)) $col_car = $i;
-        if (($_POST["col-$i"] == 'entrant') && ! isset($col_entrant)) $col_entrant = $i;
-        if (($_POST["col-$i"] == 'order') && ! isset($col_order)) $col_order = $i;
+        if (($_POST["col-$i"] == 'record') && ! isset($col_record)) $col_record = $i;
 	$i=$i+1;
       }
-      if (! isset($col_name1)) {
-	$message = "<p style=\"color:red\"> No column selected as name1\n</p><BR>";
+      if (! isset($col_class1)) {
+	$message = "<p style=\"color:red\"> No column selected as class1\n</p><BR>";
 	$can_load=false;
-      }
-      if (! isset($col_num)){
-	if ($next_num = $db->querySingle("select max(car_num) from entrant_info where event = $evt"))
-	  $next_num = $next_num + 1;
-	else
-	  $next_num = 1;
       }
       if (! file_exists($save_file)) {
 	$message = $message . "<p style=\"color:red\"> Cannot find uploaded file\n</p><BR>";
@@ -71,7 +55,7 @@
 	  $can_load=false;
 	}
 	else
-	  if (! ($upload_qry = $db->prepare("INSERT INTO entrant_info(event, car_num, car_name, car_info, special, class, car_car, car_entrant, run_order) VALUES(:event, :num, :name, :info, :special, :class, :car, :entrant, :order)"))) {
+	  if (! ($upload_qry = $db->prepare("INSERT OR REPLACE INTO class_info(class, class_info, record) VALUES(:class, :info, :record)"))) {
 	    $message = $message . "<p style=\"color:red\"> Could not create base INSERT query\n</p><BR>";
 	    $can_load=false;
 	  }
@@ -83,27 +67,15 @@
         while ($row = fgetcsv($handle, 0, "$form_sep")) {
 	  $file_row=$file_row+1;
 	  if ($file_row >= $data_start) {
-	    if (isset($col_num)) {
-	      $num = intval($row[$col_num]);
-	      if ($num < 1) {
-	        $bad_row[$file_row] = 1;
-                continue;
-              }
-	    }else {
-	      $num = $next_num++;
-	    }
-
-	    if (isset($col_name1)) {
-	      $name=$row[$col_name1];
-	      if (isset($col_name2)) {
-	        $name=$name . " " . $row[$col_name2];
-	        if (isset($col_name3)) {
-	          $name=$name . " " . $row[$col_name3];
+	    if (isset($col_class1)) {
+	      $class=$row[$col_class1];
+	      if (isset($col_class2)) {
+	        $class=$class . " " . $row[$col_class2];
+	        if (isset($col_class3)) {
+	          $class=$class . " " . $row[$col_class3];
 	        }
 	      }
 	    }
-
-            $upload_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
 	    if (isset($col_info1)) {
 	      $info=$row[$col_info1];
 	      if (isset($col_info2)) {
@@ -115,40 +87,14 @@
 	    }
 	    else $info="";
 	    
-	    if (isset($col_special)) {
-	      $special=$row[$col_special];
+	    if (isset($col_record)) {
+	      $record=$row[$col_record];
 	    }
-	    else $special="";
+	    else $record="";
 	    
-	    if (isset($col_class)) {
-	      $class=$row[$col_class];
-	    }
-	    else $class="";
-	    
-	    if (isset($col_car)) {
-	      $car=$row[$col_car];
-	    }
-	    else $car="";
-	    
-	    if (isset($col_entrant)) {
-	      $entrant=$row[$col_entrant];
-	    }
-	    else $entrant="";
-	    
-	    if (isset($col_order)) {
-	      $order=$row[$col_order];
-	    }
-	    else $order="";
-	    
-            $upload_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
-            $upload_qry->bindValue(':num', intval($db->escapeString($num)), SQLITE3_INTEGER);
-            $upload_qry->bindValue(':name', $name, SQLITE3_TEXT);
-            $upload_qry->bindValue(':info', $info, SQLITE3_TEXT);
-            $upload_qry->bindValue(':special', $special, SQLITE3_TEXT);
             $upload_qry->bindValue(':class', $class, SQLITE3_TEXT);
-            $upload_qry->bindValue(':car', $car, SQLITE3_TEXT);
-            $upload_qry->bindValue(':entrant', $entrant, SQLITE3_TEXT);
-            $upload_qry->bindValue(':order', $order, SQLITE3_TEXT);
+            $upload_qry->bindValue(':info', $info, SQLITE3_TEXT);
+            $upload_qry->bindValue(':record', $record, SQLITE3_TEXT);
 	    if ($update_result = $upload_qry->execute()) {
 	      $inserted++;
 	      $good_row[$file_row] = 1;
@@ -160,56 +106,25 @@
           }
         }
 	if ($inserted > 0)
-	  $message = $message . "<p style=\"color:green\"> Successfully inserted $inserted entrants</p>";
+	  $message = $message . "<p style=\"color:green\"> Successfully inserted $inserted class_info</p>";
 	else
-	  $message = $message . "<p style=\"color:red\"> Successfully inserted $inserted entrants</p>";
+	  $message = $message . "<p style=\"color:red\"> Successfully inserted $inserted class_info</p>";
 	if ($failed > 0)
-	  $message = $message . "<p style=\"color:red\"> Failed to insert $failed entrants</p>";
+	  $message = $message . "<p style=\"color:red\"> Failed to insert $failed class_info</p>";
 	$upload_qry->close();
       }
       if (isset($handle)) fclose($handle);
     }
   }
-
-  if ($events = $db->query('SELECT DISTINCT num, name FROM event_info ORDER BY num DESC')) {
-    $event_select = "<option value=\"\">Please Select Date</option>";
-    while($row = $events->fetchArray()) {
-      $ev=$row['num']; $nm=$row['name'];
-      if ($evt == 0) $evt=$ev;
-      if ($ev == $evt)
-        $event_select = "$event_select <option value=\"$ev\" selected>$nm</option>";
-      else
-        $event_select = "$event_select <option value=\"$ev\">$nm</option>";
-    }
-  }
-  else
-    $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
-
-
-  $current = $db->query('select current_event, current_run from current_event, current_run;');
-  if ($row = $current->fetchArray()) {
-    $cur_evt = $row["current_event"];
-    $cur_run = $row["current_run"];
-  }
 ?>
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Entrants File Upload</title>
+    <title>Class Info File Upload</title>
     <link rel="stylesheet" href="style.css">
-<?php
-  $icon_file=dirname(__FILE__) . "/icons.inc";
-  if (file_exists($icon_file))
-    readfile($icon_file);
-?>
   </head>
 <body>
-<form name="frmEntrantUpload" method="post" action="">
-  <div align="center" style="padding-bottom:5px;">
-   Entrants for <select name="EventList" style="width: 240px">
-     <?php echo $event_select;?>
-   </select>
-  </div>
+<form name="frmClassUpload" method="post" action="">
   <br>
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
 
@@ -223,7 +138,7 @@
    </select> &nbsp; &nbsp; &nbsp; &nbsp;
    <input id="submit-csv" type="submit" name="submit" value="Submit" >
    &nbsp; &nbsp; &nbsp; &nbsp;
-   <input id="event-return" type="button" name="return" value="Return To Entrants" onclick="document.location = 'entrants.php?evt=<?php echo $evt?>'" >
+   <input id="class-return" type="button" name="return" value="Return To Class Info" onclick="document.location = 'class_info.php'" >
   </div>
   <?php
   if (isset($save_file) && file_exists($save_file)){
@@ -232,18 +147,13 @@
     echo "<input type=\"hidden\" name=\"nice_name\" value=\"$nice_name\">";
     $col_type_sel='
 	<option value="ignore">Ignore</option>
-	<option value="number">Number</option>
-	<option value="name1">Name1</option>
-	<option value="name2">Name2</option>
-	<option value="name3">Name3</option>
+	<option value="class1">Class1</option>
+	<option value="class2">Class2</option>
+	<option value="class3">Class3</option>
 	<option value="info1">Info1</option>
 	<option value="info2">Info2</option>
 	<option value="info3">Info3</option>
-	<option value="special">Special</option>
-	<option value="class">Class</option>
-	<option value="car">Car</option>
-	<option value="entrant">Entrant</option>
-	<option value="order">Run Order</option>
+	<option value="record">Record</option>
     ';
     if ($handle = fopen($save_file, "r")) {
       $sep=''; $sep_count=0;

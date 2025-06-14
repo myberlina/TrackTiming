@@ -1,6 +1,6 @@
 <?php
   if (isset($_GET['id']) && is_numeric($_GET['id']))
-    $row_id = intval($_GET['id']);
+    $row_id = 0 + $_GET['id'];
   else
     $row_id = 0;
 
@@ -22,7 +22,7 @@
         $post_qry->bindValue(':class', htmlspecialchars_decode($_POST["Class-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':class_info', htmlspecialchars_decode($_POST["ClassInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':record', htmlspecialchars_decode($_POST["ClassRecord-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Modified Successfully";
         else
@@ -52,7 +52,7 @@
         $post_qry->bindValue(':class', htmlspecialchars_decode($_POST["Class-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':class_info', htmlspecialchars_decode($_POST["ClassInfo-$row_id"]), SQLITE3_TEXT);
         $post_qry->bindValue(':record', htmlspecialchars_decode($_POST["ClassRecord-$row_id"]), SQLITE3_TEXT);
-        $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
+        $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
         if ($update_result = $post_qry->execute())
           $message = "<font color=\"#00a000\"> Record Deleted Successfully for ".$_POST["Class-$row_id"]."\n<BR>";
         else
@@ -62,7 +62,7 @@
       else
         $message = "<font color=\"#c00000\"> Record Delete failed for &nbsp; ".$_POST["Class-$row_id"]."\n<BR>". $db->lastErrorMsg();
     }
-    if(isset($_POST['really-update-ALL'])&&('Yes!' == $_POST['really-update-ALL']) &&
+    if(isset($_POST['update-ALL'])&&('Update ALL' == $_POST['update-ALL']) &&
 	     isset($_GET['id']) && ('ALL' == $_GET['id']) &&
              isset($_POST['update_list'])&&("" != $_POST['update_list'])) {
       //var_dump($_POST);
@@ -77,7 +77,7 @@
             $post_qry->bindValue(':class', htmlspecialchars_decode($_POST["Class-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':class_info', htmlspecialchars_decode($_POST["ClassInfo-$row_id"]), SQLITE3_TEXT);
             $post_qry->bindValue(':record', htmlspecialchars_decode($_POST["ClassRecord-$row_id"]), SQLITE3_TEXT);
-            $post_qry->bindValue(':row', intval($row_id), SQLITE3_INTEGER);
+            $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
             if ($update_result = $post_qry->execute())
               $good++;
             else
@@ -93,6 +93,36 @@
           $message = "<font color=\"#c00000\"> Record Modify failed for all\n<BR>". $db->lastErrorMsg();
       }
     }
+
+    if(isset($_POST['multi-delete'])&&('Yes!' == $_POST['multi-delete']) &&
+	     isset($_GET['id']) && ('multi' == $_GET['id']) &&
+             isset($_POST['delete_list'])&&("" != $_POST['delete_list'])) {
+      //var_dump($_POST);
+      $delete_list = explode (";", $_POST['delete_list']); 
+      //var_dump($delete_list);
+      if (sizeof($delete_list) > 1) {
+        if ($post_qry = $db->prepare("DELETE FROM class_info WHERE rowid=:row")){
+	  $good=0;
+	  $bad_message="";
+          foreach($delete_list as $row_id) {
+	    if ($row_id < 1) continue;
+            $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+            if ($delete_result = $post_qry->execute())
+              $good++;
+            else
+              $bad_message = $bad_message." ".$_POST["EntNum-$row_id"].", \"".$_POST["EntName-$row_id"]."\"\n<BR>". $db->lastErrorMsg();
+          }
+	  if ($good > 0)
+	    $message = "<font color=\"#00a000\"> $good records deleted successfully";
+	  if ($bad_message != "")
+	    $message = $message."<BR><font color=\"#c00000\"> Record Delete failed for $bad_message";
+          $post_qry->close();
+        }
+        else
+          $message = "<font color=\"#c00000\"> Record Delete failed for all\n<BR>". $db->lastErrorMsg();
+      }
+    }
+
   }
   else {
     include_once 'database_ro.php';
@@ -111,17 +141,13 @@
   <head>
     <title>Class Infomation</title>
     <link rel="stylesheet" href="style.css">
-<?php
-  $icon_file=dirname(__FILE__) . "/icons.inc";
-  if (file_exists($icon_file))
-    readfile($icon_file);
-?>
   </head>
 <body>
 <center>
 <h2>Class Information</h2>
   <form name="frmClass_Info" id="frmClass_Info" method="post" action="">
     <input type="hidden" name="update_list" value="" id="update_list">
+    <input type="hidden" name="delete_list" value="" id="delete_list">
 <?php echo '<input type="hidden" name="orderby" value="' . $orderby . '" id="orderby">'; ?>
   <script type="text/javascript">
     function haveUpdate(){
@@ -136,14 +162,31 @@
             }
 	    document.getElementById('update_list').value=update_list;
 	    button1=document.getElementById('update-ALL');
-	    button2=document.getElementById('really-update-ALL');
 	    if (update_count > 1) {
 		    //button1.value="Update All";
 		    button1.disabled=false;
-		    button2.value="Yes!";
 	    } else {
 		    //button1.value="update ALL";
 		    button1.disabled=true;
+	    }
+    }
+    function multi_delete(){
+            delete_list="";
+            delete_count=0;
+	    up_buttons=document.getElementsByTagName("input");
+	    for (let i = 0; i < up_buttons.length; i++) {
+              if ( (up_buttons[i].disabled == false) && (up_buttons[i].name == "really-delete") ) {
+		delete_list=delete_list + ";" + up_buttons[i].id.slice(14);
+		delete_count++;
+              }
+            }
+	    document.getElementById('delete_list').value=delete_list;
+	    button2=document.getElementById('multi-delete');
+	    if (delete_count > 1) {
+		    button2.disabled=false;
+		    button2.value="Yes!";
+	    } else {
+		    button2.disabled=true;
 		    button2.value="Yes!";
 	    }
     };
@@ -159,8 +202,8 @@
       <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Class';document.getElementById('frmClass_Info').requestSubmit()">Class</td>
       <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Information';document.getElementById('frmClass_Info').requestSubmit()">Information</td>
       <td ondblclick="tb=document.getElementById('orderby');tb.value = 'Record';document.getElementById('frmClass_Info').requestSubmit()">Record</td>
-      <td colspan="2"> <input id="update-ALL" type="button" name="update-ALL" value="Update ALL" onclick="document.getElementById('really-update-ALL').disabled=false" class="button" disabled> </td>
-      <td> <input id="really-update-ALL" type="submit" name="really-update-ALL" value="Yes!" formnovalidate formaction="?&id=ALL" class="button" disabled> </td>
+      <td colspan="2"> <input id="update-ALL" type="submit" name="update-ALL" value="Update ALL" formnovalidate formaction="?&id=ALL" class="button" disabled> </td>
+      <td> <input id="multi-delete" type="submit" name="multi-delete" value="Yes!" formnovalidate formaction="?&id=multi" class="button" disabled> </td>
    </tr>
    <?php
 
@@ -174,7 +217,6 @@
     else
      $classname="class=\"oddRow\"";
     echo "<tr $classname>";
-    // $safe_name=htmlspecialchars($row['car_name'],ENT_QUOTES);
     $safe_class=htmlspecialchars($row['class']);
     $safe_class_info=htmlspecialchars($row['class_info']);
     $safe_record=htmlspecialchars($row['record']);
@@ -193,7 +235,7 @@
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == document.getElementById('OrigRecord-$row_id').value);haveUpdate()\" ></td>\n";
 
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Update\" tag=\"Update\" formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
-    echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Delete\" onclick=\"document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
+    echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Delete\" onclick=\"document.getElementById('really-delete-$row_id').disabled=false;multi_delete();\" class=\"button\"> </td>\n";
     echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes!\" formnovalidate formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
     echo "</tr>\n";
     $i++;
@@ -215,6 +257,11 @@
    echo "</td></tr>\n";
    ?>
   </table>
+  <br>
+  <div align="center">
+   <input type="file" name="Upload_CSV" oninput="document.getElementById('submit-file').disabled=false">
+   <input id="submit-file" type="submit" name="submit" value="Upload" disabled formenctype="multipart/form-data" formaction="class_info_upload.php" >
+  </div>
   </form>
  </body>
 </html>
