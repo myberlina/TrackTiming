@@ -24,6 +24,11 @@
       $event_select = "$event_select <option value=\"$ev\">$nm</option>";
   }
 
+  $split_fmt="%4.3f";
+  //$split_fmt="%3.2f";
+  $final_fmt="%4.3f";
+  $final_fmt="%3.2f";
+
   $max_runs=5;
   $best_qry = $db->query('SELECT MAX(run) AS max_runs FROM results WHERE event = ' . $db->escapeString($evt) );
   if ($row = $best_qry->fetchArray()) {
@@ -151,25 +156,25 @@
          echo "<td><sup><font size='2'/>";
      if ($best_rt[$row["car_num"]] == $row["rt"])
          if ($purple_rt == $row["rt"])
-             printf("<strong style=\"color: purple\">%4.3f</strong> ", $row["rt"]);
+             printf("<strong style=\"color: purple\">$split_fmt</strong> ", $row["rt"]);
          else
-             printf("<strong>%4.3f</strong> ", $row["rt"]);
+             printf("<strong>$split_fmt</strong> ", $row["rt"]);
      else
-         printf("%4.3f ", $row["rt"]);
+         printf("$split_fmt ", $row["rt"]);
      if ($best_et[$row["car_num"]] == $row["et"])
          if ($purple_et == $row["et"])
-             printf("<strong style=\"color: purple\">%3.2f</strong></sup><br/><font size='3'/>", $row["et"]);
+             printf("<strong style=\"color: purple\">$final_fmt</strong></sup><br/><font size='3'/>", $row["et"]);
          else
-             printf("<strong>%3.2f</strong></sup><br/><font size='3'/>", $row["et"]);
+             printf("<strong>$final_fmt</strong></sup><br/><font size='3'/>", $row["et"]);
      else
-         printf("%3.2f</sup><br/><font size='3'/>", $row["et"]);
+         printf("$final_fmt</sup><br/><font size='3'/>", $row["et"]);
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])
-             printf("<strong style=\"color: purple\">%5.2f</strong>", $row["ft"]);
+             printf("<strong style=\"color: purple\">$final_fmt</strong>", $row["ft"]);
          else
-             printf("<strong>%5.2f</strong>", $row["ft"]);
+             printf("<strong>$final_fmt</strong>", $row["ft"]);
      else
-         printf("%5.2f", $row["ft"]);
+         printf("$final_fmt", $row["ft"]);
      echo "</td>";
      $prev_run = $row["run"];
    }

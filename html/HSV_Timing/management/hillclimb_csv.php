@@ -63,6 +63,11 @@
     $place_ft[$row["car_num"]] = $place++;
   }
 
+  $split_fmt="%4.3f";
+  $split_fmt="%3.2f";
+  $final_fmt="%4.3f";
+  $final_fmt="%3.2f";
+
   if ($runners_only)
       $best_qry = $db->query('SELECT * FROM hc_order
                          LEFT JOIN entrant_info ON hc_order.car_num = entrant_info.car_num and hc_order.event = entrant_info.event
@@ -157,7 +162,7 @@
        echo $class_place . ", ";
        $class_place++;
        echo $place_ft[$row["car_num"]] . ", ";
-       printf("%3.2f", $best_ft[$row["car_num"]]);
+       printf("$final_fmt", $best_ft[$row["car_num"]]);
 
        $prev_car = $row["car_num"];
        $tab_run = 1;
@@ -171,11 +176,11 @@
          echo ", ";
      if ($with_split) {
        if (isset($row["rt"]))
-         printf(", %3.2f", $row["rt"]);
+         printf(", $split_fmt", $row["rt"]);
        else
          echo ", ";
      }
-     printf(", %3.2f", $row["ft"]);
+     printf(", $final_fmt", $row["ft"]);
      $prev_run = $row["run"];
    }
    $res_qry->close();

@@ -87,6 +87,7 @@
   else
     $message = $message . "<BR><font color=\"#c00000\"> Database read failed\n<BR>" . $db->lastErrorMsg();
 
+  $delta_fmt="%3.2f";
 ?>
 <!DOCTYPE html>
 <html>
@@ -146,9 +147,10 @@
     }
     $delta_ondblclick="ondblclick=\"tb=document.getElementById('CarNum-$row_id');tb.value = -tb.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(tb.value == '$safe_num')\"";
     if ( ($safe_delta <= 0) && ($safe_delta > -2.0) )
-      echo "<td style=\"background: red\" $delta_ondblclick>$safe_delta</td>";
+      printf("<td style=\"background: red\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
     else
-      echo "<td $delta_ondblclick>$safe_delta</td>";
+      printf("<td $delta_ondblclick>$delta_fmt</td>",$safe_delta);
+
     echo "<td>$safe_time</td>";
     if ($row_id != $prev_row_id) {
       echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";

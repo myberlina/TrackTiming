@@ -52,6 +52,11 @@
     $place_et[$row["car_num"]] = $place++;
   }
 
+  $split_fmt="%4.3f";
+  $split_fmt="%3.2f";
+  $final_fmt="%4.3f";
+  $final_fmt="%3.2f";
+
   if ($runners_only)
       $best_qry = $db->query('SELECT * FROM et_order
                          LEFT JOIN entrant_info ON et_order.car_num = entrant_info.car_num and et_order.event = entrant_info.event
@@ -202,11 +207,11 @@
      echo "<td><font size='3' style=\"float:right\"/>";
      if ($best_et[$row["car_num"]] == $row["et"])
          if ($purple_et == $row["et"])
-             printf("<strong style=\"color: purple\">%3.2f</strong>", $row["et"]);
+             printf("<strong style=\"color: purple\">$final_fmt</strong>", $row["et"]);
          else
-             printf("<strong>%3.2f</strong>", $row["et"]);
+             printf("<strong>$final_fmt</strong>", $row["et"]);
      else
-         printf("%3.2f", $row["et"]);
+         printf("$final_fmt", $row["et"]);
      echo "</td>";
      $prev_run = $row["run"];
    }

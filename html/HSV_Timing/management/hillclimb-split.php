@@ -68,8 +68,11 @@
     $best_rt[$row["car_num"]] = $row["best_rt"] / 1000;
     $place_rt[$row["car_num"]] = $place++;
   }
+
   $split_fmt="%4.3f";
   $split_fmt="%3.2f";
+  $final_fmt="%4.3f";
+  $final_fmt="%3.2f";
 
   if ($runners_only)
       $best_qry = $db->query('SELECT * FROM hc_order
@@ -236,11 +239,11 @@
      }
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])
-             printf("<strong style=\"color: purple\">%3.2f</strong>", $row["ft"]);
+             printf("<strong style=\"color: purple\">$final_fmt</strong>", $row["ft"]);
          else
-             printf("<strong>%3.2f</strong>", $row["ft"]);
+             printf("<strong>$final_fmt</strong>", $row["ft"]);
      else
-         printf("%3.2f", $row["ft"]);
+         printf("$final_fmt", $row["ft"]);
      echo "</td>";
      $prev_run = $row["run"];
    }

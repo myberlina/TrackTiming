@@ -86,6 +86,8 @@
   }
   $split_fmt="%4.3f";
   $split_fmt="%3.2f";
+  $final_fmt="%4.3f";
+  $final_fmt="%3.2f";
 
   if ($runners_only)
       $best_qry = $db->query('SELECT * FROM hc_order
@@ -271,11 +273,11 @@
      }
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])
-             printf("<strong style=\"color: purple\">%3.2f</strong>", $row["ft"]);
+             printf("<strong style=\"color: purple\">$final_fmt</strong>", $row["ft"]);
          else
-             printf("<strong>%3.2f</strong>", $row["ft"]);
+             printf("<strong>$final_fmt</strong>", $row["ft"]);
      else
-         printf("%3.2f", $row["ft"]);
+         printf("$final_fmt", $row["ft"]);
      echo "</td>";
      $prev_run = $row["run"];
    }
@@ -336,7 +338,10 @@
             echo "<td align=\"right\">" . $scores[$rnd][$club] . "</td>";
 	  else
             echo "<td align=\"right\"></td>";
-        echo "<td align=\"right\">" . $club_tot[$club] . "</td><td align=\"right\">" . $all_points[$club] . "</td></tr>";
+	$round_total=""; $series_total="";
+        if (isset($club_tot[$club]))  $round_total=$club_tot[$club];
+        if (isset($all_points[$club]))  $series_total=$all_points[$club];
+        echo "<td align=\"right\">$round_total</td><td align=\"right\">$series_total</td></tr>";
       }
    ?>
    </tbody>
