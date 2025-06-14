@@ -7,6 +7,10 @@
       $db_file = $config['database_path'];
   }
 
+  $db = new SQLite3($db_file, SQLITE3_OPEN_READWRITE);
+  $db->exec('PRAGMA wal_checkpoint(TRUNCATE);');
+  $db->close();
+
   if(isset($argc) && ($argc>1))
     parse_str(implode('&',array_slice($argv, 1)), $_GET);
 
