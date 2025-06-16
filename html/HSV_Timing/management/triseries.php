@@ -198,8 +198,11 @@
            echo "<td colspan=$span_cols>";
            echo "<div style=\"float:left\">" . htmlspecialchars($row["class"]) . "</div>\n";
 	   echo "<div class=\"classInfo\" style=\"float:right\">";
-	   if (isset($row["record"]) && '' != $row["record"])
-	     echo " &nbsp; Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
+           if (isset($row["record"]) && ('' != $row["record"]) && (intval($row["record"]) > 0))
+             if (isset($best_ft[$row["car_num"]]) && ($best_ft[$row["car_num"]] < $row["record"]))
+               echo " &nbsp; Old record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
+             else
+	       echo " &nbsp; Record: " . htmlspecialchars($row["record"]) . " &nbsp; ";
 	   if (isset($row["class_info"]))
 	     echo htmlspecialchars($row["class_info"]);
 	   echo "</div></td>\n";
@@ -271,13 +274,19 @@
          printf("$split_fmt ", $row["rt"]);
        echo "</font>$split_br";
      }
+     $rec="";
+     if (isset($row["record"]) && (intval($row["record"]) > 0) && ($row["ft"] < $row["record"]))
+       $rec=' style="text-decoration: underline;"';
+       #$rec=' style="color: darkblue"';
+       #$rec=' style="background-color: lightyellow"';
+       #$rec=' style="text-shadow: 0 0 8px gold"';
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])
-             printf("<strong style=\"color: purple\">$final_fmt</strong>", $row["ft"]);
+             printf("<strong style=\"color: purple\"$rec>$final_fmt</strong>", $row["ft"]);
          else
-             printf("<strong>$final_fmt</strong>", $row["ft"]);
+             printf("<strong$rec>$final_fmt</strong>", $row["ft"]);
      else
-         printf("$final_fmt", $row["ft"]);
+         printf("<div$rec>$final_fmt</div>", $row["ft"]);
      echo "</td>";
      $prev_run = $row["run"];
    }

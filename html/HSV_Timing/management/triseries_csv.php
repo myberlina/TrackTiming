@@ -129,14 +129,15 @@
   $results = $res_qry->execute();
 
    echo $quote . $this_event_name . "${quote}\n\n";
-   echo "${quote}Num${quote}, ${quote}Driver${quote}, ${quote}Club${quote}, ${quote}Car${quote}, ${quote}Info${quote}, ${quote}Special${quote}";
-   echo ", ${quote}Class Pos${quote}, ${quote}Outright${quote}, ${quote}Points${quote}, ${quote}Best${quote}";
+   echo "${quote}Num${quote},${quote}Driver${quote},${quote}Club${quote},${quote}Car${quote},${quote}Info${quote},${quote}Special${quote}";
+   echo ",${quote}Class Pos${quote},${quote}Outright${quote},${quote}Points${quote},${quote}Best${quote},${quote}NR${quote}";
+
    $i=0;
    while(++$i <= $max_runs) {
      if ($with_split)
-       echo ", ${quote}Split${quote}, ${quote}Run $i${quote}";
+       echo ",${quote}Split${quote},${quote}Run $i${quote}";
      else
-       echo ", ${quote}Run $i${quote}";
+       echo ",${quote}Run $i${quote}";
    }
    $i=0;
    $prev_car = "";
@@ -159,11 +160,11 @@
 	 $points = $top_points[$row["class"]];
        }
        echo "\n";
-       echo htmlspecialchars($row["car_num"]) . ", ";
-       echo $quote . htmlspecialchars($row["car_name"]) . $quote . ", ";
-       echo $quote . htmlspecialchars($row["car_entrant"]) . $quote . ", ";
-       echo $quote . htmlspecialchars($row["car_car"]) . $quote . ", ";
-       echo $quote . htmlspecialchars($row["car_info"]) . $quote . ", ";
+       echo htmlspecialchars($row["car_num"]) . ",";
+       echo $quote . htmlspecialchars($row["car_name"]) . $quote . ",";
+       echo $quote . htmlspecialchars($row["car_entrant"]) . $quote . ",";
+       echo $quote . htmlspecialchars($row["car_car"]) . $quote . ",";
+       echo $quote . htmlspecialchars($row["car_info"]) . $quote . ",";
        $achievement="";
        if (isset($place_ft[$row["car_num"]]) && ($place_ft[$row["car_num"]] == 1)) {
 	 $achievement="FTD  ";
@@ -173,22 +174,26 @@
            $achievement=$achievement. "  $type:$place";
          }
        }
-       echo $quote . $achievement . $quote . ", ";
+       echo $quote . $achievement . $quote . ",";
        if (!isset($row["run"])) continue;
-       echo $class_place . ", ";
-       $class_place++;
-       echo $place_ft[$row["car_num"]] . ", ";
+       echo $class_place . ",";
+       echo $place_ft[$row["car_num"]] . ",";
        if ($points > 0) {
          if (isset( $club_tot[$row["car_entrant"]]))
            $club_tot[$row["car_entrant"]] = $club_tot[$row["car_entrant"]] + $points;
          else
            $club_tot[$row["car_entrant"]] = $points;
-         echo "$points, "; 
+         echo "$points,"; 
 	 $points--;
        }
        else
-	 echo ", ";
-       printf("$final_fmt", $best_ft[$row["car_num"]]);
+	 echo ",";
+       printf("$final_fmt",$best_ft[$row["car_num"]]);
+       if (($class_place==1) && isset($row["record"]) && (0 < intval($row["record"])) && ($best_ft[$row["car_num"]] < $row["record"]))
+         echo ",*";
+       else
+         echo ",";
+       $class_place++;
 
        $prev_car = $row["car_num"];
        $tab_run = 1;
@@ -197,25 +202,25 @@
      elseif ($row["run"] == $prev_run ) continue;
      while ($row["run"] > $tab_run++)
        if ($with_split)
-         echo ", , ";
+         echo ",,";
        else
-         echo ", ";
+         echo ",";
      if ($with_split) {
        if (isset($row["rt"]))
-         printf(", $split_fmt", $row["rt"]);
+         printf(",$split_fmt",$row["rt"]);
        else
-         echo ", ";
+         echo ",";
      }
-     printf(", $final_fmt", $row["ft"]);
+     printf(",$final_fmt",$row["ft"]);
      $prev_run = $row["run"];
    }
    $res_qry->close();
    echo "\n\n";
 
-   echo ", , , ${quote}Club Name${quote}, ${quote}Points${quote}\n";
+   echo ",,,${quote}Club Name${quote},${quote}Points${quote}\n";
    arsort($club_tot, SORT_NUMERIC);
    foreach ($club_tot as $club => $tot) {
-     echo ", , , ${quote}$club${quote},$tot\n";
+     echo ",,,${quote}$club${quote},$tot\n";
    }
 
    echo "\n\n";
@@ -231,22 +236,22 @@
            $all_points[$club] = $points;
        }
    }
-   echo ", , , ${quote}Club Name${quote}, ";
+   echo ",,,${quote}Club Name${quote},";
    foreach ($event_name as $rnd => $rnd_name)
-     echo "${quote}$rnd_name${quote}, ";
-   echo "${quote}WSCC${quote}, ${quote}Total${quote}\n";
+     echo "${quote}$rnd_name${quote},";
+   echo "${quote}WSCC${quote},${quote}Total${quote}\n";
    arsort($all_points, SORT_NUMERIC);
    foreach ($all_points as $club => $tot) {
-     echo ", , , ${quote}$club${quote}, ";
+     echo ",,,${quote}$club${quote},";
      foreach ($event_name as $rnd => $rnd_name)
        if (isset($scores[$rnd]) && isset($scores[$rnd][$club]))
-         echo $scores[$rnd][$club] . ", ";
+         echo $scores[$rnd][$club] . ",";
        else
-         echo ", ";
+         echo ",";
      $round_total=""; $series_total="";
      if (isset($club_tot[$club]))  $round_total=$club_tot[$club];
      if (isset($all_points[$club]))  $series_total=$all_points[$club];
-     echo "$round_total, $series_total\n";
+     echo "$round_total,$series_total\n";
    }
 
 ?>
