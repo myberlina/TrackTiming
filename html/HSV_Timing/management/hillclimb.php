@@ -73,11 +73,14 @@
                         ' AND special != ""
                           ORDER BY hc_order.best_ft NULLS LAST, hc_order.run, hc_order.car_num');
   while($row = $best_qry->fetchArray()) {
-    if (! isset($place_sp[$row["special"]])) $place_sp[$row["special"]] = 1;
-    if (isset($row["run"]))
-        $place_special[$row["car_num"]][$row["special"]] = $place_sp[$row["special"]]++;
-    else
-        $place_special[$row["car_num"]][$row["special"]] = "";
+    $specials = explode(",", $row["special"], 10);
+    foreach ($specials as $special)  {
+      if (! isset($place_sp[$special])) $place_sp[$special] = 1;
+      if (isset($row["run"]))
+          $place_special[$row["car_num"]][$special] = $place_sp[$special]++;
+      else
+          $place_special[$row["car_num"]][$special] = "";
+    }
   }
 
   if ($runners_only) {
