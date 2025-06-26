@@ -10,4 +10,3 @@
   $db = new SQLite3($db_file, SQLITE3_OPEN_READONLY);
   $db->busyTimeout(10000);
 ?>
-

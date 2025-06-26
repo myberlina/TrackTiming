@@ -5,4 +5,3 @@
   // $scores=array( array( "SDMA" => 40, "WSCC" => 28, "CMHAC" => 24 ), array( "SDMA" => 0, "WSCC" => 0, "CMHAC" => 0 ) );
   $scores=array( array( "SDMA" => 40, "WSCC" => 28, "CMHAC" => 24 ) );
 ?>
-

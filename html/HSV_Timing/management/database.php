@@ -11,4 +11,3 @@
   $db->busyTimeout(5000);
 
 ?>
-
