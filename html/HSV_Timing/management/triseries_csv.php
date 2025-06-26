@@ -151,23 +151,23 @@
    while($row = $results->fetchArray()) {
      if ($row["car_num"] != $prev_car ) {
        if ($row["class"] != $prev_class ) {
-         echo "\n\n" . $quote . row["class"] . $quote;
+         echo "\n\n" . $quote . $row["class"] . $quote;
 	 if (($row["class_info"] != "") || (isset($row["record"]) && '' != $row["record"]) ) {
 	   echo ",,,,,," . $quote;
 	   if (isset($row["record"]) && '' != $row["record"])
-	     echo "Record: " . row["record"] . " ";
-	   echo row["class_info"] . $quote;
+	     echo "Record: " . $row["record"] . " ";
+	   echo $row["class_info"] . $quote;
 	 }
          $prev_class=$row["class"];
          $class_place=1;
 	 $points = $top_points[$row["class"]];
        }
        echo "\n";
-       echo row["car_num"] . ",";
-       echo $quote . row["car_name"] . $quote . ",";
-       echo $quote . row["car_entrant"] . $quote . ",";
-       echo $quote . row["car_car"] . $quote . ",";
-       echo $quote . row["car_info"] . $quote . ",";
+       echo $row["car_num"] . ",";
+       echo $quote . $row["car_name"] . $quote . ",";
+       echo $quote . $row["car_entrant"] . $quote . ",";
+       echo $quote . $row["car_car"] . $quote . ",";
+       echo $quote . $row["car_info"] . $quote . ",";
        $achievement="";
        if (isset($place_ft[$row["car_num"]]) && ($place_ft[$row["car_num"]] == 1)) {
 	 $achievement="FTD  ";
