@@ -127,7 +127,7 @@
     echo "<tr $classname>";
     $safe_num=htmlspecialchars($row['car_num']);
     $safe_time=htmlspecialchars($row['time_ms']/1000);
-    $safe_delta=htmlspecialchars($row['delta']/1000);
+    $safe_delta=intval($row['delta'])/1000;
     if (($i < 3) && (is_null($row['delta'])))
       $no_green=1;
     if ($row_id != $prev_row_id) {
