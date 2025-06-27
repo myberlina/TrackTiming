@@ -1,5 +1,11 @@
 tracktiming (0.9-1) UNRELEASED; urgency=medium
 
+  * Big update. (Closes: #010001)
+
+ -- MAINTAINER <HSV_Timing@dd.id.au>  Tue, 27 Jun 2025 13:24:57 +1000
+
+tracktiming (0.9-1) UNRELEASED; urgency=medium
+
   * Initial release. (Closes: #010001)
 
  -- MAINTAINER <HSV_Timing@dd.id.au>  Tue, 03 Jun 2025 13:24:57 +1000
