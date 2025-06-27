@@ -1,0 +1,8 @@
+[Unit]
+Description=Fake Input Server
+
+[Service]
+ExecStart=-/usr/sbin/fake_buttons
+StandardInput=socket
+User=www-data
+Group=www-data

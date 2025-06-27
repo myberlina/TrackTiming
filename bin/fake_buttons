@@ -1,0 +1,98 @@
+#!/usr/bin/bash
+
+#exec >/tmp/fake_buttons.log 2>&1
+exec > >(logger -t  fake_buttons) 2>&1
+
+declare -A signal
+
+signal[green]="SIGRTMIN"
+signal[start]="SIGRTMIN+1"
+signal[split1]="SIGRTMIN+2"
+signal[finish]="SIGRTMIN+3"
+
+get_timing_pid()
+{
+  t_pid="$(systemctl show --property MainPID  timing.service)" &&
+   t_pid="${t_pid#*=}"
+}
+
+do_kill()
+{
+  signal="$1"
+  if kill "$signal" "$t_pid"
+  then
+    :  Good
+  else
+    sleep 2
+    get_timing_pid && kill "$signal" "$t_pid"
+  fi
+}
+
+auto_run()
+{
+  time=$1
+  run=$2
+  let split_base=time*100 split_range=time*200
+  let split_time=RANDOM%split_range+split_base split_s=split_time/1000 split_ms=split_time%1000
+  let finish_base=time*900-split_time finish_range=time*300
+  let finish_time=RANDOM%$finish_range+$finish_base finish_s=finish_time/1000 finish_ms=finish_time%1000
+  echo "$run green" >&0
+  do_kill -"${signal[green]}" "$t_pid"
+  sleep .2
+  echo "$run start" >&0
+  do_kill -"${signal[start]}" "$t_pid"
+  sleep $(printf "%d.%03d" $split_s $split_ms)
+  echo "$run split1" >&0
+  do_kill -"${signal[split1]}" "$t_pid"
+  sleep $(printf "%d.%03d" $finish_s $finish_ms)
+  echo "$run finish" >&0
+  do_kill -"${signal[finish]}" "$t_pid"
+}
+
+do_runs()
+{
+  num=$1
+  time=$2
+  i=0
+  while (( num-- > 0 ))
+  do
+    let i++
+    auto_run $time $i
+    sleep 1
+  done
+}
+
+function do_event()
+{
+  event="$1"
+
+  case "$event" in
+    green|start|split1|finish)	do_kill -"${signal[$event]}" "$t_pid" ; echo "$event" >&0 ;;
+    run)	auto_run $2 ;;
+    runs)	do_runs $2 $3 ;;
+  esac
+}
+
+get_timing_pid
+
+#date
+
+while true
+do
+  if read -t 40 j
+  then
+    #echo "Got $j @$SECONDS"
+    [[ $j != '' ]] && do_event $j
+  else
+    rc=$?
+    if [[ $rc -gt 128 ]]
+    then
+      echo "  " >&0	# Send a keep alive
+      #echo "Timeout @$SECONDS"
+    else
+      break
+    fi
+  fi
+done
+
+#echo "Got EOF @$SECONDS"

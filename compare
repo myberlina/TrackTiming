@@ -46,21 +46,26 @@ echo "$MAP" |
     exec {file_list}< <(find "$localdir" -type f -print | fgrep -v "$SKIP")
      while read f <&${file_list}
      do
-       if diff -q "$f" "$destdir/$f" >/dev/null
+       if [[ bin == "$localdir" ]]
+       then
+	  [[ -f "/usr/sbin/${f#bin/}" ]] && destdir="/usr/s"
+	  [[ -f "/usr/bin/${f#bin/}" ]] && destdir="/usr/"
+       fi
+       if diff -q "$f" "$destdir$f" >/dev/null
        then
          let mat++
        else
          echo -ne "\r                \r" >&2
          echo -e "$f"
          #ls -l "$f" "$destdir/$f"
-         if [[ -n "$diff_args" && -f "$destdir/$f" && -f "$f" ]]
+         if [[ -n "$diff_args" && -f "$destdir$f" && -f "$f" ]]
          then
 	   echo
            if [[ y = "$reverse_diff" ]]
            then
-             diff $diff_args "$f" "$destdir/$f"
+             diff $diff_args "$f" "$destdir$f"
            else
-             diff $diff_args "$destdir/$f" "$f"
+             diff $diff_args "$destdir$f" "$f"
            fi
 	   echo
          fi

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <title>Fake Buttons</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Hide the spin buttons in WebKit browsers */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Hide spin buttons in Firefox */
+        input[type="number"] {
+            -moz-appearance: textfield;
+            witdh: 30px;
+        }
+        .btn:active {
+            transform: scale(0.98);
+            /* Scaling button to 0.98 to its original size */
+            box-shadow: 4px 3px 22px 1px rgba(0, 0, 0, 0.24);
+            /* Lowering the shadow */
+        }
+
+    </style>
+  <script type="text/javascript">
+     var ws = new WebSocket('ws://'+location.host+'/ws/debug/fake_buttons/');
+     function keepAlive(timeout = 50000) { 
+       console.log('keepAlive called!\n');
+       if (ws.readyState == ws.OPEN) {  
+         ws.send('\n');  
+       }  
+       timerId = setTimeout(keepAlive, timeout);  
+     };
+     function got_message(event) {
+       document.getElementById('response').textContent = event.data;
+       ws.send(' ');
+     }
+     ws.onmessage = got_message;
+     /*keepAlive(10000); */
+     console.log('console test!\n');
+
+  </script>
+ </head>
+ <body>
+  <div id="response" style="float:right">  </div>
+  <form name="frmFakeButtons" method="post" action="">
+   <input id="green" type="button" name="green" value="Green" onclick="ws.send('green\n');" class="button">
+   <input id="start" type="button" name="start" value="Start" onclick="ws.send('start\n');" class="button">
+   <input id="split1" type="button" name="split1" value="Split1" onclick="ws.send('split1\n');" class="button">
+   <input id="finish" type="button" name="finish" value="Finish" onclick="ws.send('finish\n');" class="button">
+   &nbsp;
+   <input type="number" placeholder="time" style="text-align:right; width:25px;" max="99" min="1" name="time" id="time" value="10" class="input_number" title="Approx run time in seconds" onchange="bad=((this.value < this.min) || (this.value > this.max)); document.getElementById('run').disabled=bad;" >s
+   <input id="run" type="button" name="run" value="run" onclick="ws.send('run ' + document.getElementById('time').value + '\n');" class="button">
+   <input type="number" placeholder="runs" style="text-align:right; width:25px;" max="99" min="1" name="num_runs" id="num_runs" value="10" class="input_number" title="Number of auto runs" onchange="document.getElementById('runs').disabled=((this.value < this.min) || (this.value > this.max))">
+   <input id="runs" type="button" name="runs" value="runs" onclick="ws.send('runs ' + document.getElementById('num_runs').value + ' ' + document.getElementById('time').value + '\n');" class="button">
+  </form>
+ </body>
+</html>
