@@ -231,7 +231,7 @@
      if (!isset($row["run"])) continue;
      while ($row["run"] > $tab_run++)
          echo "<td></td>";
-     echo "<td><font size='3' style=\"float:right\"/>";
+     echo "<td><font size='3' style=\"float:right\">";
      if (isset($row["rt"])) {
        echo "<font size='2'>";
        if ($best_rt[$row["car_num"]] == $row["rt"])
@@ -251,12 +251,12 @@
        #$rec=' style="text-shadow: 0 0 8px gold"';
      if ($best_ft[$row["car_num"]] == $row["ft"])
          if ($purple_ft == $row["ft"])
-             printf("<strong style=\"color: purple\"$rec>$final_fmt</strong>", $row["ft"]);
+             printf("<div style=\"font-weight:bold; color:purple\"$rec>$final_fmt</div>", $row["ft"]);
          else
-             printf("<strong$rec>$final_fmt</strong>", $row["ft"]);
+             printf("<div style=\"font-weight:bold\"$rec>$final_fmt</div>", $row["ft"]);
      else
          printf("<div$rec>$final_fmt</div>", $row["ft"]);
-     echo "</td>";
+     echo "</font></td>";
      $prev_run = $row["run"];
    }
    $res_qry->close();
