@@ -279,17 +279,17 @@
      }
      $rec="";
      if (isset($row["record"]) && (intval($row["record"]) > 0) && ($row["ft"] < $row["record"]))
-       $rec=' style="text-decoration: underline;"';
-       #$rec=' style="color: darkblue"';
-       #$rec=' style="background-color: lightyellow"';
-       #$rec=' style="text-shadow: 0 0 8px gold"';
-     if ($best_ft[$row["car_num"]] == $row["ft"])
+       $rec='text-decoration: underline;';
+       #$rec='color: darkblue;';
+       #$rec='background-color: lightyellow;';
+       #$rec='text-shadow: 0 0 8px gold;';
+     if ($best_ft[$row["car_num"]] == $row["ft"]) {
          if ($purple_ft == $row["ft"])
-             printf("<div style=\"font-weight:bold; color:purple\"$rec>$final_fmt</div>", $row["ft"]);
-         else
-             printf("<div style=\"font-weight:bold\"$rec>$final_fmt</div>", $row["ft"]);
-     else
-         printf("<div$rec>$final_fmt</div>", $row["ft"]);
+             $rec="color:purple;" . $rec;
+         $rec="font-weight:bold;" . $rec;
+     }
+     if ("" != $rec) $rec=' style="' . $rec . '"';
+     printf("<div$rec>$final_fmt</div>", $row["ft"]);
      echo "</font></td>";
      $prev_run = $row["run"];
    }
