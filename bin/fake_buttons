@@ -32,6 +32,11 @@ auto_run()
 {
   time=$1
   run=$2
+  if (( time < 1 ))
+  then
+    echo "Invalid time '$time'"
+    return 1
+  fi
   let split_base=time*100 split_range=time*200
   let split_time=RANDOM%split_range+split_base split_s=split_time/1000 split_ms=split_time%1000
   let finish_base=time*900-split_time finish_range=time*300
@@ -53,6 +58,11 @@ do_runs()
 {
   num=$1
   time=$2
+  if (( num < 1 || time < 1 ))
+  then
+    echo "Invalid number of runs '$num' or time '$time'"
+    return 1
+  fi
   i=0
   while (( num-- > 0 ))
   do
