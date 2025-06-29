@@ -18,10 +18,14 @@
     $opp_runners_url = '&runners_only';
   }
 
-  if (isset($config) && isset($config['results']) && isset($config['results']['split_line']) && $config['results']['split_line'])
+  if (isset($config) && isset($config['results']) && isset($config['results']['split_line']) && $config['results']['split_line']) {
     $split_br="<br>";
-  else
+    $split_align="right";
+  }
+  else {
     $split_br="&nbsp;";
+    $split_align="left";
+  }
 
   $events = $db->query('SELECT DISTINCT event, name FROM hc_results, event_info WHERE event = num ORDER BY event DESC');
 
@@ -231,9 +235,9 @@
      if (!isset($row["run"])) continue;
      while ($row["run"] > $tab_run++)
          echo "<td></td>";
-     echo "<td><font size='3' style=\"float:right\">";
+     echo "<td>";
      if (isset($row["rt"])) {
-       echo "<font size='2'>";
+       echo "<font size='2' style=\"float:$split_align\">";
        if ($best_rt[$row["car_num"]] == $row["rt"])
          if ($purple_rt == $row["rt"])
              printf("<strong style=\"color: purple\">$split_fmt</strong> ", $row["rt"]);
@@ -243,9 +247,9 @@
          printf("$split_fmt ", $row["rt"]);
        echo "</font>$split_br";
      }
-     $rec="";
+     $rec="float:right;";
      if (isset($row["record"]) && (intval($row["record"]) > 0) && ($row["ft"] < $row["record"]))
-       $rec='text-decoration: underline;';
+       $rec='text-decoration: underline;' . $rec;
        #$rec='color: darkblue;';
        #$rec='background-color: lightyellow;';
        #$rec='text-shadow: 0 0 8px gold;';
@@ -255,8 +259,8 @@
          $rec="font-weight:bold;" . $rec;
      }
      if ("" != $rec) $rec=' style="' . $rec . '"';
-     printf("<div$rec>$final_fmt</div>", $row["ft"]);
-     echo "</font></td>";
+     printf("<font size='3'$rec>$final_fmt</font>", $row["ft"]);
+     echo "</td>";
      $prev_run = $row["run"];
    }
    $res_qry->close();
