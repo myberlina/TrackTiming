@@ -43,6 +43,8 @@ if 'results' in config :
     print('static_base="' + config['results']['static_base'] + '"')
   if 'static_refresh' in config['results'] :
     print('static_refresh=' + str(config['results']['static_refresh']))
+  if 'web_push' in config['results'] :
+    print('export web_push_sleep=' + str(config['results']['web_push_sleep']))
   if 'runners_only' in config['results'] :
     if config['results']['runners_only']:
       print('runners_only=runners_only')

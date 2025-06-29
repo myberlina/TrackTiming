@@ -16,10 +16,12 @@ shift
 EVENT="$1"
 shift
 
+[[ 0 -lt "$web_push_sleep" ]] || web_push_sleep=100
+
 (
   echo rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ 
   rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ &&
    touch -r "$1" "${TS_FILE}"
-  sleep 100 # Dont run another transfer for 2 mins or so
+  sleep $web_push_sleep # Dont run another transfer for lockout time
 )&
 

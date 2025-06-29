@@ -54,6 +54,7 @@
           if(chk_chnged('StaticBase'))	{ $config['results']['static_base'] = $_POST['StaticBase'];			$restart_results=1; };
           if(chk_chnged('FwdCmd'))	{ $config['results']['forward_results_command'] = $_POST['FwdCmd'];		$restart_results=1; };
           if(chk_chnged('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);		$restart_results=1; };
+          if(chk_chnged('WebPush'))	{ $config['results']['web_push'] = intval($_POST['WebPush']);			$restart_results=1; };
           if(chk_chnged('RunnersOnly'))	{ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
           if(chk_chnged('SplitLine'))	{ $config['results']['split_line'] = ('true' == $_POST['SplitLine']); };
           if(chk_chnged('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
@@ -265,6 +266,7 @@
   $safe_static_base="";
   $safe_fwd_cmd="";
   $safe_refresh_time="";
+  $safe_web_push="";
   $safe_runners_only="false";
   $safe_runners_only_opt=$all_entered;
   $safe_split_line="false";
@@ -321,6 +323,7 @@
       $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
       $safe_fwd_cmd=htmlspecialchars($config['results']['forward_results_command'],ENT_QUOTES);
       $safe_refresh_time=htmlspecialchars($config['results']['static_refresh']);
+      $safe_web_push=htmlspecialchars($config['results']['web_push']);
       $safe_runners_only=($config['results']['runners_only'])?"true":"false";
       $safe_runners_only_opt=($config['results']['runners_only'])?$runners:$all_entered;
       $safe_split_line=($config['results']['split_line'])?"true":"false";
@@ -558,6 +561,8 @@
     echo "<tr>\n <th class=\"listheader\"> Refresh Interval </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigInterval\" value=\"$safe_refresh_time\" id=\"OrigInterval\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"20\" name=\"Interval\" id=\"Interval\" class=\"input_number\" required value=\"$safe_refresh_time\" oninput=\"haveUpdate()\" > Seconds</td>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigWebPush\" value=\"$safe_web_push\" id=\"OrigWebPush\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"100\" name=\"WebPush\" id=\"WebPush\" class=\"input_number\" required value=\"$safe_web_push\" oninput=\"haveUpdate()\" > Web Push Min Interval</td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Quotes in CSV </th>\n";
