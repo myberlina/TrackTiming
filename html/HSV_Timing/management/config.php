@@ -56,7 +56,7 @@
           if(chk_chnged('Interval'))	{ $config['results']['static_refresh'] = intval($_POST['Interval']);		$restart_results=1; };
           if(chk_chnged('WebPush'))	{ $config['results']['web_push'] = intval($_POST['WebPush']);			$restart_results=1; };
           if(chk_chnged('RunnersOnly'))	{ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
-          if(chk_chnged('SplitLine'))	{ $config['results']['split_line'] = ('true' == $_POST['SplitLine']); };
+          if(chk_chnged('SplitLine'))	{ $config['results']['split_line'] = ('true' == $_POST['SplitLine']);		$restart_results=1; };
           if(chk_chnged('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
           $list_change=0;
           $i=0;

@@ -25,6 +25,7 @@ done
 
 data_ts="/dev/shm/.data.ts.$arg0"
 push_ts="/dev/shm/.push.ts.$arg0"
+rm "$data_ts"
 
 function update_pages()
 {
@@ -59,9 +60,10 @@ function update_pages()
   fi
 }
 
+wait_time=2
 while true
 do
-  if inotifywait -e modify /data/state_Finish -t 120 >/dev/null 2>&1
+  if inotifywait -e modify /data/state_Finish -t $wait_time >/dev/null 2>&1
   then
     sleep 2
     update_pages
@@ -80,4 +82,5 @@ do
        need_to_refresh=''
     fi
   fi
+  wait_time=120
 done
