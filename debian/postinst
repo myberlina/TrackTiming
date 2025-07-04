@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # lrwxrwxrwx 1 root root   35 May 14  2022 10-accesslog.conf -> ../conf-available/10-accesslog.conf
-# lrwxrwxrwx 1 root root   37 May 14  2022 10-dir-listing.conf -> ../conf-available/10-dir-listing.conf
 # lrwxrwxrwx 1 root root   37 May 14  2022 15-fastcgi-php.conf -> ../conf-available/15-fastcgi-php.conf
 # lrwxrwxrwx 1 root root   33 May 14  2022 10-fastcgi.conf -> ../conf-available/10-fastcgi.conf
 
@@ -11,11 +10,15 @@ if [ "$1" = "configure" ]; then
     echo "####  Adding some links to enable features in lighttps"
     #ln -s ../conf-available/10-accesslog.conf ../conf-available/10-dir-listing.conf ../conf-available/10-fastcgi.conf ../conf-available/15-fastcgi-php.conf /etc/lighttpd/conf-enabled
     #for conf in 10-accesslog.conf 10-dir-listing.conf 10-fastcgi.conf 15-fastcgi-php.conf
-    for conf in 10-dir-listing.conf 10-fastcgi.conf 15-fastcgi-php.conf
+    #for conf in 10-dir-listing.conf 10-fastcgi.conf 15-fastcgi-php.conf
+    for conf in 10-fastcgi.conf 15-fastcgi-php.conf
     do
       test -f /etc/lighttpd/conf-enabled/"${conf}" ||
         ln -s ../conf-available/"${conf}" /etc/lighttpd/conf-enabled
     done
+    # Now supplying 11-dir-listing.conf with extra setting so remove link if it exists
+    test -L /etc/lighttpd/conf-enabled/10-dir-listing.conf &&
+     rm /etc/lighttpd/conf-enabled/10-dir-listing.conf
 fi
 
 
