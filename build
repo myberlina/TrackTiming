@@ -1,5 +1,0 @@
-#!/bin/bash
-
-. which_files
-
-PKG_INFO=
