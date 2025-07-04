@@ -19,9 +19,30 @@ shift
 [[ 0 -lt "$web_push_sleep" ]] || web_push_sleep=100
 
 (
-  echo rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ 
-  rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ &&
-   touch -r "$1" "${TS_FILE}"
-  sleep $web_push_sleep # Dont run another transfer for lockout time
+  echo     rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ 
+  if out=$(rsync -e 'ssh -i /var/www/creds/web_push -p 2122'  "$@"  hsv_timing@www.dd.id.au:Timing_Results/${EVENT}/ 2>&1)
+  then
+    touch -r "$1" "${TS_FILE}"
+    sleep $web_push_sleep # Dont run another transfer for lockout time
+  else
+    rc=$?
+    echo "$out" >&2
+    echo rsync failed with error code $rc >&2
+    if [[ 23 == $rc  ]] || [[ "$out" != "${out##*Permission denied}" ]]
+    then
+      echo "Some Permissions issue"
+      # Probably permission denied at far end
+      touch -r "$1" "${TS_FILE}"  #  Probably as sent as it is likely to get
+      sleep 300  # Don't bother trying again for 5 mins
+    fi
+    if [[ "$out" != "${out##*Could not resolve hostname}" ]]
+    then
+      # Could not connect 
+      echo "Some connection issue"
+      sleep 300  # Don't bother trying again for 5 mins
+      #touch -r "$1" "${TS_FILE}"  #  Probably as sent as it is likely to get
+    fi
+    sleep $web_push_sleep # Dont run another transfer for lockout time
+  fi
 )&
 
