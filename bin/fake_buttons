@@ -8,6 +8,7 @@ declare -A signal
 signal[green]="SIGRTMIN"
 signal[start]="SIGRTMIN+1"
 signal[split1]="SIGRTMIN+2"
+signal[split2]="SIGRTMIN+4"
 signal[finish]="SIGRTMIN+3"
 
 get_timing_pid()
@@ -40,7 +41,11 @@ auto_run()
   let split_base=time*100 split_range=time*200
   let split_time=RANDOM%split_range+split_base split_s=split_time/1000 split_ms=split_time%1000
   let finish_base=time*900-split_time finish_range=time*300
-  let finish_time=RANDOM%$finish_range+$finish_base finish_s=finish_time/1000 finish_ms=finish_time%1000
+  let finish_time=RANDOM%$finish_range+$finish_base
+  let split2_time=finish_time*(40+RANDOM%20)/100
+  let finish_time=finish_time-split2_time
+  let split2_s=split2_time/1000 split2_ms=split2_time%1000
+  let finish_s=finish_time/1000 finish_ms=finish_time%1000
   echo "$run green" >&0
   do_kill -"${signal[green]}" "$t_pid"
   sleep .2
@@ -49,6 +54,9 @@ auto_run()
   sleep $(printf "%d.%03d" $split_s $split_ms)
   echo "$run split1" >&0
   do_kill -"${signal[split1]}" "$t_pid"
+  sleep $(printf "%d.%03d" $split2_s $split2_ms)
+  echo "$run split2" >&0
+  do_kill -"${signal[split2]}" "$t_pid"
   sleep $(printf "%d.%03d" $finish_s $finish_ms)
   echo "$run finish" >&0
   do_kill -"${signal[finish]}" "$t_pid"
@@ -77,7 +85,7 @@ function do_event()
   event="$1"
 
   case "$event" in
-    green|start|split1|finish)	do_kill -"${signal[$event]}" "$t_pid" ; echo "$event" >&0 ;;
+    green|start|split1|split2|finish)	do_kill -"${signal[$event]}" "$t_pid" ; echo "$event" >&0 ;;
     run)	auto_run $2 ;;
     runs)	do_runs $2 $3 ;;
   esac

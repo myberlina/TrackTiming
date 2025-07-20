@@ -46,6 +46,8 @@ CREATE TABLE IF NOT EXISTS green_time ( event INT, run INT, car_num INT, time_ms
 
 CREATE TABLE IF NOT EXISTS start_time ( event INT, run INT, car_num INT, time_ms INT );
 
+CREATE TABLE IF NOT EXISTS split_time ( event INT, run INT, car_num INT, time_ms INT );
+
 CREATE TABLE IF NOT EXISTS finish_time ( event INT, run INT, car_num INT, time_ms INT );
 
 

@@ -46,6 +46,8 @@
           if(chk_chnged('GreenEdge'))	{ $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);	$restart_timing=1; };
           if(chk_chnged('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);			$restart_timing=1; };
           if(chk_chnged('StartEdge'))	{ $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);	$restart_timing=1; };
+          if(chk_chnged('SplitGPIO'))	{ $config['timing']['inputs']['split']['gpio'] = intval($_POST['SplitGPIO']);			$restart_timing=1; };
+          if(chk_chnged('SplitEdge'))	{ $config['timing']['inputs']['split']['falling_edge'] = ('True' == $_POST['SplitEdge']);	$restart_timing=1; };
           if(chk_chnged('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);			$restart_timing=1; };
           if(chk_chnged('FinishEdge'))	{ $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);	$restart_timing=1; };
           if(chk_chnged('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);					$restart_timing=1; };
@@ -256,6 +258,9 @@
   $safe_start_gpio="";
   $safe_start_edge="False";
   $safe_start_edge_opt=$rising;
+  $safe_split_gpio="";
+  $safe_split_edge="False";
+  $safe_split_edge_opt=$rising;
   $safe_finish_gpio="";
   $safe_finish_edge="False";
   $safe_finish_edge_opt=$rising;
@@ -307,6 +312,11 @@
           $safe_start_gpio=htmlspecialchars($config['timing']['inputs']['start']['gpio']);
           $safe_start_edge=($config['timing']['inputs']['start']['falling_edge'])?"True":"False";
           $safe_start_edge_opt=($config['timing']['inputs']['start']['falling_edge'])?$falling:$rising;
+        }
+        if (isset($config['timing']['inputs']['split'])) {
+          $safe_split_gpio=htmlspecialchars($config['timing']['inputs']['split']['gpio']);
+          $safe_split_edge=($config['timing']['inputs']['split']['falling_edge'])?"True":"False";
+          $safe_split_edge_opt=($config['timing']['inputs']['split']['falling_edge'])?$falling:$rising;
         }
         if (isset($config['timing']['inputs']['finish'])) {
           $safe_finish_gpio=htmlspecialchars($config['timing']['inputs']['finish']['gpio']);
@@ -487,6 +497,13 @@
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"StartGPIO\" id=\"StartGPIO\" class=\"input_number\" required value=\"$safe_start_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartEdge\" value=\"$safe_start_edge\" id=\"OrigStartEdge\">";
     echo "<select name=\"StartEdge\" id=\"StartEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_start_edge_opt</select></td>";
+    echo "</tr>\n";
+
+    echo "<tr>\n <th class=\"listheader\"> Split / Split2 </th>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigSplitGPIO\" value=\"$safe_split_gpio\" id=\"OrigSplitGPIO\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"SplitGPIO\" id=\"SplitGPIO\" class=\"input_number\" required value=\"$safe_split_gpio\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigSplitEdge\" value=\"$safe_split_edge\" id=\"OrigSplitEdge\">";
+    echo "<select name=\"SplitEdge\" id=\"SplitEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_split_edge_opt</select></td>";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Finish </th>\n";
