@@ -169,7 +169,7 @@
     $colour='';
     if (isset($seen_car_num[$safe_num]) || ($safe_num == $prev_car_num) || ($safe_num == $next_num))
       $colour=' style="background: pink"';
-    echo "<td><input $colour type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
+    echo "<td><input $colour type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" id=\"CarNum-$row_id\" required value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num');haveUpdate()\" ></td>\n";
     $neg_ondblclick="ondblclick=\"tb=document.getElementById('CarNum-$row_id');tb.value = -tb.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(tb.value == '$safe_num');haveUpdate()\"";
     echo "<td $neg_ondblclick>$safe_time</td>";
