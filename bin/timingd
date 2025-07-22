@@ -43,14 +43,14 @@ def fake_timing(sig, frame):
         fake_timing.evt = 2
         cb_start(start_gpio, 2, now)
     elif (split_gpio > 0):
-        elif (fake_timing.evt == 2):
+        if (fake_timing.evt == 2):
             fake_timing.evt = 3
             cb_split(split_gpio, 2, now)
         elif (fake_timing.evt == 3):
             fake_timing.evt = -1
             cb_finish(finish_gpio, 2, now)
-    else (split_gpio <= 0):
-        elif (fake_timing.evt == 2):
+    elif (split_gpio <= 0):
+        if (fake_timing.evt == 2):
             fake_timing.evt = -1
             cb_finish(finish_gpio, 2, now)
 

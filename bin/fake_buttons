@@ -42,7 +42,7 @@ auto_run()
   let split_time=RANDOM%split_range+split_base split_s=split_time/1000 split_ms=split_time%1000
   let finish_base=time*900-split_time finish_range=time*300
   let finish_time=RANDOM%$finish_range+$finish_base
-  let split2_time=finish_time*(40+RANDOM%20)/100
+  let range=40+RANDOM%20 split2_time=finish_time*range/100
   let finish_time=finish_time-split2_time
   let split2_s=split2_time/1000 split2_ms=split2_time%1000
   let finish_s=finish_time/1000 finish_ms=finish_time%1000
