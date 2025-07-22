@@ -1,5 +1,5 @@
 <?php
-  // Results_Info:  Hillclimb style with 2 splits, no reaction time, Green light => Button
+  // Results_Info:  Hillclimb style with up to 2 splits, no reaction time, Green light => Button, Start Beam => Green, Split1 => Start, Split2 => Split
   include_once 'database.php';
 
   if(isset($argc) && ($argc>1))
@@ -18,17 +18,8 @@
     $opp_runners_url = '&runners_only';
   }
 
-  if (isset($config) && isset($config['results']) && isset($config['results']['split_line']) && $config['results']['split_line']) {
-    $split_br="<br>";
-    $split_align="right";
-  }
-  else {
-    $split_br="&nbsp;";
-    $split_align="left";
-  }
-
   $have_split2=false;
-  if (isset($config) && isset($config['timing']) && isset($config['timing']['inputs']) && isset($config['timing']['inputs']['split']
+  if (isset($config) && isset($config['timing']) && isset($config['timing']['inputs']) && isset($config['timing']['inputs']['split'])
       && isset($config['timing']['inputs']['split']['gpio']) && ($config['timing']['inputs']['split']['gpio'] > 0)) {
     $have_split2=true;
   }
@@ -81,25 +72,47 @@
 
   if ($have_split2) {
     $place=1;
-    $best_qry = $db->query('SELECT green_time.run, green_time.car_num, (split_time.time_ms - green_time.time_ms) AS st_ms
-	                    FROM green_time
-			    LEFT JOIN split_time on green_time.event = split_time.event
-                                  AND green_time.run = split_time.run
-                                  AND green_time.car_num = split_time.car_num
-                                  AND green_time.time_ms < split_time.time_ms
-	                    WHERE event = ' . $db->escapeString($evt)
-    );
-    while($row = $best_qry->fetchArray()) {
-      if ($place == 1)
-        $purple_st = $row["st_ms"] / 1000;
-      if (! isset($best_st[$row["car_num"]])) {
-        $best_st[$row["car_num"]] = $row["st_ms"] / 1000;
-        $place_st[$row["car_num"]] = $place++;
-      }
-      if (! isset($st_ms[$row["car_num"]][$row["run"]])) {
-        $st_ms[$row["car_num"]][$row["run"]] = $row["st_ms"] / 1000;
+    $have_split2=false;
+    $split_query = 'SELECT green_time.run, green_time.car_num, (split_time.time_ms - green_time.time_ms) AS st_ms
+	            FROM green_time, split_time
+	            WHERE green_time.event = ' . $db->escapeString($evt) . '
+		      AND green_time.event = split_time.event
+                      AND green_time.run = split_time.run
+                      AND green_time.car_num = split_time.car_num
+                      AND green_time.time_ms < split_time.time_ms
+                    ORDER BY st_ms';
+    if ($split_qry = $db->prepare($split_query)) {
+      $best_qry = $split_qry->execute();
+      while($row = $best_qry->fetchArray()) {
+        $have_split2=true;
+        $st = $row["st_ms"] / 1000;
+        if ($place == 1)
+          $purple_st = $st;
+        if (! isset($best_st[$row["car_num"]])) {
+          $best_st[$row["car_num"]] = $st;
+          $place_st[$row["car_num"]] = $place++;
+        }
+        if (! isset($st_ms[$row["car_num"]][$row["run"]])) {
+          $st_ms[$row["car_num"]][$row["run"]] = $st;
+        }
       }
     }
+    else
+      $have_split2 = false;
+  }
+
+  $split2_align=false;
+  if (isset($config) && isset($config['results']) && isset($config['results']['split_line']) && $config['results']['split_line']) {
+    $split_br="<br>";
+    $split_align="right";
+    if (isset($purple_st) && isset($purple_rt)) {
+      $split_align="left";
+      $split2_align=true;
+    }
+  }
+  else {
+    $split_br="&nbsp;";
+    $split_align="left";
   }
 
   $split_fmt="%4.3f";
@@ -265,17 +278,23 @@
      while ($row["run"] > $tab_run++)
          echo "<td></td>";
      echo "<td>";
-     if (isset($row["rt"])) {
+     if (isset($row["rt"])||$have_split2) {
        echo "<font size='2' style=\"float:$split_align\">";
-       if ($best_rt[$row["car_num"]] == $row["rt"])
-         if ($purple_rt == $row["rt"])
-             printf("<strong style=\"color: purple\">$split_fmt</strong> ", $row["rt"]);
+       if (isset($row["rt"])) {
+         if ($best_rt[$row["car_num"]] == $row["rt"])
+           if ($purple_rt == $row["rt"])
+               printf("<strong style=\"color: purple\">$split_fmt</strong> ", $row["rt"]);
+           else
+               printf("<strong>$split_fmt</strong> ", $row["rt"]);
          else
-             printf("<strong>$split_fmt</strong> ", $row["rt"]);
+           printf("$split_fmt ", $row["rt"]);
+       }
        else
-         printf("$split_fmt ", $row["rt"]);
+         printf(" &nbsp; &nbsp; &nbsp; ");
 
-       if ($have_split2) {
+       if ($have_split2 && isset($st_ms[$row["car_num"]][$row["run"]])) {
+         if ($split2_align)
+	   echo "</font><font size='2' style=\"float:right\">";
 	 $st = $st_ms[$row["car_num"]][$row["run"]];
          if ($best_st[$row["car_num"]] == $st)
            if ($purple_st == $st)
