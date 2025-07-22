@@ -5,6 +5,14 @@
   function chk_chnged($name) {
     return (isset($_POST[$name])&&isset($_POST["Orig".$name])&&($_POST[$name]!=$_POST["Orig".$name]));
   }
+  if (! function_exists('str_contains')) {
+    function str_contains(string $haystack, string $needle) {
+      if (strpos($haystack, $needle) === false)
+        return false;
+      else
+        return true;
+    }
+  }
 
   $message="";
 
@@ -250,19 +258,19 @@
   $safe_comment="";
   $safe_db_path="";
   $safe_button_gpio="";
-  $safe_button_edge="False";
+  $safe_button_edge="bogus";
   $safe_button_edge_opt=$rising;
   $safe_green_gpio="";
-  $safe_green_edge="False";
+  $safe_green_edge="bogus";
   $safe_green_edge_opt=$rising;
   $safe_start_gpio="";
-  $safe_start_edge="False";
+  $safe_start_edge="bogus";
   $safe_start_edge_opt=$rising;
   $safe_split_gpio="";
-  $safe_split_edge="False";
+  $safe_split_edge="bogus";
   $safe_split_edge_opt=$rising;
   $safe_finish_gpio="";
-  $safe_finish_edge="False";
+  $safe_finish_edge="bogus";
   $safe_finish_edge_opt=$rising;
   $safe_tim_debug="false";
   $safe_tim_debug_opt=$off;
@@ -272,11 +280,11 @@
   $safe_fwd_cmd="";
   $safe_refresh_time="";
   $safe_web_push="";
-  $safe_runners_only="false";
+  $safe_runners_only="bogus";
   $safe_runners_only_opt=$all_entered;
-  $safe_split_line="false";
+  $safe_split_line="bogus";
   $safe_split_line_opt=$same_line;
-  $safe_csv_quotes="false";
+  $safe_csv_quotes="bogus";
   $safe_csv_quotes_opt=$off;
   $safe_save_ver="0";
   if (false === $config) {
@@ -299,29 +307,44 @@
     if (isset($config['timing'])) {
       if (isset($config['timing']['inputs'])) {
         if (isset($config['timing']['inputs']['button'])) {
-          $safe_button_gpio=htmlspecialchars($config['timing']['inputs']['button']['gpio']);
-          $safe_button_edge=($config['timing']['inputs']['button']['falling_edge'])?"True":"False";
-          $safe_button_edge_opt=($config['timing']['inputs']['button']['falling_edge'])?$falling:$rising;
+          if (isset($config['timing']['inputs']['button']['gpio']))
+            $safe_button_gpio=htmlspecialchars($config['timing']['inputs']['button']['gpio']);
+          if (isset($config['timing']['inputs']['button']['falling_edge'])) {
+            $safe_button_edge=($config['timing']['inputs']['button']['falling_edge'])?"True":"False";
+            $safe_button_edge_opt=($config['timing']['inputs']['button']['falling_edge'])?$falling:$rising;
+          }
         }
         if (isset($config['timing']['inputs']['green'])) {
-          $safe_green_gpio=htmlspecialchars($config['timing']['inputs']['green']['gpio']);
-          $safe_green_edge=($config['timing']['inputs']['green']['falling_edge'])?"True":"False";
-          $safe_green_edge_opt=($config['timing']['inputs']['green']['falling_edge'])?$falling:$rising;
+          if (isset($config['timing']['inputs']['green']['gpio']))
+            $safe_green_gpio=htmlspecialchars($config['timing']['inputs']['green']['gpio']);
+          if (isset($config['timing']['inputs']['green']['falling_edge'])) {
+            $safe_green_edge=($config['timing']['inputs']['green']['falling_edge'])?"True":"False";
+            $safe_green_edge_opt=($config['timing']['inputs']['green']['falling_edge'])?$falling:$rising;
+          }
         }
         if (isset($config['timing']['inputs']['start'])) {
-          $safe_start_gpio=htmlspecialchars($config['timing']['inputs']['start']['gpio']);
-          $safe_start_edge=($config['timing']['inputs']['start']['falling_edge'])?"True":"False";
-          $safe_start_edge_opt=($config['timing']['inputs']['start']['falling_edge'])?$falling:$rising;
+          if (isset($config['timing']['inputs']['start']['gpio']))
+            $safe_start_gpio=htmlspecialchars($config['timing']['inputs']['start']['gpio']);
+          if (isset($config['timing']['inputs']['start']['falling_edge'])) {
+            $safe_start_edge=($config['timing']['inputs']['start']['falling_edge'])?"True":"False";
+            $safe_start_edge_opt=($config['timing']['inputs']['start']['falling_edge'])?$falling:$rising;
+          }
         }
         if (isset($config['timing']['inputs']['split'])) {
-          $safe_split_gpio=htmlspecialchars($config['timing']['inputs']['split']['gpio']);
-          $safe_split_edge=($config['timing']['inputs']['split']['falling_edge'])?"True":"False";
-          $safe_split_edge_opt=($config['timing']['inputs']['split']['falling_edge'])?$falling:$rising;
+          if (isset($config['timing']['inputs']['split']['gpio']))
+            $safe_split_gpio=htmlspecialchars($config['timing']['inputs']['split']['gpio']);
+          if (isset($config['timing']['inputs']['split']['falling_edge'])) {
+            $safe_split_edge=($config['timing']['inputs']['split']['falling_edge'])?"True":"False";
+            $safe_split_edge_opt=($config['timing']['inputs']['split']['falling_edge'])?$falling:$rising;
+          }
         }
         if (isset($config['timing']['inputs']['finish'])) {
-          $safe_finish_gpio=htmlspecialchars($config['timing']['inputs']['finish']['gpio']);
-          $safe_finish_edge=($config['timing']['inputs']['finish']['falling_edge'])?"True":"False";
-          $safe_finish_edge_opt=($config['timing']['inputs']['finish']['falling_edge'])?$falling:$rising;
+          if (isset($config['timing']['inputs']['finish']['gpio']))
+            $safe_finish_gpio=htmlspecialchars($config['timing']['inputs']['finish']['gpio']);
+          if (isset($config['timing']['inputs']['finish']['falling_edge'])) {
+            $safe_finish_edge=($config['timing']['inputs']['finish']['falling_edge'])?"True":"False";
+            $safe_finish_edge_opt=($config['timing']['inputs']['finish']['falling_edge'])?$falling:$rising;
+          }
         }
       }
       $safe_tim_debug=($config['timing']['debug'])?"true":"false";
@@ -333,11 +356,14 @@
       $safe_static_base=htmlspecialchars($config['results']['static_base'],ENT_QUOTES);
       $safe_fwd_cmd=htmlspecialchars($config['results']['forward_results_command'],ENT_QUOTES);
       $safe_refresh_time=htmlspecialchars($config['results']['static_refresh']);
-      $safe_web_push=htmlspecialchars($config['results']['web_push']);
+      if (isset($config['results']['web_push']))
+        $safe_web_push=htmlspecialchars($config['results']['web_push']);
       $safe_runners_only=($config['results']['runners_only'])?"true":"false";
       $safe_runners_only_opt=($config['results']['runners_only'])?$runners:$all_entered;
-      $safe_split_line=($config['results']['split_line'])?"true":"false";
-      $safe_split_line_opt=($config['results']['split_line'])?$new_line:$same_line;
+      if (isset($config['results']['split_line'])) {
+        $safe_split_line=($config['results']['split_line'])?"true":"false";
+        $safe_split_line_opt=($config['results']['split_line'])?$new_line:$same_line;
+      }
       if (isset($config['results']['csv_quotes']) && $config['results']['csv_quotes']) {
         $safe_csv_quotes=true;
         $safe_csv_quotes_opt=$on;
