@@ -37,6 +37,36 @@
         $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
     }
 
+    if ((isset($_POST['all']))&&('All' == $_POST['all'])&&
+             isset($_POST['update_list'])&&("" != $_POST['update_list'])) {
+      //var_dump($_POST);
+      $update_list = explode (";", $_POST['update_list']);
+      if (sizeof($update_list) > 1) {
+        if ($post_qry = $db->prepare("UPDATE start_time set car_num=:num WHERE rowid=:row AND event=:event AND run=:run")){
+          $good=0;
+          $bad_message="";
+          foreach($update_list as $row_id) {
+            if ($row_id < 1) continue;
+            $post_qry->bindValue(':event', 0 + $db->escapeString($evt), SQLITE3_INTEGER);
+            $post_qry->bindValue(':num', 0 + $db->escapeString($_POST["CarNum-$row_id"]), SQLITE3_INTEGER);
+            $post_qry->bindValue(':run', 0 + $db->escapeString($run), SQLITE3_INTEGER);
+            $post_qry->bindValue(':row', 0 + $row_id, SQLITE3_INTEGER);
+            if ($update_result = $post_qry->execute())
+              $good++;
+            else
+              $bad_message = $bad_message." ".$_POST["CarNum-$row_id"]."\n<BR>". $db->lastErrorMsg();
+          }
+          if ($good > 0)
+            $message = "<font color=\"#00a000\"> $good records modified successfully";
+          if ($bad_message != "")
+            $message = $message."<BR><font color=\"#c00000\"> Record Modify failed for $bad_message";
+          $post_qry->close();
+        }
+        else
+          $message = "<font color=\"#c00000\"> Record Modify failed for &nbsp; ".$_POST["CarNum-$row_id"].", \"".$evt.":".$run."\"\n<BR>". $db->lastErrorMsg();
+      }
+    }
+
     if((isset($_POST['really-delete']))&&('Yes' == $_POST['really-delete'])&&($row_id>0)) {
       if ($post_qry = $db->prepare("DELETE FROM green_time WHERE event=:event AND run=:run AND car_num=:num AND rowid=:row")){
         $post_qry->bindValue(':event', intval($db->escapeString($evt)), SQLITE3_INTEGER);
@@ -86,6 +116,22 @@
 <body>
   <form name="frmTiming" method="post" action="">
   <div class="message"><?php if(isset($message)) { echo $message; } ?> </div>
+  <input type="hidden" name="update_list" value="" id="update_list">
+  <script type="text/javascript">
+    function haveUpdate(){
+      update_list="";
+      update_count=0;
+      buttons=document.getElementsByTagName("input");
+      for (let i = 0; i < buttons.length; i++) {
+	if ( (buttons[i].disabled == false) && (buttons[i].value == "Fix") ) {
+          update_list=update_list + ";" + buttons[i].id.substr(7);
+          update_count++;
+        }
+      }
+      document.getElementById('all').disabled = (update_count < 2);
+      document.getElementById('update_list').value=update_list;
+    };
+  </script>
   <table align=center border="0" cellpadding="1">
    <input type="hidden" id="tgt_row" name="tgt_row" value="">
    <input type="hidden" id="tgt_evt" name="tgt_evt" value="<?php echo htmlspecialchars($evt);?>">
@@ -98,7 +144,7 @@
    <tr class="listheader">
       <td width=50>Car</td>
       <td>Time</td>
-      <td colspan=3>Operation</td>
+      <td colspan=4><input style="padding-inline: 0;" type="submit" name="all" id="all" value="All" class=\"button\" disabled/>Operation</td>
    </tr>
    <?php
 
@@ -124,7 +170,7 @@
     if (isset($seen_car_num[$safe_num]) || ($safe_num == $prev_car_num) || ($safe_num == $next_num))
       $colour=' style="background: pink"';
     echo "<td><input $colour type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
-    echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
+    echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num');haveUpdate()\" ></td>\n";
     echo "<td>$safe_time</td>";
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
     echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Del\" onclick=\"block_refresh=1;document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
