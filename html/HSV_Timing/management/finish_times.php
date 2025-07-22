@@ -68,7 +68,7 @@
     $time_query=
 	 'SELECT finish_time.rowid, finish_time.car_num, finish_time.time_ms, finish_time.time_ms - start_time.time_ms delta
 	  FROM finish_time
-	  LEFT JOIN start_time ON start_time.event = finish_time.event AND start_time.run = finish_time.run AND start_time.car_num = finish_time.car_num AND finish_time.time_ms > start_time.time_ms
+	  LEFT JOIN start_time ON start_time.event = finish_time.event AND start_time.run = finish_time.run AND start_time.car_num = abs(finish_time.car_num) AND finish_time.time_ms > start_time.time_ms
 	  WHERE finish_time.event = :event AND finish_time.run = :run
 	  ORDER BY finish_time.rowid desc, delta';
   }
@@ -78,7 +78,7 @@
     $time_query=
 	 'SELECT finish_time.rowid, finish_time.car_num, finish_time.time_ms, finish_time.time_ms - green_time.time_ms delta
 	  FROM finish_time
-	  LEFT JOIN green_time ON green_time.event = finish_time.event AND green_time.run = finish_time.run AND green_time.car_num = finish_time.car_num AND finish_time.time_ms > green_time.time_ms
+	  LEFT JOIN green_time ON green_time.event = finish_time.event AND green_time.run = finish_time.run AND green_time.car_num = abs(finish_time.car_num) AND finish_time.time_ms > green_time.time_ms
 	  WHERE finish_time.event = :event AND finish_time.run = :run
 	  ORDER BY finish_time.rowid desc, delta';
   }
@@ -119,16 +119,24 @@
    </tr>
    <?php
 
-   $i=0; $prev_row_id = 0;
-   while(isset($entrants) && $row = $entrants->fetchArray()) {
+   $i=0; $prev_row_id = 0; $prev_car_num=-98765;
+   $good=($new_row = $entrants->fetchArray());
+   while($good) {
+    $row = $new_row;
+    $good=($new_row = $entrants->fetchArray());
     $row_id=$row['rowid'];
+    $safe_num=htmlspecialchars($row['car_num']);
+    if ($good)
+      $next_num=abs($new_row['car_num']);
+    else
+      $next_num=-98766;
     if ($row_id == $prev_row_id) $i--;
+    else if (abs($safe_num) == $prev_car_num) $i--;
     if($i%2==0)
      $classname="class=\"evenRow\"";
     else
      $classname="class=\"oddRow\"";
     echo "<tr $classname>";
-    $safe_num=htmlspecialchars($row['car_num']);
     $safe_time=htmlspecialchars($row['time_ms']/1000);
     //$safe_delta=round(htmlspecialchars($row['delta']/10))/100;
     $safe_delta=intval($row['delta'])/1000;
@@ -143,7 +151,10 @@
     if ( ($safe_delta <= 0) && ($safe_delta > -2.0) )
       printf("<td style=\"background: red\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
     else
-      printf("<td $delta_ondblclick>$delta_fmt</td>",$safe_delta);
+      if ((abs($safe_num) == $prev_car_num) || (abs($safe_num) == $next_num))
+        printf("<td style=\"background: pink\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
+      else
+        printf("<td $delta_ondblclick>$delta_fmt</td>",$safe_delta);
     echo "<td>$safe_time</td>";
     if ($row_id != $prev_row_id) {
       echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
@@ -155,6 +166,7 @@
     }
     echo "</tr>\n";
     $prev_row_id = $row_id;
+    $prev_car_num = abs($safe_num);
     $i++;
    }
    $ent_qry->close();

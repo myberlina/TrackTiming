@@ -102,18 +102,26 @@
    </tr>
    <?php
 
-   $i=0;
-   while(isset($entrants) && $row = $entrants->fetchArray()) {
+   $i=0; $prev_car_num=-98765;
+   $good=($new_row = $entrants->fetchArray());
+   while($good) {
+    $row = $new_row;
+    $good=($new_row = $entrants->fetchArray());
+    $safe_num=htmlspecialchars($row['car_num']);
+    if ($good)
+      $next_num=htmlspecialchars($new_row['car_num']);
+    else
+      $next_num='';
+    if ($safe_num == $prev_car_num) $i--;
     if($i%2==0)
      $classname="class=\"evenRow\"";
     else
      $classname="class=\"oddRow\"";
     echo "<tr $classname>";
-    $safe_num=htmlspecialchars($row['car_num']);
     $safe_time=htmlspecialchars($row['time_ms']/1000);
     $row_id=$row['rowid'];
     $colour='';
-    if (isset($seen_car_num[$safe_num]))
+    if (isset($seen_car_num[$safe_num]) || ($safe_num == $prev_car_num) || ($safe_num == $next_num))
       $colour=' style="background: pink"';
     echo "<td><input $colour type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
@@ -123,6 +131,7 @@
     echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes\" formnovalidate onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
     echo "</tr>\n";
     $seen_car_num[$safe_num] = 1;
+    $prev_car_num = $safe_num;
     $i++;
    }
    $ent_qry->close();
