@@ -200,13 +200,17 @@
       echo "<td>&nbsp;$safe_num</td>";
     }
     $delta_ondblclick="ondblclick=\"tb=document.getElementById('CarNum-$row_id');tb.value = -tb.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(tb.value == '$safe_num');haveUpdate()\"";
+    $delta_style="";
     if ( ($safe_delta <= 0) && ($safe_delta > -2.0) )
-      printf("<td style=\"background: red\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
+      $delta_style="background: red;";
     else
       if ((abs($safe_num) == $prev_car_num) || (abs($safe_num) == $next_num))
-        printf("<td style=\"background: pink\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
-      else
-        printf("<td $delta_ondblclick>$delta_fmt</td>",$safe_delta);
+        $delta_style="background: pink;";
+    if (0 > $safe_num)
+      $delta_style=$delta_style . "font-style: italic;";
+    if ("" != $delta_style)
+      $delta_style="style=\"$delta_style\"";
+    printf("<td $delta_style $delta_ondblclick>$delta_fmt</td>",$safe_delta);
     echo "<td>$safe_time</td>";
     if ($row_id != $prev_row_id) {
       echo "<td><input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
