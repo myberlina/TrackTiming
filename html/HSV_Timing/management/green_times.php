@@ -171,7 +171,8 @@
       $colour=' style="background: pink"';
     echo "<td><input $colour type=\"number\" placeholder=\"Num\" size=\"4\" name=\"CarNum-$row_id\" required value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"block_refresh=1;document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num');haveUpdate()\" ></td>\n";
-    echo "<td>$safe_time</td>";
+    $neg_ondblclick="ondblclick=\"tb=document.getElementById('CarNum-$row_id');tb.value = -tb.value;block_refresh=1;document.getElementById('submit-$row_id').disabled=(tb.value == '$safe_num');haveUpdate()\"";
+    echo "<td $neg_ondblclick>$safe_time</td>";
     echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Fix\" onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";
     echo "<td> <input id=\"delete-$row_id\" type=\"button\" name=\"delete-$row_id\" value=\"Del\" onclick=\"block_refresh=1;document.getElementById('really-delete-$row_id').disabled=false\" class=\"button\"> </td>\n";
     echo "<td> <input id=\"really-delete-$row_id\" type=\"submit\" name=\"really-delete\" value=\"Yes\" formnovalidate onclick=\"document.getElementById('tgt_row').value='$row_id'\" class=\"button\" disabled> </td>\n";

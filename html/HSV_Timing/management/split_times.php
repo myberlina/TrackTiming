@@ -114,7 +114,7 @@
     $time_query=
 	 'SELECT split_time.rowid, split_time.car_num, split_time.time_ms, split_time.time_ms - green_time.time_ms delta
 	  FROM split_time
-	  LEFT JOIN green_time ON green_time.event = split_time.event AND green_time.run = split_time.run AND green_time.car_num = split_time.car_num AND split_time.time_ms > green_time.time_ms
+	  LEFT JOIN green_time ON green_time.event = split_time.event AND green_time.run = split_time.run AND green_time.car_num = abs(split_time.car_num) AND split_time.time_ms > green_time.time_ms
 	  WHERE split_time.event = :event AND split_time.run = :run
 	  ORDER BY split_time.rowid desc, delta';
   }
@@ -182,11 +182,11 @@
     $row_id=$row['rowid'];
     $safe_num=htmlspecialchars($row['car_num']);
     if ($good)
-      $next_num=htmlspecialchars($new_row['car_num']);
+      $next_num=abs($new_row['car_num']);
     else
       $next_num='';
     if ($row_id == $prev_row_id) $i--;
-    else if ($safe_num == $prev_car_num) $i--;
+    else if (abs($safe_num) == $prev_car_num) $i--;
     if($i%2==0)
      $classname="class=\"evenRow\"";
     else
@@ -206,7 +206,7 @@
     if ( ($safe_delta <= 0) && ($safe_delta > -2.0) )
       printf("<td style=\"background: red\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
     else
-      if (($safe_num == $prev_car_num) || ($safe_num == $next_num))
+      if ((abs($safe_num) == $prev_car_num) || (abs($safe_num) == $next_num))
         printf("<td style=\"background: pink\" $delta_ondblclick>$delta_fmt</td>",$safe_delta);
       else
         printf("<td $delta_ondblclick>$delta_fmt</td>",$safe_delta);
@@ -221,7 +221,7 @@
     }
     echo "</tr>\n";
     $prev_row_id = $row_id;
-    $prev_car_num = $safe_num;
+    $prev_car_num = abs($safe_num);
     $i++;
    }
    $ent_qry->close();
