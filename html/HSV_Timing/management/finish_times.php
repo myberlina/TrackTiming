@@ -36,7 +36,7 @@
       //var_dump($_POST);
       $update_list = explode (";", $_POST['update_list']);
       if (sizeof($update_list) > 1) {
-        if ($post_qry = $db->prepare("UPDATE start_time set car_num=:num WHERE rowid=:row AND event=:event AND run=:run")){
+        if ($post_qry = $db->prepare("UPDATE finish_time set car_num=:num WHERE rowid=:row AND event=:event AND run=:run")){
           $good=0;
           $bad_message="";
           foreach($update_list as $row_id) {
