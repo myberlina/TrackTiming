@@ -6,5 +6,6 @@ MAP="	html	/var/www/
 
 SKIP='/.gitignore
 /Makefile
+bin/web_redir
 /i_watcher.c'
 
