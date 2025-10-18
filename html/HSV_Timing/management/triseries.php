@@ -251,7 +251,10 @@
 	     $club_tot[$row["car_entrant"]] = $club_tot[$row["car_entrant"]] + $points;
 	   else
 	     $club_tot[$row["car_entrant"]] = $points;
-           echo "<td style=\"text-align: center; font-weight: bold\">$points</td>\n";
+           if (isset($row["car_entrant"]) && ($row["car_entrant"] != ""))
+             echo "<td style=\"text-align: center; font-weight: bold\">$points</td>\n";
+           else
+             echo "<td></td>\n";
            $points--;
          }
          else {
@@ -313,7 +316,8 @@
    <?php
       arsort($club_tot, SORT_NUMERIC);
       foreach ($club_tot as $club => $tot) {
-        echo "<tr><td>$club</td><td>$tot</td></tr>";
+        if ($club != "")
+          echo "<tr><td>$club</td><td>$tot</td></tr>";
       }
    ?>
    </tbody>
@@ -323,7 +327,8 @@
   <table border="1" cellpadding="1">
    <?php
      foreach ($club_tot as $club => $tot) {
-       $all_points[$club] = $tot;
+       if ($club != "")
+         $all_points[$club] = $tot;
      }
      foreach ($event_name as $rnd => $rnd_name) {
        if (array_key_exists($rnd,$scores))
