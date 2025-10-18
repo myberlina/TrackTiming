@@ -10,10 +10,17 @@
   else
     $runners_only = false;
 
-  if (isset($_GET['split']))
-    $with_split = true;
+  $have_split2=false;
+  if (isset($_GET['split'])) {
+    $with_split = 1;
+    if (isset($config) && isset($config['timing']) && isset($config['timing']['inputs']) && isset($config['timing']['inputs']['split'])
+        && isset($config['timing']['inputs']['split']['gpio']) && ($config['timing']['inputs']['split']['gpio'] > 0)) {
+      $have_split2=true;
+    }
+  }
   else
-    $with_split = false;
+    $with_split = 0;
+
 
   if (isset($_GET['quote']))
     $quote = '"';
@@ -61,6 +68,51 @@
       $purple_ft = $row["best_ft"] / 1000;
     $best_ft[$row["car_num"]] = $row["best_ft"] / 1000;
     $place_ft[$row["car_num"]] = $place++;
+  }
+
+  if ($have_split2) {
+    $have_split2=false;
+    $split_query = 'SELECT green_time.run, green_time.car_num, (split_time.time_ms - green_time.time_ms) AS st_ms
+                   FROM green_time, split_time
+                   WHERE green_time.event = ' . $db->escapeString($evt) . '
+                     AND green_time.event = split_time.event
+                      AND green_time.run = split_time.run
+                      AND green_time.car_num = split_time.car_num
+                      AND green_time.time_ms < split_time.time_ms
+                    ORDER BY st_ms';
+    if ($split_qry = $db->prepare($split_query)) {
+      $best_qry = $split_qry->execute();
+      $purple_st = -1;
+      while($row = $best_qry->fetchArray()) {
+        $have_split2=true;
+        $st = $row["st_ms"] / 1000;
+        if ($purple_st == -1)
+          $purple_st = $st;
+        if (! isset($st_ms[$row["car_num"]][$row["run"]])) {
+          $st_ms[$row["car_num"]][$row["run"]] = $st;
+        }
+      }
+    }
+  }
+
+  $have_split1=false;
+  if ($with_split > 0) {
+    $split_query = 'SELECT count(*) as num
+                   FROM green_time, start_time
+                   WHERE green_time.event = ' . $db->escapeString($evt) . '
+                     AND green_time.event = start_time.event
+                      AND green_time.run = start_time.run
+                      AND green_time.car_num = start_time.car_num
+                      AND green_time.time_ms < start_time.time_ms';
+    if ($split_qry = $db->prepare($split_query)) {
+      $best_qry = $split_qry->execute();
+      if($row = $best_qry->fetchArray()) {
+        if ( $row["num"] > 0)
+	  $have_split1 = true;
+      }
+    }
+    if ($have_split1 && $have_split2)
+      $with_split = 2;
   }
 
   $split_fmt="%4.3f";
@@ -116,12 +168,14 @@
   $results = $res_qry->execute();
 
    echo $quote . $event_name . "${quote}\n\n";
-   echo "${quote}Num${quote},${quote}Entrant${quote},${quote}Driver${quote},${quote}Car${quote},${quote}Info${quote},${quote}Special${quote}";
+   echo ",${quote}Num${quote},${quote}Entrant${quote},${quote}Driver${quote},${quote}Car${quote},${quote}Info${quote},${quote}Special${quote}";
    echo ",${quote}Class Pos${quote},${quote}Outright${quote},${quote}Best${quote},${quote}NR${quote}";
    $i=0;
    while(++$i <= $max_runs) {
-     if ($with_split)
+     if ($with_split == 1)
        echo ",${quote}Split${quote},${quote}Run $i${quote}";
+     elseif ($with_split == 2)
+       echo ",${quote}Split1${quote},${quote}Split2${quote},${quote}Run $i${quote}";
      else
        echo ",${quote}Run $i${quote}";
    }
@@ -137,7 +191,7 @@
        if ($row["class"] != $prev_class ) {
          echo "\n\n" . $quote . $row["class"] . $quote;
 	 if (($row["class_info"] != "") || (isset($row["record"]) && '' != $row["record"]) ) {
-	   echo ",,,,,," . $quote;
+	   echo ",,,,,,," . $quote;
 	   if (isset($row["record"]) && '' != $row["record"])
 	     echo "Record: " . $row["record"] . " ";
 	   echo $row["class_info"] . $quote;
@@ -146,7 +200,7 @@
          $class_place=1;
        }
        echo "\n";
-       echo $row["car_num"] . ",";
+       echo "," . $row["car_num"] . ",";
        echo $quote . $row["car_entrant"] . $quote . ",";
        echo $quote . $row["car_name"] . $quote . ",";
        echo $quote . $row["car_car"] . $quote . ",";
@@ -177,13 +231,21 @@
      }
      elseif ($row["run"] == $prev_run ) continue;
      while ($row["run"] > $tab_run++)
-       if ($with_split)
+       if ($with_split == 1)
          echo ",,";
+       elseif ($with_split == 2)
+         echo ",,,";
        else
          echo ",";
-     if ($with_split) {
+     if ($have_split1 == 1) {
        if (isset($row["rt"]))
          printf(",$split_fmt",$row["rt"]);
+       else
+         echo ",";
+     }
+     if ($have_split2 == 1) {
+       if (isset($st_ms[$row["car_num"]][$row["run"]]))
+         printf(",$split_fmt",$st_ms[$row["car_num"]][$row["run"]]);
        else
          echo ",";
      }
