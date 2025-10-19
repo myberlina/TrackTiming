@@ -50,14 +50,22 @@
           if(chk_chnged('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];				$restart_timing=1; $restart_results=1; };
           if(chk_chnged('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);			$restart_timing=1; };
           if(chk_chnged('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
+          if(chk_chnged('ButtonDBnce'))	{ $config['timing']['inputs']['button']['dbnce'] = intval($_POST['ButtonDBnce']);		$restart_timing=1; };
           if(chk_chnged('GreenGPIO'))	{ $config['timing']['inputs']['green']['gpio'] = intval($_POST['GreenGPIO']);			$restart_timing=1; };
           if(chk_chnged('GreenEdge'))	{ $config['timing']['inputs']['green']['falling_edge'] = ('True' == $_POST['GreenEdge']);	$restart_timing=1; };
+          if(chk_chnged('GreenDBnce'))	{ $config['timing']['inputs']['green']['dbnce'] = intval($_POST['GreenDBnce']);			$restart_timing=1; };
           if(chk_chnged('StartGPIO'))	{ $config['timing']['inputs']['start']['gpio'] = intval($_POST['StartGPIO']);			$restart_timing=1; };
           if(chk_chnged('StartEdge'))	{ $config['timing']['inputs']['start']['falling_edge'] = ('True' == $_POST['StartEdge']);	$restart_timing=1; };
+          if(chk_chnged('StartDBnce'))	{ $config['timing']['inputs']['start']['dbnce'] = intval($_POST['StartDBnce']);			$restart_timing=1; };
+          if(chk_chnged('StartMax'))	{ $config['timing']['inputs']['start']['max'] = intval($_POST['StartMax']);			$restart_timing=1; };
           if(chk_chnged('SplitGPIO'))	{ $config['timing']['inputs']['split']['gpio'] = intval($_POST['SplitGPIO']);			$restart_timing=1; };
           if(chk_chnged('SplitEdge'))	{ $config['timing']['inputs']['split']['falling_edge'] = ('True' == $_POST['SplitEdge']);	$restart_timing=1; };
+          if(chk_chnged('SplitDBnce'))	{ $config['timing']['inputs']['split']['dbnce'] = intval($_POST['SplitDBnce']);			$restart_timing=1; };
+          if(chk_chnged('SplitMax'))	{ $config['timing']['inputs']['split']['max'] = intval($_POST['SplitMax']);			$restart_timing=1; };
           if(chk_chnged('FinishGPIO'))	{ $config['timing']['inputs']['finish']['gpio'] = intval($_POST['FinishGPIO']);			$restart_timing=1; };
           if(chk_chnged('FinishEdge'))	{ $config['timing']['inputs']['finish']['falling_edge'] = ('True' == $_POST['FinishEdge']);	$restart_timing=1; };
+          if(chk_chnged('FinishDBnce'))	{ $config['timing']['inputs']['finish']['dbnce'] = intval($_POST['FinishDBnce']);		$restart_timing=1; };
+          if(chk_chnged('FinishMax'))	{ $config['timing']['inputs']['finish']['max'] = intval($_POST['FinishMax']);	 		$restart_timing=1; };
           if(chk_chnged('TimDebug'))	{ $config['timing']['debug'] = ('true' == $_POST['TimDebug']);					$restart_timing=1; };
           if(chk_chnged('WebBase'))	{ $config['results']['web_base'] = $_POST['WebBase'];				$restart_results=1; };
           if(chk_chnged('PHPBase'))	{ $config['results']['php_base'] = $_POST['PHPBase'];				$restart_results=1; };
@@ -260,18 +268,26 @@
   $safe_button_gpio="";
   $safe_button_edge="bogus";
   $safe_button_edge_opt=$rising;
+  $safe_button_dbnce="";
   $safe_green_gpio="";
   $safe_green_edge="bogus";
   $safe_green_edge_opt=$rising;
+  $safe_green_dbnce="";
   $safe_start_gpio="";
   $safe_start_edge="bogus";
   $safe_start_edge_opt=$rising;
+  $safe_start_dbnce="";
+  $safe_start_max="";
   $safe_split_gpio="";
   $safe_split_edge="bogus";
   $safe_split_edge_opt=$rising;
+  $safe_split_dbnce="";
+  $safe_split_max="";
   $safe_finish_gpio="";
   $safe_finish_edge="bogus";
   $safe_finish_edge_opt=$rising;
+  $safe_finish_dbnce="";
+  $safe_finish_max="";
   $safe_tim_debug="false";
   $safe_tim_debug_opt=$off;
   $safe_web_base="";
@@ -313,6 +329,8 @@
             $safe_button_edge=($config['timing']['inputs']['button']['falling_edge'])?"True":"False";
             $safe_button_edge_opt=($config['timing']['inputs']['button']['falling_edge'])?$falling:$rising;
           }
+          if (isset($config['timing']['inputs']['button']['dbnce']))
+            $safe_button_dbnce=htmlspecialchars($config['timing']['inputs']['button']['dbnce']);
         }
         if (isset($config['timing']['inputs']['green'])) {
           if (isset($config['timing']['inputs']['green']['gpio']))
@@ -321,6 +339,8 @@
             $safe_green_edge=($config['timing']['inputs']['green']['falling_edge'])?"True":"False";
             $safe_green_edge_opt=($config['timing']['inputs']['green']['falling_edge'])?$falling:$rising;
           }
+          if (isset($config['timing']['inputs']['green']['dbnce']))
+            $safe_green_dbnce=htmlspecialchars($config['timing']['inputs']['green']['dbnce']);
         }
         if (isset($config['timing']['inputs']['start'])) {
           if (isset($config['timing']['inputs']['start']['gpio']))
@@ -329,6 +349,10 @@
             $safe_start_edge=($config['timing']['inputs']['start']['falling_edge'])?"True":"False";
             $safe_start_edge_opt=($config['timing']['inputs']['start']['falling_edge'])?$falling:$rising;
           }
+          if (isset($config['timing']['inputs']['start']['dbnce']))
+            $safe_start_dbnce=htmlspecialchars($config['timing']['inputs']['start']['dbnce']);
+          if (isset($config['timing']['inputs']['start']['max']))
+            $safe_start_max=htmlspecialchars($config['timing']['inputs']['start']['max']);
         }
         if (isset($config['timing']['inputs']['split'])) {
           if (isset($config['timing']['inputs']['split']['gpio']))
@@ -337,6 +361,10 @@
             $safe_split_edge=($config['timing']['inputs']['split']['falling_edge'])?"True":"False";
             $safe_split_edge_opt=($config['timing']['inputs']['split']['falling_edge'])?$falling:$rising;
           }
+          if (isset($config['timing']['inputs']['split']['dbnce']))
+            $safe_split_dbnce=htmlspecialchars($config['timing']['inputs']['split']['dbnce']);
+          if (isset($config['timing']['inputs']['split']['max']))
+            $safe_split_max=htmlspecialchars($config['timing']['inputs']['split']['max']);
         }
         if (isset($config['timing']['inputs']['finish'])) {
           if (isset($config['timing']['inputs']['finish']['gpio']))
@@ -345,6 +373,10 @@
             $safe_finish_edge=($config['timing']['inputs']['finish']['falling_edge'])?"True":"False";
             $safe_finish_edge_opt=($config['timing']['inputs']['finish']['falling_edge'])?$falling:$rising;
           }
+          if (isset($config['timing']['inputs']['finish']['dbnce']))
+            $safe_finish_dbnce=htmlspecialchars($config['timing']['inputs']['finish']['dbnce']);
+          if (isset($config['timing']['inputs']['finish']['max']))
+            $safe_finish_max=htmlspecialchars($config['timing']['inputs']['finish']['max']);
         }
       }
       $safe_tim_debug=($config['timing']['debug'])?"true":"false";
@@ -484,31 +516,33 @@
   <table align=center border="2" cellpadding="4">
 <?php
     echo "<tr>\n <th class=\"listheader\"> Config Title </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigTitle\" value=\"$safe_title\" id=\"OrigTitle\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigTitle\" value=\"$safe_title\" id=\"OrigTitle\">";
     echo "<input type=\"text\" size=\"30\" placeholder=\"Title\" name=\"Title\" id=\"Title\" class=\"txtField\" required value=\"$safe_title\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Comments </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigComment\" value=\"$safe_comment\" id=\"OrigComment\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigComment\" value=\"$safe_comment\" id=\"OrigComment\">";
     echo "<input type=\"text\" size=\"50\" placeholder=\"Comments\" name=\"Comment\" id=\"Comment\" class=\"txtField\" required value=\"$safe_comment\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Database File Path </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigDbPath\" value=\"$safe_db_path\" id=\"OrigDbPath\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigDbPath\" value=\"$safe_db_path\" id=\"OrigDbPath\">";
     echo "<input type=\"text\" size=\"50\" placeholder=\"Database File Path\" name=\"DbPath\" id=\"DbPath\" class=\"txtField\" required value=\"$safe_db_path\" oninput=\"haveUpdate()\" >\n";
     if (true === $show_create_database_button) {
       echo "<input id=\"submit-createdb\" type=\"submit\" name=\"submit-createdb\" value=\"Create\" formnovalidate formenctype=\"multipart/form-data\">";
     }
     echo "</td></tr>\n";
 
-    echo "<tr>\n <th colspan=\"3\" class=\"listheader\"> Inputs </th></tr>\n";
-    echo "<tr>\n <th class=\"listheader\"> Drag / HillClimb</th><th>GPIO</th><th>Trigger Edge</th></tr>\n";
+    echo "<tr>\n <th colspan=\"5\" class=\"listheader\"> Inputs </th></tr>\n";
+    echo "<tr>\n <th class=\"listheader\"> Drag / HillClimb</th><th>GPIO</th><th>Trigger Edge</th><th>DeBounce Time(ms)</th><th>Max Events Per Green</th></tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Button / Green </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonGPIO\" value=\"$safe_button_gpio\" id=\"OrigButtonGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"ButtonGPIO\" id=\"ButtonGPIO\" class=\"input_number\" required value=\"$safe_button_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonEdge\" value=\"$safe_button_edge\" id=\"OrigButtonEdge\">";
     echo "<select name=\"ButtonEdge\" id=\"ButtonEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_button_edge_opt</select></td>";
+    echo "<td><input type=\"hidden\" name=\"OrigButtonDBnce\" value=\"$safe_button_dbnce\" id=\"OrigButtonDBnce\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"ButtonDBnce\" id=\"ButtonDBnce\" class=\"input_number\" required value=\"$safe_button_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Green / Start </th>\n";
@@ -516,6 +550,8 @@
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"GreenGPIO\" id=\"GreenGPIO\" class=\"input_number\" required value=\"$safe_green_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigGreenEdge\" value=\"$safe_green_edge\" id=\"OrigGreenEdge\">";
     echo "<select name=\"GreenEdge\" id=\"GreenEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_green_edge_opt</select></td>";
+    echo "<td><input type=\"hidden\" name=\"OrigGreenDBnce\" value=\"$safe_green_dbnce\" id=\"OrigGreenDBnce\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"GreenDBnce\" id=\"GreenDBnce\" class=\"input_number\" required value=\"$safe_green_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Start / Split </th>\n";
@@ -523,6 +559,10 @@
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"StartGPIO\" id=\"StartGPIO\" class=\"input_number\" required value=\"$safe_start_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartEdge\" value=\"$safe_start_edge\" id=\"OrigStartEdge\">";
     echo "<select name=\"StartEdge\" id=\"StartEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_start_edge_opt</select></td>";
+    echo "<td><input type=\"hidden\" name=\"OrigStartDBnce\" value=\"$safe_start_dbnce\" id=\"OrigStartDBnce\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"StartDBnce\" id=\"StartDBnce\" class=\"input_number\" required value=\"$safe_start_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigStartMax\" value=\"$safe_start_max\" id=\"OrigStartMax\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"StartMax\" id=\"StartMax\" class=\"input_number\" required value=\"$safe_start_max\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Split / Split2 </th>\n";
@@ -530,6 +570,10 @@
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"SplitGPIO\" id=\"SplitGPIO\" class=\"input_number\" required value=\"$safe_split_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigSplitEdge\" value=\"$safe_split_edge\" id=\"OrigSplitEdge\">";
     echo "<select name=\"SplitEdge\" id=\"SplitEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_split_edge_opt</select></td>";
+    echo "<td><input type=\"hidden\" name=\"OrigSplitDBnce\" value=\"$safe_split_dbnce\" id=\"OrigSplitDBnce\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"SplitDBnce\" id=\"SplitDBnce\" class=\"input_number\" required value=\"$safe_split_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigSplitMax\" value=\"$safe_split_max\" id=\"OrigSplitMax\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"SplitMax\" id=\"SplitMax\" class=\"input_number\" required value=\"$safe_split_max\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Finish </th>\n";
@@ -537,36 +581,40 @@
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"FinishGPIO\" id=\"FinishGPIO\" class=\"input_number\" required value=\"$safe_finish_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigFinishEdge\" value=\"$safe_finish_edge\" id=\"OrigFinishEdge\">";
     echo "<select name=\"FinishEdge\" id=\"FinishEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_finish_edge_opt</select></td>";
+    echo "<td><input type=\"hidden\" name=\"OrigFinishDBnce\" value=\"$safe_finish_dbnce\" id=\"OrigFinishDBnce\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"FinishDBnce\" id=\"FinishDBnce\" class=\"input_number\" required value=\"$safe_finish_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<td><input type=\"hidden\" name=\"OrigFinishMax\" value=\"$safe_finish_max\" id=\"OrigFinishMax\">";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"FinishMax\" id=\"FinishMax\" class=\"input_number\" required value=\"$safe_finish_max\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Timing Debug </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigTimDebug\" value=\"$safe_tim_debug\" id=\"OrigTimDebug\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigTimDebug\" value=\"$safe_tim_debug\" id=\"OrigTimDebug\">";
     echo "<select name=\"TimDebug\" id=\"TimDebug\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_tim_debug_opt</select></td>";
     echo "</tr>\n";
 
-    echo "<tr>\n <th colspan=\"3\" class=\"listheader\"> Results </th></tr>\n";
+    echo "<tr>\n <th colspan=\"5\" class=\"listheader\"> Results </th></tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Web Base Path </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigWebBase\" value=\"$safe_web_base\" id=\"OrigWebBase\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigWebBase\" value=\"$safe_web_base\" id=\"OrigWebBase\">";
     echo "<input type=\"text\" size=\"50\" placeholder=\"Web Base Path\" name=\"WebBase\" id=\"WebBase\" class=\"txtField\" required value=\"$safe_web_base\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> PHP Base Path </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigPHPBase\" value=\"$safe_php_base\" id=\"OrigPHPBase\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigPHPBase\" value=\"$safe_php_base\" id=\"OrigPHPBase\">";
     echo "<input type=\"text\" size=\"50\" placeholder=\"PHP Base Path\" name=\"PHPBase\" id=\"PHPBase\" class=\"txtField\" required value=\"$safe_php_base\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Static Base Path </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigStaticBase\" value=\"$safe_static_base\" id=\"OrigStaticBase\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigStaticBase\" value=\"$safe_static_base\" id=\"OrigStaticBase\">";
     echo "<input type=\"text\" size=\"50\" placeholder=\"Static Base Path\" name=\"StaticBase\" id=\"StaticBase\" class=\"txtField\" required value=\"$safe_static_base\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Forward Command </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigFwdCmd\" value=\"$safe_fwd_cmd\" id=\"OrigFwdCmd\">";
+    echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigFwdCmd\" value=\"$safe_fwd_cmd\" id=\"OrigFwdCmd\">";
     echo "<input type=\"text\" size=\"50\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
-    echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types <div style=\"float:right\">&nbsp;<sub>Def</sub></div></th><th colspan=\"2\" align=\"left\"><sub>Enabled</sub>&nbsp;</th></tr>\n";
+    echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types <div style=\"float:right\">&nbsp;<sub>Def</sub></div></th><th colspan=\"4\" align=\"left\"><sub>Enabled</sub>&nbsp;</th></tr>\n";
     echo "<input type=\"hidden\" name=\"OrigDefaultReport\" value=\"$def_report\" id=\"OrigDefaultReport\">";
     foreach($result_list as $name => $comment) {
       if (isset($result_enabled[$name])) {
@@ -589,7 +637,7 @@
       echo " <label for=\"def_$name\"> $name </label>\n";
       echo " <input type=\"radio\" id=\"def_$name\" name=\"DefaultReport\" $radio_checked $radio_dis value=\"$name\" oninput=\"haveUpdate();\">";
       echo "</td>\n";
-      echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigRP_$name\" value=\"$is_set\" id=\"OrigRP_$name\">";
+      echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigRP_$name\" value=\"$is_set\" id=\"OrigRP_$name\">";
       echo "<input type=\"checkbox\" name=\"RP_$name\" id=\"RP_$name\" value=\"$is_set\" $is_checked oninput=\"this.value=(this.checked?'true':'false');haveUpdate();document.getElementById('def_$name').disabled=!this.checked\"><label for=\"RP_$name\"> $comment </label></td>\n";
       echo "</tr>\n";
     }
