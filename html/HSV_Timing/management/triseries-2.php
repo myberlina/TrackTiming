@@ -372,13 +372,13 @@
    <tbody>
    <tr class="listheader">
       <td>Club Name</td>
-      <td>Points</td>
+      <td align="right">Points</td>
    </tr>
    <?php
       arsort($club_tot, SORT_NUMERIC);
       foreach ($club_tot as $club => $tot) {
         if ($club != "")
-          echo "<tr><td>$club</td><td>$tot</td></tr>";
+          echo "<tr><td>$club</td><td align=\"right\">$tot</td></tr>";
       }
    ?>
    </tbody>
