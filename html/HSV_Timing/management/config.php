@@ -522,12 +522,12 @@
 
     echo "<tr>\n <th class=\"listheader\"> Comments </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigComment\" value=\"$safe_comment\" id=\"OrigComment\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Comments\" name=\"Comment\" id=\"Comment\" class=\"txtField\" required value=\"$safe_comment\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"text\" size=\"60\" placeholder=\"Comments\" name=\"Comment\" id=\"Comment\" class=\"txtField\" required value=\"$safe_comment\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Database File Path </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigDbPath\" value=\"$safe_db_path\" id=\"OrigDbPath\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Database File Path\" name=\"DbPath\" id=\"DbPath\" class=\"txtField\" required value=\"$safe_db_path\" oninput=\"haveUpdate()\" >\n";
+    echo "<input type=\"text\" size=\"60\" placeholder=\"Database File Path\" name=\"DbPath\" id=\"DbPath\" class=\"txtField\" required value=\"$safe_db_path\" oninput=\"haveUpdate()\" >\n";
     if (true === $show_create_database_button) {
       echo "<input id=\"submit-createdb\" type=\"submit\" name=\"submit-createdb\" value=\"Create\" formnovalidate formenctype=\"multipart/form-data\">";
     }
@@ -536,82 +536,84 @@
     echo "<tr>\n <th colspan=\"5\" class=\"listheader\"> Inputs </th></tr>\n";
     echo "<tr>\n <th class=\"listheader\"> Drag / HillClimb</th><th>GPIO</th><th>Trigger Edge</th><th>DeBounce Time(ms)</th><th>Max Events Per Green</th></tr>\n";
 
+    $edge_width="120px";
+
     echo "<tr>\n <th class=\"listheader\"> Button / Green </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonGPIO\" value=\"$safe_button_gpio\" id=\"OrigButtonGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"ButtonGPIO\" id=\"ButtonGPIO\" class=\"input_number\" required value=\"$safe_button_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonEdge\" value=\"$safe_button_edge\" id=\"OrigButtonEdge\">";
-    echo "<select name=\"ButtonEdge\" id=\"ButtonEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_button_edge_opt</select></td>";
+    echo "<select name=\"ButtonEdge\" id=\"ButtonEdge\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_button_edge_opt</select></td>";
     echo "<td><input type=\"hidden\" name=\"OrigButtonDBnce\" value=\"$safe_button_dbnce\" id=\"OrigButtonDBnce\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"ButtonDBnce\" id=\"ButtonDBnce\" class=\"input_number\" required value=\"$safe_button_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"ButtonDBnce\" id=\"ButtonDBnce\" class=\"input_number\" min=0 value=\"$safe_button_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Green / Start </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigGreenGPIO\" value=\"$safe_green_gpio\" id=\"OrigGreenGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"GreenGPIO\" id=\"GreenGPIO\" class=\"input_number\" required value=\"$safe_green_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigGreenEdge\" value=\"$safe_green_edge\" id=\"OrigGreenEdge\">";
-    echo "<select name=\"GreenEdge\" id=\"GreenEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_green_edge_opt</select></td>";
+    echo "<select name=\"GreenEdge\" id=\"GreenEdge\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_green_edge_opt</select></td>";
     echo "<td><input type=\"hidden\" name=\"OrigGreenDBnce\" value=\"$safe_green_dbnce\" id=\"OrigGreenDBnce\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"GreenDBnce\" id=\"GreenDBnce\" class=\"input_number\" required value=\"$safe_green_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"GreenDBnce\" id=\"GreenDBnce\" class=\"input_number\" min=0 value=\"$safe_green_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Start / Split </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartGPIO\" value=\"$safe_start_gpio\" id=\"OrigStartGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"StartGPIO\" id=\"StartGPIO\" class=\"input_number\" required value=\"$safe_start_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartEdge\" value=\"$safe_start_edge\" id=\"OrigStartEdge\">";
-    echo "<select name=\"StartEdge\" id=\"StartEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_start_edge_opt</select></td>";
+    echo "<select name=\"StartEdge\" id=\"StartEdge\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_start_edge_opt</select></td>";
     echo "<td><input type=\"hidden\" name=\"OrigStartDBnce\" value=\"$safe_start_dbnce\" id=\"OrigStartDBnce\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"StartDBnce\" id=\"StartDBnce\" class=\"input_number\" required value=\"$safe_start_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"StartDBnce\" id=\"StartDBnce\" class=\"input_number\" min=0 value=\"$safe_start_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigStartMax\" value=\"$safe_start_max\" id=\"OrigStartMax\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"StartMax\" id=\"StartMax\" class=\"input_number\" required value=\"$safe_start_max\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"StartMax\" id=\"StartMax\" class=\"input_number\" min=0 value=\"$safe_start_max\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Split / Split2 </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigSplitGPIO\" value=\"$safe_split_gpio\" id=\"OrigSplitGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"SplitGPIO\" id=\"SplitGPIO\" class=\"input_number\" required value=\"$safe_split_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigSplitEdge\" value=\"$safe_split_edge\" id=\"OrigSplitEdge\">";
-    echo "<select name=\"SplitEdge\" id=\"SplitEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_split_edge_opt</select></td>";
+    echo "<select name=\"SplitEdge\" id=\"SplitEdge\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_split_edge_opt</select></td>";
     echo "<td><input type=\"hidden\" name=\"OrigSplitDBnce\" value=\"$safe_split_dbnce\" id=\"OrigSplitDBnce\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"SplitDBnce\" id=\"SplitDBnce\" class=\"input_number\" required value=\"$safe_split_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"SplitDBnce\" id=\"SplitDBnce\" class=\"input_number\" min=0 value=\"$safe_split_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigSplitMax\" value=\"$safe_split_max\" id=\"OrigSplitMax\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"SplitMax\" id=\"SplitMax\" class=\"input_number\" required value=\"$safe_split_max\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"SplitMax\" id=\"SplitMax\" class=\"input_number\" min=0 value=\"$safe_split_max\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Finish </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigFinishGPIO\" value=\"$safe_finish_gpio\" id=\"OrigFinishGPIO\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"FinishGPIO\" id=\"FinishGPIO\" class=\"input_number\" required value=\"$safe_finish_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigFinishEdge\" value=\"$safe_finish_edge\" id=\"OrigFinishEdge\">";
-    echo "<select name=\"FinishEdge\" id=\"FinishEdge\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_finish_edge_opt</select></td>";
+    echo "<select name=\"FinishEdge\" id=\"FinishEdge\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_finish_edge_opt</select></td>";
     echo "<td><input type=\"hidden\" name=\"OrigFinishDBnce\" value=\"$safe_finish_dbnce\" id=\"OrigFinishDBnce\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"FinishDBnce\" id=\"FinishDBnce\" class=\"input_number\" required value=\"$safe_finish_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"300\" name=\"FinishDBnce\" id=\"FinishDBnce\" class=\"input_number\" min=0 value=\"$safe_finish_dbnce\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigFinishMax\" value=\"$safe_finish_max\" id=\"OrigFinishMax\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"FinishMax\" id=\"FinishMax\" class=\"input_number\" required value=\"$safe_finish_max\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"4\" name=\"FinishMax\" id=\"FinishMax\" class=\"input_number\" min=0 value=\"$safe_finish_max\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Timing Debug </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigTimDebug\" value=\"$safe_tim_debug\" id=\"OrigTimDebug\">";
-    echo "<select name=\"TimDebug\" id=\"TimDebug\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_tim_debug_opt</select></td>";
+    echo "<select name=\"TimDebug\" id=\"TimDebug\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_tim_debug_opt</select></td>";
     echo "</tr>\n";
 
     echo "<tr>\n <th colspan=\"5\" class=\"listheader\"> Results </th></tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Web Base Path </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigWebBase\" value=\"$safe_web_base\" id=\"OrigWebBase\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Web Base Path\" name=\"WebBase\" id=\"WebBase\" class=\"txtField\" required value=\"$safe_web_base\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"text\" size=\"60\" placeholder=\"Web Base Path\" name=\"WebBase\" id=\"WebBase\" class=\"txtField\" required value=\"$safe_web_base\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> PHP Base Path </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigPHPBase\" value=\"$safe_php_base\" id=\"OrigPHPBase\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"PHP Base Path\" name=\"PHPBase\" id=\"PHPBase\" class=\"txtField\" required value=\"$safe_php_base\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"text\" size=\"60\" placeholder=\"PHP Base Path\" name=\"PHPBase\" id=\"PHPBase\" class=\"txtField\" required value=\"$safe_php_base\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Static Base Path </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigStaticBase\" value=\"$safe_static_base\" id=\"OrigStaticBase\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Static Base Path\" name=\"StaticBase\" id=\"StaticBase\" class=\"txtField\" required value=\"$safe_static_base\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"text\" size=\"60\" placeholder=\"Static Base Path\" name=\"StaticBase\" id=\"StaticBase\" class=\"txtField\" required value=\"$safe_static_base\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Forward Command </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigFwdCmd\" value=\"$safe_fwd_cmd\" id=\"OrigFwdCmd\">";
-    echo "<input type=\"text\" size=\"50\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"text\" size=\"60\" placeholder=\"Forward Results Command\" name=\"FwdCmd\" id=\"FwdCmd\" class=\"txtField\" value=\"$safe_fwd_cmd\" oninput=\"haveUpdate()\" ></td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th colspan=\"1\" class=\"listheader\"> Result Types <div style=\"float:right\">&nbsp;<sub>Def</sub></div></th><th colspan=\"4\" align=\"left\"><sub>Enabled</sub>&nbsp;</th></tr>\n";
@@ -643,23 +645,23 @@
     }
 
     echo "<tr>\n <th class=\"listheader\"> Show in Results </th>\n";
-    echo "<td><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
+    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
     echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
-    echo "<td><input type=\"hidden\" name=\"OrigSplitLine\" value=\"$safe_split_line\" id=\"OrigSplitLine\">";
+    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigSplitLine\" value=\"$safe_split_line\" id=\"OrigSplitLine\">";
     echo "<select name=\"SplitLine\" id=\"SplitLine\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_split_line_opt</select></td>";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Refresh Interval </th>\n";
-    echo "<td><input type=\"hidden\" name=\"OrigInterval\" value=\"$safe_refresh_time\" id=\"OrigInterval\">";
+    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigInterval\" value=\"$safe_refresh_time\" id=\"OrigInterval\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"20\" name=\"Interval\" id=\"Interval\" class=\"input_number\" required value=\"$safe_refresh_time\" oninput=\"haveUpdate()\" > Seconds</td>\n";
-    echo "<td><input type=\"hidden\" name=\"OrigWebPush\" value=\"$safe_web_push\" id=\"OrigWebPush\">";
+    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigWebPush\" value=\"$safe_web_push\" id=\"OrigWebPush\">";
     echo "<input type=\"number\" size=\"4\" placeholder=\"100\" name=\"WebPush\" id=\"WebPush\" class=\"input_number\" required value=\"$safe_web_push\" oninput=\"haveUpdate()\" > Web Push Min Interval</td>\n";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Quotes in CSV </th>\n";
-    echo "<td><input type=\"hidden\" name=\"OrigCSV_Quotes\" value=\"$safe_csv_quotes\" id=\"OrigCSV_Quotes\">";
+    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigCSV_Quotes\" value=\"$safe_csv_quotes\" id=\"OrigCSV_Quotes\">";
     echo "<select name=\"CSV_Quotes\" id=\"CSV_Quotes\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_csv_quotes_opt</select></td>";
-    echo "<td align=right style=\"border: 0px\"><input id=\"submit-changes\" type=\"submit\" name=\"submit-changes\" value=\"Save Changes\" disabled formenctype=\"multipart/form-data\"></td>";
+    echo "<td colspan=\"2\" align=right style=\"border: 0px\"><input id=\"submit-changes\" type=\"submit\" name=\"submit-changes\" value=\"Save Changes\" disabled formenctype=\"multipart/form-data\"></td>";
     echo "</tr>\n";
 
 ?>

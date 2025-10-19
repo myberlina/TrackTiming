@@ -13,6 +13,26 @@ import getopt
 
 button_lockout=20 * 1000 * 1000 * 1000  # 20 seconds in nanoseconds
 
+button_gpio=17
+button_falling_edge=False
+button_dbnce=300000	# 0.3s debounce.
+green_gpio=23
+green_falling_edge=False
+green_dbnce=300000	# 0.3s debounce.
+start_gpio=24
+start_falling_edge=False
+start_dbnce=300000	# 0.3s debounce.
+start_max=4
+split_gpio=-1
+split_falling_edge=False
+split_dbnce=300000	# 0.3s debounce.
+split_max=4
+finish_gpio=25
+finish_falling_edge=False
+finish_dbnce=300000	# 0.3s debounce.
+finish_max=4
+
+# Update defaults from the config file
 def reset_debounce(sig, frame):
     debounce[button_gpio] = start_tick
     debounce[green_gpio] = start_tick
@@ -117,18 +137,6 @@ else:
 if 'database_path' in config :
   database=config['database_path']
 
-button_gpio=17
-button_falling_edge=False
-green_gpio=23
-green_falling_edge=False
-start_gpio=24
-start_falling_edge=False
-split_gpio=-1
-split_falling_edge=False
-finish_gpio=25
-finish_falling_edge=False
-
-# Update defaults from the config file
 if 'timing' in config :
   if 'debug' in config['timing'] :
     if config['timing']['debug'] :
@@ -138,42 +146,64 @@ if 'timing' in config :
     if 'button' in inputs:
       if 'gpio' in inputs['button'] :
         button_gpio = inputs['button']['gpio']
+      if 'dbnce' in inputs['button'] :
+        if isinstance(inputs['button']['dbnce'], int) :
+          button_dbnce = inputs['button']['dbnce'] * 1000
       if 'falling_edge' in inputs['button'] :
         button_falling_edge = inputs['button']['falling_edge']
       if (verbose > 0) :
-        print("  Button gpio = " + str(button_gpio) + ",\tfalling_edge: " + str(button_falling_edge))
+        print("  Button gpio = " + str(button_gpio) + ",\tfalling_edge: " + str(button_falling_edge) + "\tdebounce: " + str(button_dbnce))
 
     if 'green' in inputs:
       if 'gpio' in inputs['green'] :
         green_gpio = inputs['green']['gpio']
+      if 'dbnce' in inputs['green'] :
+        if isinstance(inputs['green']['dbnce'], int) :
+          green_dbnce = inputs['green']['dbnce'] * 1000
       if 'falling_edge' in inputs['green'] :
         green_falling_edge = inputs['green']['falling_edge']
       if (verbose > 0) :
-        print("  Green gpio = " + str(green_gpio) + ",\tfalling_edge: " + str(green_falling_edge))
+        print("  Green gpio = " + str(green_gpio) + ",\tfalling_edge: " + str(green_falling_edge) + "\tdebounce: " + str(green_dbnce))
 
     if 'start' in inputs:
       if 'gpio' in inputs['start'] :
         start_gpio = inputs['start']['gpio']
+      if 'dbnce' in inputs['start'] :
+        if isinstance(inputs['start']['dbnce'], int) :
+          start_dbnce = inputs['start']['dbnce'] * 1000
+      if 'max' in inputs['start'] :
+        if isinstance(inputs['start']['max'], int) and inputs['start']['max'] >= 0 :
+          start_max = inputs['start']['max']
       if 'falling_edge' in inputs['start'] :
         start_falling_edge = inputs['start']['falling_edge']
       if (verbose > 0) :
-        print("  Start gpio = " + str(start_gpio) + ",\tfalling_edge: " + str(start_falling_edge))
+        print("  Start gpio = " + str(start_gpio) + ",\tfalling_edge: " + str(start_falling_edge) + "\tdebounce: " + str(start_dbnce) + "\tmax: " + str(start_max))
 
     if 'split' in inputs:
       if 'gpio' in inputs['split'] :
         split_gpio = inputs['split']['gpio']
+      if 'dbnce' in inputs['split'] :
+        if isinstance(inputs['split']['dbnce'], int) :
+          split_dbnce = inputs['split']['dbnce'] * 1000
+      if 'max' in inputs['split'] :
+          split_max = inputs['split']['max']
       if 'falling_edge' in inputs['split'] :
         split_falling_edge = inputs['split']['falling_edge']
       if (verbose > 0) :
-        print("  Split(2) gpio = " + str(split_gpio) + ",\tfalling_edge: " + str(split_falling_edge))
+        print("  Split(2) gpio = " + str(split_gpio) + ",\tfalling_edge: " + str(split_falling_edge) + "\tdebounce: " + str(split_dbnce) + "\tmax: " + str(split_max))
 
     if 'finish' in inputs:
       if 'gpio' in inputs['finish'] :
         finish_gpio = inputs['finish']['gpio']
+      if 'dbnce' in inputs['finish'] :
+        if isinstance(inputs['finish']['dbnce'], int) :
+          finish_dbnce = inputs['finish']['dbnce'] * 1000
+      if 'max' in inputs['finish'] :
+          finish_max = inputs['finish']['max']
       if 'falling_edge' in inputs['finish'] :
         finish_falling_edge = inputs['finish']['falling_edge']
       if (verbose > 0) :
-        print("  Finish gpio = " + str(finish_gpio) + ",\tfalling_edge: " + str(finish_falling_edge))
+        print("  Finish gpio = " + str(finish_gpio) + ",\tfalling_edge: " + str(finish_falling_edge) + "\tdebounce: " + str(finish_dbnce) + "\tmax: " + str(finish_max))
 
 # Second pass of the command line options - might overide values read from config file
 for opt, arg in opts:
@@ -247,9 +277,12 @@ debounce = np.empty(60, dtype=np.uint32)
 def cb_button(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
+    if pigpio.tickDiff(debo,tick) > button_dbnce :  # 0.3s debounce.
         mon_now=time.monotonic_ns()
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
+        cb_start.start_events=0
+        cb_split.split_events=0
+        cb_finish.finish_events=0
         if ( (mon_now - new_car.time) > button_lockout ) :
             new_car.time = mon_now
             new_car()
@@ -267,9 +300,12 @@ def cb_button(gpio, level, tick):
 def cb_green(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
+    if pigpio.tickDiff(debo,tick) > green_dbnce :  # 0.3s debounce.
         mon_now=time.monotonic_ns()
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
+        cb_start.start_events=0
+        cb_split.split_events=0
+        cb_finish.finish_events=0
         if ( (mon_now - new_car.time) > button_lockout ) :
             new_car.time = mon_now
             new_car()
@@ -296,8 +332,8 @@ def cb_green(gpio, level, tick):
 def cb_start(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    #if pigpio.tickDiff(debo,tick) > 1200000 :  # 1.2s debounce, and ignore rear wheels.
-    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
+    if pigpio.tickDiff(debo,tick) > start_dbnce and ( start_max == 0 or cb_start.start_events < start_max ) :
+        cb_start.start_events=cb_start.start_events+1
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
@@ -323,10 +359,13 @@ def cb_start(gpio, level, tick):
     if debug.cb_debug:
         print("debug ", gpio, level, tick, debo)
 
+cb_start.start_events=0
+
 def cb_split(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
+    if pigpio.tickDiff(debo,tick) > split_dbnce and ( split_max == 0 or cb_split.split_events < split_max ) :
+        cb_split.split_events=cb_split.split_events+1
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
@@ -342,10 +381,13 @@ def cb_split(gpio, level, tick):
     if debug.cb_debug:
         print("debug ", gpio, tick, debo)
 
+cb_split.split_events=0
+
 def cb_finish(gpio, level, tick):
     debo=debounce[gpio]
     debounce[gpio] = tick
-    if pigpio.tickDiff(debo,tick) > 300000 :  # 0.3s debounce.
+    if pigpio.tickDiff(debo,tick) > finish_dbnce and ( finish_max == 0 or cb_finish.finish_events < finish_max ) :
+        cb_finish.finish_events=cb_finish.finish_events+1
         val = int(pigpio.tickDiff(start_tick, tick) / 1000)
         if (val < new_car.tick_val) :
             val=val+4294967     # undo the wrap for database entry
@@ -363,6 +405,7 @@ def cb_finish(gpio, level, tick):
     if debug.cb_debug:
         print("debug ", gpio, tick, debo)
 
+cb_finish.finish_events=0
 
 cur.execute("SELECT current_event, current_run "
       "FROM current_event LEFT JOIN current_run");
