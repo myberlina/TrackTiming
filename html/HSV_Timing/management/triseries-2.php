@@ -210,8 +210,10 @@
 </div>
 </div>
 <br/>
+ <!-- Outer table -->
  <table align="center" border="0" cellpadding="0">
- <tr><td>
+ <tr><td colspan="2">
+  <!-- Results table -->
   <table border="1" cellpadding="1">
    <tbody>
    <tr class="listheader">
@@ -368,12 +370,16 @@
   </table>
  </td></tr>
  <tr><td>
+  <!-- This event scores table -->
   <table border="1" cellpadding="1">
-   <tbody>
+   <thead>
+   <tr class="listheader"><th colspan="2" align="center">This Round</th></tr>
    <tr class="listheader">
-      <td>Club Name</td>
-      <td align="right">Points</td>
+      <th>Club Name</th>
+      <th align="right">Points</th>
    </tr>
+   </thead>
+   <tbody>
    <?php
       arsort($club_tot, SORT_NUMERIC);
       foreach ($club_tot as $club => $tot) {
@@ -383,9 +389,12 @@
    ?>
    </tbody>
   </table>
- </td></tr>
- <tr><td>
+ </td>
+ <td align="right">
+  <!-- Total Series scores table -->
   <table border="1" cellpadding="1">
+   <thead>
+   <tr class="listheader"><th align="center" colspan="<?php echo count($event_name) + 3?>">Total Series</td></tr>
    <?php
      foreach ($club_tot as $club => $tot) {
        if ($club != "")
