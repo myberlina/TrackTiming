@@ -31,6 +31,12 @@ do_kill()
 
 auto_run()
 {
+  splits=1
+  if [[ '-2' == "$1" ]]
+  then
+    splits=2
+    shift
+  fi
   time=$1
   run=$2
   if (( time < 1 ))
@@ -55,8 +61,11 @@ auto_run()
   echo "$run split1" >&0
   do_kill -"${signal[split1]}" "$t_pid"
   sleep $(printf "%d.%03d" $split2_s $split2_ms)
-  echo "$run split2" >&0
-  do_kill -"${signal[split2]}" "$t_pid"
+  if (( splits >= 2 ))
+  then
+    echo "$run split2" >&0
+    do_kill -"${signal[split2]}" "$t_pid"
+  fi
   sleep $(printf "%d.%03d" $finish_s $finish_ms)
   echo "$run finish" >&0
   do_kill -"${signal[finish]}" "$t_pid"
@@ -64,6 +73,12 @@ auto_run()
 
 do_runs()
 {
+  set_splits=''
+  if [[ '-2' == "$1" ]]
+  then
+    set_splits=-2
+    shift
+  fi
   num=$1
   time=$2
   if (( num < 1 || time < 1 ))
@@ -75,7 +90,7 @@ do_runs()
   while (( num-- > 0 ))
   do
     let i++
-    auto_run $time $i
+    auto_run $set_splits $time $i
     sleep 1
   done
 }
@@ -88,6 +103,8 @@ function do_event()
     green|start|split1|split2|finish)	do_kill -"${signal[$event]}" "$t_pid" ; echo "$event" >&0 ;;
     run)	auto_run $2 ;;
     runs)	do_runs $2 $3 ;;
+    run2)	auto_run -2 $2 ;;
+    runs2)	do_runs -2 $2 $3 ;;
   esac
 }
 

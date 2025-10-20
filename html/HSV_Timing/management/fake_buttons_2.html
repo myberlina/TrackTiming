@@ -53,9 +53,9 @@
    <input id="finish" type="button" name="finish" value="Finish" onclick="ws.send('finish\n');" class="button">
    &nbsp;
    <input type="number" placeholder="time" style="text-align:right; width:25px;" max="99" min="1" name="time" id="time" value="10" class="input_number" title="Approx run time in seconds" onchange="bad=((this.value < this.min) || (this.value > this.max)); document.getElementById('run').disabled=bad;" >s
-   <input id="run" type="button" name="run" value="run" onclick="ws.send('run ' + document.getElementById('time').value + '\n');" class="button">
+   <input id="run" type="button" name="run" value="run" onclick="ws.send('run2 ' + document.getElementById('time').value + '\n');" class="button">
    <input type="number" placeholder="runs" style="text-align:right; width:25px;" max="99" min="1" name="num_runs" id="num_runs" value="10" class="input_number" title="Number of auto runs" onchange="document.getElementById('runs').disabled=((this.value < this.min) || (this.value > this.max))">
-   <input id="runs" type="button" name="runs" value="runs" onclick="ws.send('runs ' + document.getElementById('num_runs').value + ' ' + document.getElementById('time').value + '\n');" class="button">
+   <input id="runs" type="button" name="runs" value="runs" onclick="ws.send('runs2 ' + document.getElementById('num_runs').value + ' ' + document.getElementById('time').value + '\n');" class="button">
   </form>
  </body>
 </html>
