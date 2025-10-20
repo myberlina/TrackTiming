@@ -46,7 +46,7 @@ echo "$MAP" |
     exec {file_list}< <(find "$localdir" -type f -print | fgrep -v "$SKIP")
      while read f <&${file_list}
      do
-       localdir=""
+       redir=""
        [[ "$f" != "${f%%.png}" ]] && continue
        if [[ bin == "$localdir" ]]
        then
@@ -55,12 +55,12 @@ echo "$MAP" |
 	  if [[ "bin/Create_Database.sql" == "$f" ]]
 	  then
 	    destdir=/usr/share/tracktiming/
-	    localdir=bin/
+	    redir=bin/
 	    f=Create_Database.sql
 	  fi
        fi
        cat "$destdir$f" 2>&1 >/dev/null | fgrep 'Permission denied' >/dev/null && continue
-       if diff -q "$localdir$f" "$destdir$f" >/dev/null
+       if diff -q "$redir$f" "$destdir$f" >/dev/null
        then
          let mat++
        else
