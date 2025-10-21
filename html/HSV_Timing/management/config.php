@@ -569,7 +569,7 @@
 
     echo "<tr>\n <th class=\"listheader\"> Split / Split2 </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigSplitGPIO\" value=\"$safe_split_gpio\" id=\"OrigSplitGPIO\">";
-    echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"SplitGPIO\" id=\"SplitGPIO\" class=\"input_number\" required value=\"$safe_split_gpio\" oninput=\"haveUpdate()\" ></td>\n";
+    echo "<input type=\"number\" size=\"4\" placeholder=\"11\" name=\"SplitGPIO\" id=\"SplitGPIO\" class=\"input_number\" value=\"$safe_split_gpio\" oninput=\"haveUpdate()\" ></td>\n";
     echo "<td><input type=\"hidden\" name=\"OrigSplitEdge\" value=\"$safe_split_edge\" id=\"OrigSplitEdge\">";
     echo "<select name=\"SplitEdge\" id=\"SplitEdge\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_split_edge_opt</select></td>";
     echo "<td><input type=\"hidden\" name=\"OrigSplitDBnce\" value=\"$safe_split_dbnce\" id=\"OrigSplitDBnce\">";
