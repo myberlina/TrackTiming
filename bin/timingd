@@ -245,7 +245,7 @@ def new_car():
         if (len(result) > 1) :
           new_car.next_car = result[1][0]
         else :
-          new_car.next_car = 666
+          new_car.next_car = new_car.next_car_dummy
         cur.execute("delete from next_car where car_num = ?", (new_car.curr_car, ))
         cur.execute("update current_car set current_car = ? where ROWID = 1", (new_car.curr_car, ))
         cur.execute("COMMIT")
@@ -261,9 +261,10 @@ def new_car():
 
 new_car.event=-1
 new_car.run_num = 0
-new_car.next_missing_car = 1001
-new_car.curr_car = 1000
-new_car.next_car = 666
+new_car.next_missing_car = 66001
+new_car.curr_car = 66000
+new_car.next_car_dummy = 66666
+new_car.next_car = new_car.next_car_dummy
 new_car.tick = 0
 new_car.tick_val = 0
 new_car.time=time.monotonic_ns() - button_lockout
@@ -343,7 +344,7 @@ def cb_start(gpio, level, tick):
         elif (new_car.state == 0) :  # No car with green - red light
           # Red light
           cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, -new_car.next_car, val))
-          if (new_car.next_car == 666) :  # Last car of this run - first car of next run ??
+          if (new_car.next_car == new_car.next_car_dummy) :  # Last car of this run - first car of next run ??
             cur.execute("insert into start_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num + 1, -new_car.next_car, val))
         else :  #  new_car.state == 2   #  Already have a start line trigger
           # Rear wheels slow, next car staging??
