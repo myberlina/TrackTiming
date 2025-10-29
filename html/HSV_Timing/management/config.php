@@ -75,6 +75,7 @@
           if(chk_chnged('WebPush'))	{ $config['results']['web_push'] = intval($_POST['WebPush']);			$restart_results=1; };
           if(chk_chnged('RunnersOnly'))	{ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
           if(chk_chnged('SplitLine'))	{ $config['results']['split_line'] = ('true' == $_POST['SplitLine']);		$restart_results=1; };
+          if(chk_chnged('ResultsTitle')){ $config['results']['results_title'] = ('true' == $_POST['ResultsTitle']);	$restart_results=1; };
           if(chk_chnged('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
           $list_change=0;
           $i=0;
@@ -300,6 +301,8 @@
   $safe_runners_only_opt=$all_entered;
   $safe_split_line="bogus";
   $safe_split_line_opt=$same_line;
+  $safe_results_title="bogus";
+  $safe_results_title_opt=$on;
   $safe_csv_quotes="bogus";
   $safe_csv_quotes_opt=$off;
   $safe_save_ver="0";
@@ -395,6 +398,10 @@
       if (isset($config['results']['split_line'])) {
         $safe_split_line=($config['results']['split_line'])?"true":"false";
         $safe_split_line_opt=($config['results']['split_line'])?$new_line:$same_line;
+      }
+      if (isset($config['results']['results_title'])) {
+        $safe_results_title=($config['results']['results_title'])?"true":"false";
+        $safe_results_title_opt=($config['results']['results_title'])?$on:$off;
       }
       if (isset($config['results']['csv_quotes']) && $config['results']['csv_quotes']) {
         $safe_csv_quotes=true;
@@ -537,6 +544,7 @@
     echo "<tr>\n <th class=\"listheader\"> Drag / HillClimb</th><th>GPIO</th><th>Trigger Edge</th><th>DeBounce Time(ms)</th><th>Max Events Per Green</th></tr>\n";
 
     $edge_width="120px";
+    $onoff_width="60px";
 
     echo "<tr>\n <th class=\"listheader\"> Button / Green </th>\n";
     echo "<td><input type=\"hidden\" name=\"OrigButtonGPIO\" value=\"$safe_button_gpio\" id=\"OrigButtonGPIO\">";
@@ -591,7 +599,7 @@
 
     echo "<tr>\n <th class=\"listheader\"> Timing Debug </th>\n";
     echo "<td colspan=\"4\"><input type=\"hidden\" name=\"OrigTimDebug\" value=\"$safe_tim_debug\" id=\"OrigTimDebug\">";
-    echo "<select name=\"TimDebug\" id=\"TimDebug\" style=\"width: $edge_width\" onchange=\"haveUpdate()\">$safe_tim_debug_opt</select></td>";
+    echo "<select name=\"TimDebug\" id=\"TimDebug\" style=\"width: $onoff_width\" onchange=\"haveUpdate()\">$safe_tim_debug_opt</select></td>";
     echo "</tr>\n";
 
     echo "<tr>\n <th colspan=\"5\" class=\"listheader\"> Results </th></tr>\n";
@@ -644,11 +652,14 @@
       echo "</tr>\n";
     }
 
+    $results_width = "140px";
     echo "<tr>\n <th class=\"listheader\"> Show in Results </th>\n";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
-    echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
-    echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigSplitLine\" value=\"$safe_split_line\" id=\"OrigSplitLine\">";
-    echo "<select name=\"SplitLine\" id=\"SplitLine\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_split_line_opt</select></td>";
+    echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
+    echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: $results_width\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
+    echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigSplitLine\" value=\"$safe_split_line\" id=\"OrigSplitLine\">";
+    echo "<select name=\"SplitLine\" id=\"SplitLine\" style=\"width: $results_width\" onchange=\"haveUpdate()\">$safe_split_line_opt</select></td>";
+    echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigResultsTitle\" value=\"$safe_results_title\" id=\"OrigResultsTitle\">";
+    echo "Title on Results <select name=\"ResultsTitle\" id=\"ResultsTitle\" style=\"width: $onoff_width\" onchange=\"haveUpdate()\">$safe_results_title_opt</select></td>";
     echo "</tr>\n";
 
     echo "<tr>\n <th class=\"listheader\"> Refresh Interval </th>\n";
@@ -660,7 +671,7 @@
 
     echo "<tr>\n <th class=\"listheader\"> Quotes in CSV </th>\n";
     echo "<td colspan=\"2\"><input type=\"hidden\" name=\"OrigCSV_Quotes\" value=\"$safe_csv_quotes\" id=\"OrigCSV_Quotes\">";
-    echo "<select name=\"CSV_Quotes\" id=\"CSV_Quotes\" style=\"width: 240px\" onchange=\"haveUpdate()\">$safe_csv_quotes_opt</select></td>";
+    echo "<select name=\"CSV_Quotes\" id=\"CSV_Quotes\" style=\"width: $onoff_width\" onchange=\"haveUpdate()\">$safe_csv_quotes_opt</select></td>";
     echo "<td colspan=\"2\" align=right style=\"border: 0px\"><input id=\"submit-changes\" type=\"submit\" name=\"submit-changes\" value=\"Save Changes\" disabled formenctype=\"multipart/form-data\"></td>";
     echo "</tr>\n";
 
@@ -669,7 +680,7 @@
   <br>
   <div align="center">
    
-   <select name="LoadConfig" style="width: 240px" onchange="document.getElementById('submit-load').disabled=(this.value == '');document.getElementById('del').disabled=(this.value == '')"><?php echo $conf_file_list;?></select>
+   <select name="LoadConfig" style="width: 300px" onchange="document.getElementById('submit-load').disabled=(this.value == '');document.getElementById('del').disabled=(this.value == '')"><?php echo $conf_file_list;?></select>
    <input id="submit-load" type="submit" name="submit-load" value="Load" disabled formnovalidate formenctype="multipart/form-data"> &nbsp; 
    <input id="del" type="button" name="del" value="Del" disabled onclick="document.getElementById('submit-really').disabled=false">
    <input id="submit-really" type="submit" name="submit-really" value="Really" disabled formnovalidate formenctype="multipart/form-data"> <br>

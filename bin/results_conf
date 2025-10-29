@@ -33,23 +33,25 @@ else:
   exit(1)
 
 if 'database_path' in config :
-  print('dbase="' + config['database_path'] + '"')
+  print('export dbase="' + config['database_path'] + '"')
 if 'results' in config :
   if 'web_base' in config['results'] :
-    print('web_base="' + config['results']['web_base'] + '"')
+    print('export web_base="' + config['results']['web_base'] + '"')
   if 'php_base' in config['results'] :
-    print('php_base="' + config['results']['php_base'] + '"')
+    print('export php_base="' + config['results']['php_base'] + '"')
   if 'static_base' in config['results'] :
-    print('static_base="' + config['results']['static_base'] + '"')
+    print('export static_base="' + config['results']['static_base'] + '"')
+  if 'results_title' in config['results'] :
+    print('export results_title=' + str(config['results']['results_title']))
   if 'static_refresh' in config['results'] :
-    print('static_refresh=' + str(config['results']['static_refresh']))
+    print('export static_refresh=' + str(config['results']['static_refresh']))
   if 'web_push' in config['results'] :
     print('export web_push_sleep=' + str(config['results']['web_push']))
   if 'runners_only' in config['results'] :
     if config['results']['runners_only']:
-      print('runners_only=runners_only')
+      print('export runners_only=runners_only')
     else:
-      print('runners_only=""')
+      print('export runners_only=""')
   if 'result_types' in config['results'] :
     comma=' '
     all_results=''
@@ -59,5 +61,5 @@ if 'results' in config :
 
 
   if 'forward_results_command' in config['results'] :
-    print('forward_results_command="' + config['results']['forward_results_command'] + '"')
+    print('export forward_results_command="' + config['results']['forward_results_command'] + '"')
 

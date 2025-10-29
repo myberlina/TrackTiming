@@ -10,6 +10,7 @@ static_refresh=60
 forward_results_command="forward_results"
 runners_only=""
 result_types=(hillclimb_1 results_ft results_et results_rt hillclimb)
+results_title=True
 
 # Import YAML config with python helper
 eval $( results_conf )
@@ -27,6 +28,13 @@ data_ts="/dev/shm/.data.ts.$arg0"
 push_ts="/dev/shm/.push.ts.$arg0"
 rm "$data_ts"
 
+show_banner=''
+if [[ "False" != "$results_title" ]]
+then
+  show_banner='/--TITLE_BANNER--/d
+'
+fi
+
 function update_pages()
 {
   event=""
@@ -34,7 +42,7 @@ function update_pages()
   for result_type in "${result_types[@]}"
   do
     if [[ -f "${php_base}/${result_type}.php" ]] && php "${php_base}/${result_type}.php" $runners_only |
-     sed '/function showTiming/,+5d
+     sed "$show_banner/function showTiming/,+5d"'
       /meta http-equiv="refresh"/ s/content="[0-9]*"/content="'"${static_refresh}"'"/' \
        > "${static_base}/${result_type}".html.new
     then
