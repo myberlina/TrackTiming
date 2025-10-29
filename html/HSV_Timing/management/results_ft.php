@@ -14,12 +14,15 @@
     }
   }
 
+  $this_event_name = "";
   $event_select = "<option value=\"\">Please Select Date</option>";
   while($row = $events->fetchArray()) {
     $ev=$row['event']; $nm=$row['name'];
     if ($evt == 0) $evt=$ev;
-    if ($ev == $evt)
+    if ($ev == $evt) {
       $event_select = "$event_select <option value=\"$ev\" selected>$nm</option>";
+      $this_event_name = "$nm";
+    }
     else
       $event_select = "$event_select <option value=\"$ev\">$nm</option>";
   }
@@ -87,7 +90,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Results</title>
+    <title>Results - <?php echo "$this_event_name"; ?></title>
     <link rel="stylesheet" href="/HSV_Timing/style.css"/>
 <?php
   $icon_file=dirname(__FILE__) . "/icons.inc";
@@ -96,6 +99,7 @@
 ?>
     <meta http-equiv="refresh" content="20"/>
     <!-- Timing_Event_Num='<?php echo $evt;?>' -->
+    <!-- Timing_Event_Name='<?php echo $this_event_name;?>' -->
   </head>
 <body>
 <script type="text/javascript">function showTiming(str){document.location = '?evt='+str;}</script>
@@ -104,7 +108,9 @@
    <?php echo $event_select;?>
  </select>
 </div>
-<br/>
+ <!--TITLE_BANNER--
+   <h2 align="center"> <?php echo $this_event_name;?> </h2> 
+  --TITLE_BANNER-->
   <table align="center" border="2" cellpadding="4">
    <tr class="listheader">
       <td>Driver</td>
