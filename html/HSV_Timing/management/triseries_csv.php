@@ -4,6 +4,7 @@
 
   $event_name = array();
   $scores = array();
+  $club_tot = array();
   $prev_results_file = '/etc/timing/TriSeriesScores.php';
   if (file_exists($prev_results_file))
     include_once $prev_results_file;
