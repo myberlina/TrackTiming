@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 #exec >/tmp/fake_buttons.log 2>&1
 exec > >(logger -t  fake_buttons) 2>&1
