@@ -118,6 +118,11 @@
     $split_align="left";
   }
 
+  $comb_car=false;
+  if (isset($config) && isset($config['results']) && isset($config['results']['comb_car']) && $config['results']['comb_car']) {
+    $comb_car=true;
+  }
+
   $split_fmt="%4.3f";
   $split_fmt="%3.2f";
   $final_fmt="%4.3f";
@@ -203,8 +208,12 @@
   <table align="center" border="1" cellpadding="1">
    <tr class="listheader">
       <td>Num</td>
-      <td>Driver</td>
-      <td>Car</td>
+   <?php
+      if ($comb_car)
+        echo "<td>Driver<div style=\"float:right\">Car</div></td>";
+      else
+        echo "<td>Driver</td><td>Car</td>";
+   ?>
       <td>Place</td>
       <td align="right">Run 1</td>
    <?php
@@ -267,7 +276,12 @@
        echo htmlspecialchars($row["car_name"]) . $achievement . "</div>";
 
        #echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br/>" . htmlspecialchars($row["car_info"]) . "</td>\n";
-       echo "</td><td>" . htmlspecialchars($row["car_car"]) . "</td>\n";
+       if ($comb_car) {
+         echo "<br><div style=\"text-align: right;\">" . htmlspecialchars($row["car_car"]) . "</div></td>\n";
+       }
+       else {
+         echo "</td><td>" . htmlspecialchars($row["car_car"]) . "</td>\n";
+       }
        if (!isset($row["run"])) continue;
        if (isset($place_ft[$row["car_num"]])) {
          echo "<td><div style=\"float:left\">" . $class_place . "</div><div style=\"float:right\"><font size='2'/>(" . $place_ft[$row["car_num"]] . ")</td>\n";
