@@ -75,6 +75,7 @@
           if(chk_chnged('WebPush'))	{ $config['results']['web_push'] = intval($_POST['WebPush']);			$restart_results=1; };
           if(chk_chnged('RunnersOnly'))	{ $config['results']['runners_only'] = ('true' == $_POST['RunnersOnly']);	$restart_results=1; };
           if(chk_chnged('SplitLine'))	{ $config['results']['split_line'] = ('true' == $_POST['SplitLine']);		$restart_results=1; };
+          if(chk_chnged('CombCar'))	{ $config['results']['comb_car'] = ('true' == $_POST['CombCar']);		$restart_results=1; };
           if(chk_chnged('ResultsTitle')){ $config['results']['results_title'] = ('true' == $_POST['ResultsTitle']);	$restart_results=1; };
           if(chk_chnged('CSV_Quotes'))	{ $config['results']['csv_quotes'] = ('true' == $_POST['CSV_Quotes']); };
           $list_change=0;
@@ -262,6 +263,8 @@
   $runners = '<option value="false">All Enrants</option> <option value="true" selected>Runners Only</option>';
   $same_line = '<option value="false" selected>Splits Same Line</option> <option value="true">Splits Own Line</option>';
   $new_line = '<option value="false">Splits Same Line</option> <option value="true" selected>Splits Own Line</option>';
+  $car_sep = '<option value="false" selected>Car Info Separate</option> <option value="true">Car Info Combined</option>';
+  $car_comb = '<option value="false">Car Info Separate</option> <option value="true" selected>Car Info Combined</option>';
 
   $safe_title="";
   $safe_comment="";
@@ -301,6 +304,8 @@
   $safe_runners_only_opt=$all_entered;
   $safe_split_line="bogus";
   $safe_split_line_opt=$same_line;
+  $safe_comb_car="bogus";
+  $safe_comb_car_opt=$car_sep;
   $safe_results_title="bogus";
   $safe_results_title_opt=$on;
   $safe_csv_quotes="bogus";
@@ -398,6 +403,10 @@
       if (isset($config['results']['split_line'])) {
         $safe_split_line=($config['results']['split_line'])?"true":"false";
         $safe_split_line_opt=($config['results']['split_line'])?$new_line:$same_line;
+      }
+      if (isset($config['results']['comb_car'])) {
+        $safe_comb_car=($config['results']['comb_car'])?"true":"false";
+        $safe_comb_car_opt=($config['results']['comb_car'])?$car_comb:$car_sep;
       }
       if (isset($config['results']['results_title'])) {
         $safe_results_title=($config['results']['results_title'])?"true":"false";
@@ -652,12 +661,14 @@
       echo "</tr>\n";
     }
 
-    $results_width = "140px";
+    $results_width = "180px";
     echo "<tr>\n <th class=\"listheader\"> Show in Results </th>\n";
-    echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
-    echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: $results_width\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
     echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigSplitLine\" value=\"$safe_split_line\" id=\"OrigSplitLine\">";
     echo "<select name=\"SplitLine\" id=\"SplitLine\" style=\"width: $results_width\" onchange=\"haveUpdate()\">$safe_split_line_opt</select></td>";
+    echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigCombCar\" value=\"$safe_comb_car\" id=\"OrigCombCar\">";
+    echo "<select name=\"CombCar\" id=\"CombCar\" style=\"width: $results_width\" onchange=\"haveUpdate()\">$safe_comb_car_opt</select></td>";
+    echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigRunnersOnly\" value=\"$safe_runners_only\" id=\"OrigRunnersOnly\">";
+    echo "<select name=\"RunnersOnly\" id=\"RunnersOnly\" style=\"width: $results_width\" onchange=\"haveUpdate()\">$safe_runners_only_opt</select></td>";
     echo "<td colspan=\"1\"><input type=\"hidden\" name=\"OrigResultsTitle\" value=\"$safe_results_title\" id=\"OrigResultsTitle\">";
     echo "Title on Results <select name=\"ResultsTitle\" id=\"ResultsTitle\" style=\"width: $onoff_width\" onchange=\"haveUpdate()\">$safe_results_title_opt</select></td>";
     echo "</tr>\n";
