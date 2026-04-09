@@ -1,0 +1,18 @@
+[Unit]
+Description=Radar Speeds MQTT receiver
+After=network-online.target
+ConditionPathExists=/etc/timing/timing.conf
+
+[Service]
+Type=simple
+WorkingDirectory=/data
+StandardError=journal
+StandardOutput=journal
+StandardInput=null
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/radar_sink_db
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -216,6 +216,19 @@ cur = conn.cursor()
 cur.execute('pragma busy_timeout=5000')
 cur.execute('pragma wal_checkpoint(full);')
 
+# Check if time_t  exists in  green_time
+cur.execute("PRAGMA table_info('green_time')")
+rows = cur.fetchall()
+#print("Num fields", len(rows))
+has_time_t = 0
+for row in rows:
+    if "time_t" == row[1]:
+        has_time_t = 1
+
+if ((len(rows) > 0) and (has_time_t == 0)):
+    print("Adding  time_t  field to  green_time")
+    cur.execute("ALTER TABLE green_time ADD time_t INT")
+
 NewCar_f = open("/data/state_NewCar", "w")
 Green_f = open("/data/state_Green", "w")
 Start_f = open("/data/state_Start", "w")
@@ -318,7 +331,7 @@ def cb_green(gpio, level, tick):
                 val=val+4294967     # undo the wrap for database entry
             if (new_car.state != 2) :  #  red lighted
                 new_car.state = 1  #  Car given green
-        cur.execute("insert into green_time values ( ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val))
+        cur.execute("insert into green_time values ( ?, ?, ?, ?, ?)", (new_car.event, new_car.run_num, new_car.curr_car, val, int(time.time())))
         if debug.cb_debug:
             print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick), new_car.tick, new_car.time)
         Green_f.seek(0)

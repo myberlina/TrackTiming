@@ -1,0 +1,19 @@
+[Unit]
+Description=Fake Speeds MQTT sender
+After=radar_sink.service
+After=timing.service
+ConditionPathExists=/var/log/radar/radar1
+
+[Service]
+Type=simple
+WorkingDirectory=/data
+StandardError=journal
+StandardOutput=journal
+StandardInput=null
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/radar_send_fake
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

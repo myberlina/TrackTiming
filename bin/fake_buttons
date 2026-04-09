@@ -61,6 +61,11 @@ auto_run()
   echo "$run split1" >&0
   do_kill -"${signal[split1]}" "$t_pid"
   sleep $(printf "%d.%03d" $split2_s $split2_ms)
+  if [[ -d /var/log/radar ]] && [[ -w /var/log/radar ]]
+  then
+    let speed=RANDOM%60+60 speed_d=RANDOM%100
+    printf "Time: %d MaxSpeed: %5.1f\n" $(date +%s) $speed.$speed_d >> /var/log/radar/radar1
+  fi
   if (( splits >= 2 ))
   then
     echo "$run split2" >&0

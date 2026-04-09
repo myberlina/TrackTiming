@@ -42,13 +42,19 @@ CREATE TABLE IF NOT EXISTS event_info( num INT NOT NULL unique, name );
 
 CREATE TABLE IF NOT EXISTS next_car( car_num INT NOT NULL unique, ord INT NOT NULL unique);
 
-CREATE TABLE IF NOT EXISTS green_time ( event INT, run INT, car_num INT, time_ms INT );
+CREATE TABLE IF NOT EXISTS green_time ( event INT, run INT, car_num INT, time_ms INT, time_t INT );
+# ALTER TABLE green_time ADD time_t INT;
 
 CREATE TABLE IF NOT EXISTS start_time ( event INT, run INT, car_num INT, time_ms INT );
 
 CREATE TABLE IF NOT EXISTS split_time ( event INT, run INT, car_num INT, time_ms INT );
 
 CREATE TABLE IF NOT EXISTS finish_time ( event INT, run INT, car_num INT, time_ms INT );
+
+
+# Speeds extension
+
+CREATE TABLE IF NOT EXISTS speeds ( event INT NOT NULL, time_t INT NOT NULL, speed INT NOT NULL, CONSTRAINT Tuple UNIQUE (event, time_t, speed));
 
 
 DROP VIEW IF EXISTS results;
