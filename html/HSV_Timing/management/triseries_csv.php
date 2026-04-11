@@ -286,11 +286,11 @@
    $res_qry->close();
    echo "\n\n";
 
-   echo ",,,${quote}Club Name${quote},${quote}Points${quote}\n";
+   echo ",,,,${quote}Club Name${quote},,${quote}Points${quote}\n";
    arsort($club_tot, SORT_NUMERIC);
    foreach ($club_tot as $club => $tot) {
      if ($club != "")
-       echo ",,,${quote}$club${quote},$tot\n";
+       echo ",,,,${quote}$club${quote},,$tot\n";
    }
 
    echo "\n\n";
@@ -307,13 +307,13 @@
            $all_points[$club] = $points;
        }
    }
-   echo ",,,${quote}Club Name${quote},";
+   echo ",,,,${quote}Club Name${quote},,";
    foreach ($event_name as $rnd => $rnd_name)
      echo "${quote}$rnd_name${quote},";
    echo "${quote}WSCC${quote},${quote}Total${quote}\n";
    arsort($all_points, SORT_NUMERIC);
    foreach ($all_points as $club => $tot) {
-     echo ",,,${quote}$club${quote},";
+     echo ",,,,${quote}$club${quote},,";
      foreach ($event_name as $rnd => $rnd_name)
        if (isset($scores[$rnd]) && isset($scores[$rnd][$club]))
          echo $scores[$rnd][$club] . ",";
