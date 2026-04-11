@@ -76,6 +76,8 @@
    </tr>
    <?php
 
+   $title_width = "350px";
+
    $i=0;
    while(($row = $events->fetchArray())||($i==0)) {
     if($i==0) {
@@ -88,7 +90,7 @@
      $safe_num=""; $safe_name=""; $row_id="new";
      echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EvtNum-$row_id\" required min=\"$min_evt\" value=\"$min_evt\"";
      echo " class=\"input_number\" ></td>\n";
-     echo "<td><input type=\"text\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" value=\"$safe_name\"";
+     echo "<td><input type=\"text\" style=\"width: $title_width\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" value=\"$safe_name\"";
      echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
      echo "<td></td>";
      echo "<td> <input id=\"submit-$row_id\" type=\"submit\" name=\"submit\" value=\"Create\" formaction=\"?id=$row_id\" class=\"button\" disabled> </td>\n";
@@ -108,7 +110,7 @@
     $row_id=$row['rowid'];
     echo "<td><input type=\"number\" placeholder=\"Num\" size=\"4\" name=\"EvtNum-$row_id\" required min=\"1\" value=\"$safe_num\"";
     echo " class=\"input_number\" oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_num')\" ></td>\n";
-    echo "<td><input type=\"text\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" required value=\"$safe_name\"";
+    echo "<td><input type=\"text\" style=\"width: $title_width\" placeholder=\"Event Name\" name=\"EvtName-$row_id\" class=\"txtField\" required value=\"$safe_name\"";
     #echo " oninput=\"document.getElementById('submit-$row_id').disabled=false\" ></td>\n";
     echo " oninput=\"document.getElementById('submit-$row_id').disabled=(this.value == '$safe_name')\" ></td>\n";
     echo "<td align=\"right\">$safe_ent_cnt</td>";

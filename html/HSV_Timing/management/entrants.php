@@ -216,7 +216,7 @@
     };
   </script>
 <div align="center" style="padding-bottom:5px;">
- Entrants for <select name="EventList" style="width: 240px" onchange="showEntrants(this.value)">
+ Entrants for <select name="EventList" style="width: 420px" onchange="showEntrants(this.value)">
    <?php echo $event_select;?>
  </select>
   <a href="events.php"> Return to Events </a>
