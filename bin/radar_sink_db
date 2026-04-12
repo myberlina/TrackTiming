@@ -128,8 +128,13 @@ mqttc.ws_set_options(path="/mqtt")
 
 mqttc.username_pw_set("huntley_recv", "gIrlWs0ohaFZf7bZ")
 
-#mqttc.user_data_set([])
-#mqttc.connect("mqtt.eclipseprojects.io")
-#mqttc.connect("192.168.1.78", 9001)
-mqttc.connect("www.dd.id.au", 443)
+while True:
+    try:
+        mqttc.connect("www.dd.id.au", 443)
+    except:
+        print("connect failed - retrying")
+        time.sleep(16)
+        continue
+    break
+
 mqttc.loop_forever()
