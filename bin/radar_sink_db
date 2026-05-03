@@ -5,17 +5,31 @@ import ssl
 
 import sys
 import os
+import time
 
 import yaml
 import getopt
 
+# default files
 config_file="/etc/timing/timing.conf"
 database="/data/Track_Time/Track_Time.db"
+mqtt_config_file="/etc/radar_mqtt/radar_mqtt.conf"
+
+# default mqtt values
+mqtt_clientname = "Radar_Sink"
+mqtt_topic = "radar/#"
+mqtt_server = "www.dd.id.au"
+mqtt_port = 443
+mqtt_transport = "websockets"
+mqtt_user = "huntley_recv"
+mqtt_pass = "gIrlWs0ohaFZf7bZ"
+mqtt_path_base = "/mqtt"
+
 verbose=0 
 argv = sys.argv[1:]
 
 try:
-  opts, args = getopt.getopt(argv, "c:dD:v", ["config =", "database ="])
+  opts, args = getopt.getopt(argv, "c:C:dD:v", ["config =", "radar = ", "database ="])
 except getopt.GetoptError as err:
   print('Bad arguments: ' + str(err), file=sys.stderr)
   exit(1)
@@ -24,6 +38,8 @@ except getopt.GetoptError as err:
 for opt, arg in opts:
   if opt in ['-c', '--config']:
     config_file = arg
+  elif opt in ['-C', '--radar']:
+    mqtt_config_file = arg
   elif opt == '-d':
     debug.cb_debug = 1
   elif opt == '-v':
@@ -41,10 +57,43 @@ else:
 if 'database_path' in config :
   database=config['database_path']
 
+
+# Read in the config file
+if os.path.isfile(mqtt_config_file):
+  config=yaml.safe_load(open(mqtt_config_file))
+  if (verbose > 0):
+    print(yaml.dump(config))
+else:
+  print('Radar MQTT config file does not exist: ' + config_file, file=sys.stderr)
+  exit(1)
+
+if 'mqtt_clientname' in config :
+    mqtt_clientname = config['mqtt_clientname']
+if 'mqtt_topic' in config :
+    mqtt_topic = config['mqtt_topic']
+if 'mqtt_server' in config :
+    mqtt_server = config['mqtt_server']
+if 'mqtt_port' in config :
+    mqtt_port = config['mqtt_port']
+    if mqtt_port == 443 :
+        mqtt_tls = True
+if 'mqtt_tls' in config :
+    mqtt_tls = config['mqtt_tls']
+if 'mqtt_transport' in config :
+    mqtt_transport = config['mqtt_transport']
+if 'mqtt_user' in config :
+    mqtt_user = config['mqtt_user']
+if 'mqtt_pass' in config :
+    mqtt_pass = config['mqtt_pass']
+if 'mqtt_path_base' in config :
+    mqtt_path_base = config['mqtt_path_base']
+
+
 # Second pass of the command line options - might overide values read from config file
 for opt, arg in opts:
   if opt in ['-D', '--database']:
     database = arg
+
 
 import apsw
 conn = apsw.Connection(database, apsw.SQLITE_OPEN_READWRITE)
@@ -111,9 +160,9 @@ def on_connect(client, userdata, flags, reason_code):
     else:
         # we should always subscribe from on_connect callback to be sure
         # our subscribed is persisted across reconnections.
-        client.subscribe("radar/#")
+        client.subscribe(mqtt_topic)
 
-mqttc = mqtt.Client("Radar_Sink", transport="websockets")
+mqttc = mqtt.Client(mqtt_clientname, transport=mqtt_transport)
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 mqttc.on_subscribe = on_subscribe
@@ -121,16 +170,17 @@ mqttc.on_unsubscribe = on_unsubscribe
 
 # 2. Configure TLS (SSL)
 # Use default system certificates for standard CA-signed brokers
-mqttc.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
+if mqtt_tls == True :
+    mqttc.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
 
 # Optional: Set custom websocket path (defaults to '/mqtt')
-mqttc.ws_set_options(path="/mqtt")
+mqttc.ws_set_options(path=mqtt_path_base)
 
-mqttc.username_pw_set("huntley_recv", "gIrlWs0ohaFZf7bZ")
+mqttc.username_pw_set(mqtt_user, mqtt_pass)
 
 while True:
     try:
-        mqttc.connect("www.dd.id.au", 443)
+        mqttc.connect(mqtt_server, mqtt_port)
     except:
         print("connect failed - retrying")
         time.sleep(16)
