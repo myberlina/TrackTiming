@@ -1,0 +1,6 @@
+# Allow the web server to restart the timing and results services
+
+Cmnd_Alias RADAR_SINK_COMMANDS = /usr/bin/systemctl restart radar_sink.service, /usr/bin/systemctl enable radar_sink.service, /usr/bin/systemctl disable --now radar_sink.service
+
+www-data ALL=(ALL) NOPASSWD: RADAR_SINK_COMMANDS
+
