@@ -2,6 +2,7 @@
 Description=Radar Speeds MQTT receiver
 After=network-online.target
 ConditionPathExists=/etc/timing/timing.conf
+ConditionPathExists=/etc/radar_mqtt/radar_mqtt.conf
 
 [Service]
 Type=simple

@@ -11,6 +11,8 @@
 execute_after_dh_fixperms:
 	chgrp www-data debian/tracktiming/etc/timing
 	chmod 1775     debian/tracktiming/etc/timing
+	chgrp www-data debian/tracktiming/etc/radar_mqtt
+	chmod 1775     debian/tracktiming/etc/radar_mqtt
 	chown www-data:www-data debian/tracktiming/etc/lighttpd/auth
 	chmod 500               debian/tracktiming/etc/lighttpd/auth
 	chown www-data:www-data debian/tracktiming/etc/lighttpd/auth/timing.user
