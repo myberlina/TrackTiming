@@ -34,7 +34,8 @@
     $split_align="left";
   }
 
-  $events = $db->query('SELECT DISTINCT event, name FROM hc_results, event_info WHERE event = num ORDER BY event DESC');
+  #$events = $db->query('SELECT DISTINCT event, name FROM hc_results, event_info WHERE event = num ORDER BY event DESC');
+  $events = $db->query('SELECT DISTINCT num AS event, name FROM event_info ORDER BY event DESC');
 
   if (isset($_GET['evt'])) {
     $evt = $_GET['evt'];
