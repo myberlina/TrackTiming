@@ -23,6 +23,10 @@
     if(isset($_POST['submit-changes'])&&('Save Changes' == $_POST['submit-changes'])&&
        isset($_POST['update_list'])&&('' != $_POST['update_list'])) {
       $config = yaml_parse_file( "$config_base/timing.conf");	// Read in current config
+      if (false === $config) {
+        $config = yaml_parse("save_ver: 0");
+        $config['save_ver'] = $_POST['save_ver'];
+      }
       if(!isset($_POST['save_ver'])||($_POST['save_ver']!=htmlspecialchars($config['save_ver']))) {
         if($_POST['save_ver']<htmlspecialchars($config['save_ver']))
           $message = "<font color=\"#c00000\"> Save Failed: Miss-matched config file - form from an older version </font>";
@@ -206,16 +210,17 @@
     }
     if (is_array($_FILES) && isset($_FILES["Upload_Config"]) && is_array($_FILES["Upload_Config"])
       && (0 == $_FILES["Upload_Config"]["error"])){
-      $config = yaml_parse_file($_FILES["Upload_Config"]["tmp_name"]);
+      $try_config = yaml_parse_file($_FILES["Upload_Config"]["tmp_name"]);
       if (false === $try_config) {
         $message = "<font color=\"#c00000\"> Uploaded file not valid </font>";
       }
-      elseif (isset($config['timing']['inputs'])) {
+      elseif (isset($try_config['timing']['inputs'])) {
           if (rename($_FILES["Upload_Config"]["tmp_name"], "$config_base/timing.conf")) {
             $message = "<font color=\"#00a000\"> Config Loaded </font>";
             $file_changed = 1;
             $restart_timing = 1;
             $restart_results = 1;
+            $config = $try_config;
           }
           else {
             $errors = error_get_last();
