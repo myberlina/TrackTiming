@@ -19,6 +19,7 @@
   if(count($_POST)>0) {
     $restart_timing = 0;
     $restart_results = 0;
+    $restart_mqtt = 0;
     $file_changed = 0;
     if(isset($_POST['submit-changes'])&&('Save Changes' == $_POST['submit-changes'])&&
        isset($_POST['update_list'])&&('' != $_POST['update_list'])) {
@@ -51,7 +52,7 @@
         if ($_POST['update_list'] != ';DefaultReport') {
           if(chk_chnged('Title'))	{ $config['title'] = $_POST['Title']; };
           if(chk_chnged('Comment'))	{ $config['comment'] = $_POST['Comment']; };
-          if(chk_chnged('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];				$restart_timing=1; $restart_results=1; };
+          if(chk_chnged('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];		    $restart_timing=1; $restart_results=1; $restart_mqtt=1 };
           if(chk_chnged('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);			$restart_timing=1; };
           if(chk_chnged('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
           if(chk_chnged('ButtonDBnce'))	{ $config['timing']['inputs']['button']['dbnce'] = intval($_POST['ButtonDBnce']);		$restart_timing=1; };
@@ -153,6 +154,7 @@
           $file_changed = 1;
           $restart_timing = 1;
           $restart_results = 1;
+          $restart_mqtt = 1;
         }
         else {
           $error_text="";
@@ -177,6 +179,7 @@
             $file_changed = 1;
             $restart_timing = 1;
             $restart_results = 1;
+            $restart_mqtt = 1;
           }
           else {
             $errors = error_get_last();
@@ -220,6 +223,7 @@
             $file_changed = 1;
             $restart_timing = 1;
             $restart_results = 1;
+            $restart_mqtt = 1;
             $config = $try_config;
           }
           else {
@@ -252,6 +256,23 @@
           foreach($results as $num => $line) $error_text=$error_text."$line<br>";
           if(!(strpos($error_text, "sudo: ")===false)) $error_text="sudo not correctly setup";
           $message = $message."<br><font color=\"#c00000\"> Results restart failed: $rc: $error_text</font>";
+        }
+      }
+      if ($restart_mqtt >= 1) {
+        unset($results);
+        if (!(false === exec("systemctl is-enabled radar_sink.service && sudo /usr/bin/systemctl restart radar_sink.service 2>&1", $results, $rc)) && ($rc == 0)) {
+          $message = $message."<br><font color=\"#00a000\"> MQTT service restarted </font>";
+        }
+        else {
+          $error_text="";
+          foreach($results as $num => $line) $error_text=$error_text."$line<br>";
+	  if ($error_text == "disabled<br>") {
+	    $message = $message."<br>MQTT not enabled - no restart";
+          }
+	  else {
+            if(!(strpos($error_text, "sudo: ")===false)) $error_text="sudo not correctly setup";
+            $message = $message."<br><font color=\"#c00000\"> MQTT restart failed: $rc: $error_text</font>";
+          }
         }
       }
     }
