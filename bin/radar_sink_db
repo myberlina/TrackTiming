@@ -29,7 +29,7 @@ verbose=0
 argv = sys.argv[1:]
 
 try:
-  opts, args = getopt.getopt(argv, "c:C:dD:v", ["config =", "radar = ", "database ="])
+  opts, args = getopt.getopt(argv, "c:C:v", ["config =", "radar ="])
 except getopt.GetoptError as err:
   print('Bad arguments: ' + str(err), file=sys.stderr)
   exit(1)
@@ -40,8 +40,6 @@ for opt, arg in opts:
     config_file = arg
   elif opt in ['-C', '--radar']:
     mqtt_config_file = arg
-  elif opt == '-d':
-    debug.cb_debug = 1
   elif opt == '-v':
     verbose = verbose + 1
 
@@ -67,6 +65,8 @@ else:
   print('Radar MQTT config file does not exist: ' + config_file, file=sys.stderr)
   exit(1)
 
+if 'debug' in config :
+    verbose = config['debug']
 if 'mqtt_clientname' in config :
     mqtt_clientname = config['mqtt_clientname']
 if 'mqtt_topic' in config :

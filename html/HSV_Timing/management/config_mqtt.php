@@ -57,6 +57,7 @@
         if ($_POST['update_list'] != ';DefaultReport') {
           if(chk_chnged('Title'))	{ $config['title'] = $_POST['Title']; };
           if(chk_chnged('Comment'))	{ $config['comment'] = $_POST['Comment']; };
+          if(chk_chnged('Debug'))	{ $config['debug'] = $_POST['Debug']; 				$restart_mqtt=1; };
           if(chk_chnged('mqtt_run'))	{ $config['mqtt_run'] = ('True' == $_POST['mqtt_run']);	$restart_mqtt=1; $mqtt_run_changed=1; };
           if(chk_chnged('mqtt_clientname')) { $config['mqtt_clientname'] = $_POST['mqtt_clientname'];	$restart_mqtt=1; };
           if(chk_chnged('mqtt_topic'))	{ $config['mqtt_topic'] = $_POST['mqtt_topic'];			$restart_mqtt=1; };
@@ -261,30 +262,6 @@
       $safe_comment=htmlspecialchars($config['comment'],ENT_QUOTES);
     if (isset($config['debug']))
       $safe_debug=htmlspecialchars($config['debug']);
-    if (isset($config['run_gap']))
-      $safe_run_gap=intval($config['run_gap']) / 100;
-    if (isset($config['update']))
-      $safe_update=intval($config['update']) / 100;
-    if (isset($config['min_speed']))
-      $safe_min_speed=htmlspecialchars($config['min_speed']);
-    if (isset($config['angle']))
-      $safe_angle=htmlspecialchars($config['angle']);
-    if (isset($config['units'])) {
-      $safe_units=intval($config['units']);
-      if (isset($units[$safe_units]))
-        $safe_units_opt=$units[$safe_units];
-    }
-    if (isset($config['sensitivity']))
-      $safe_sensitivity=htmlspecialchars($config['sensitivity']);
-    if (isset($config['rate']))
-      $safe_rate=htmlspecialchars($config['rate']);
-    if (isset($config['port']))
-      $safe_port=htmlspecialchars($config['port']);
-    if (isset($config['port_slow']))
-      $safe_port_slow=htmlspecialchars($config['port_slow']);
-
-    if (isset($config['speed_log']))
-      $safe_speed_log=htmlspecialchars($config['speed_log']);
     if (isset($config['mqtt_run']))
       $safe_mqtt_run=$config['mqtt_run'];
       if (isset($on_off_val[$safe_mqtt_run])) {
