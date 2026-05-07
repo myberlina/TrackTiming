@@ -52,7 +52,7 @@
         if ($_POST['update_list'] != ';DefaultReport') {
           if(chk_chnged('Title'))	{ $config['title'] = $_POST['Title']; };
           if(chk_chnged('Comment'))	{ $config['comment'] = $_POST['Comment']; };
-          if(chk_chnged('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];		    $restart_timing=1; $restart_results=1; $restart_mqtt=1 };
+          if(chk_chnged('DbPath'))	{ $config['database_path'] = $_POST['DbPath'];		   $restart_timing=1; $restart_results=1; $restart_mqtt=1; };
           if(chk_chnged('ButtonGPIO'))	{ $config['timing']['inputs']['button']['gpio'] = intval($_POST['ButtonGPIO']);			$restart_timing=1; };
           if(chk_chnged('ButtonEdge'))	{ $config['timing']['inputs']['button']['falling_edge'] = ('True' == $_POST['ButtonEdge']);	$restart_timing=1; };
           if(chk_chnged('ButtonDBnce'))	{ $config['timing']['inputs']['button']['dbnce'] = intval($_POST['ButtonDBnce']);		$restart_timing=1; };
