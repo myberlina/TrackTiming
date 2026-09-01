@@ -16,13 +16,14 @@ database="/data/Track_Time/Track_Time.db"
 mqtt_config_file="/etc/radar_mqtt/radar_mqtt.conf"
 
 # default mqtt values
-mqtt_clientname = "Radar_Sink"
+mqtt_clientname = "Test_Radar_Sink"
 mqtt_topic = "radar/#"
 mqtt_server = "www.dd.id.au"
 mqtt_port = 443
+mqtt_tls = False  # will be overidden based on port below
 mqtt_transport = "websockets"
-mqtt_user = "huntley_recv"
-mqtt_pass = "gIrlWs0ohaFZf7bZ"
+mqtt_user = "test_recv"		# This should come from the config file
+mqtt_pass = "default_password"
 mqtt_path_base = "/mqtt"
 
 verbose=0 
@@ -62,7 +63,7 @@ if os.path.isfile(mqtt_config_file):
   if (verbose > 0):
     print(yaml.dump(config))
 else:
-  print('Radar MQTT config file does not exist: ' + config_file, file=sys.stderr)
+  print('Radar MQTT config file does not exist: ' + mqtt_config_file, file=sys.stderr)
   exit(1)
 
 if 'debug' in config :
@@ -75,8 +76,12 @@ if 'mqtt_server' in config :
     mqtt_server = config['mqtt_server']
 if 'mqtt_port' in config :
     mqtt_port = config['mqtt_port']
-    if mqtt_port == 443 :
-        mqtt_tls = True
+if mqtt_port == 443 :
+    mqtt_tls = True
+elif mqtt_port == 8883 :
+    mqtt_tls = True
+elif mqtt_port == 8081 :
+    mqtt_tls = True
 if 'mqtt_tls' in config :
     mqtt_tls = config['mqtt_tls']
 if 'mqtt_transport' in config :

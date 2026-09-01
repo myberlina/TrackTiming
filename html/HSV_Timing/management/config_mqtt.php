@@ -319,7 +319,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Configuration</title>
+    <title>MQTT Radar Import Configuration</title>
     <link rel="stylesheet" href="style.css">
 <?php
   $icon_file=dirname(__FILE__) . "/icons.inc";
@@ -373,11 +373,11 @@
 
     $dir_width="120px";
 
-    echo "<tr>\n <th colspan=\"4\" class=\"listheader\" title=\"$radar_sink_state\"> MQTT Forwarder <small>$radar_running(hover for status)</small></th></tr>\n";
+    echo "<tr>\n <th colspan=\"4\" class=\"listheader\" title=\"$radar_sink_state\"> MQTT Receiver <small>$radar_running(hover for status)</small></th></tr>\n";
 
     echo "<tr>\n";
 
-    echo "<th class=\"listheader\"> MQTT Sender </th>\n";
+    echo "<th class=\"listheader\"> MQTT Receiver </th>\n";
     echo "<td><input type=\"hidden\" name=\"Origmqtt_run\" value=\"$safe_mqtt_run\" id=\"Origmqtt_run\">";
     echo "<select name=\"mqtt_run\" id=\"mqtt_run\" style=\"width: $dir_width\" onchange=\"haveUpdate()\">$safe_mqtt_run_opt</select></td>";
 
