@@ -71,8 +71,8 @@
     $place_ft[$row["car_num"]] = $place++;
   }
 
-  if ($have_split2) {
-    $have_split2=false;
+  if ($have_split2) {		# Split requested in report, and split2 is defined in config
+    $have_split2=false;		# Have_split2 now means we have split2 data
     $split_query = 'SELECT green_time.run, green_time.car_num, (split_time.time_ms - green_time.time_ms) AS st_ms
                    FROM green_time, split_time
                    WHERE green_time.event = ' . $db->escapeString($evt) . '
@@ -114,6 +114,9 @@
     }
     if ($have_split1 && $have_split2)
       $with_split = 2;
+  }
+  if (($have_split1 || $have_split2) == false) {
+    $with_split = 0;  # No split data, so don't try to show it
   }
 
   $split_fmt="%4.3f";
