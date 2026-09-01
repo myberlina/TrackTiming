@@ -377,7 +377,9 @@
              printf("<td align=\"right\">%5.1f</td>", $speeds[$row["run"]][$row["car_num"]]);
      }
      else {
-         echo "<td></td>";
+         if (isset($speeds)) {
+             echo "<td></td>";
+         }
      }
      $prev_run = $row["run"];
    }
