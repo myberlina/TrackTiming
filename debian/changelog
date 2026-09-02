@@ -1,3 +1,9 @@
+tracktiming (0.9-4) UNRELEASED; urgency=medium
+
+  * Moved to using a YAML file for TriSeries data and config
+
+ -- MAINTAINER <HSV_Timing@dd.id.au>  Wed,  2 Sep 2026 14:30:00 +1000
+
 tracktiming (0.9-3) UNRELEASED; urgency=medium
 
   * Added Speed importing from Radar via MQTT
