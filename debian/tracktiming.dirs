@@ -8,5 +8,6 @@ etc/lighttpd
 etc/lighttpd/conf-enabled
 etc/lighttpd/auth
 etc/timing
+etc/timing/TriSeries
 etc/radar_mqtt
 lib/systemd
