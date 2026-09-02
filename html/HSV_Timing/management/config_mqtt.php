@@ -154,9 +154,9 @@
       && (0 == $_FILES["Upload_Config"]["error"])){
       $try_config = yaml_parse_file($_FILES["Upload_Config"]["tmp_name"]);
       if (false === $try_config) {
-        $message = "<font color=\"#c00000\"> Uploaded file not valid </font>";
+        $message = "<font color=\"#c00000\"> Uploaded file not valid - bad yaml</font>";
       }
-      elseif (isset($config['timing']['inputs'])) {
+      elseif (isset($try_config['mqtt_server'])) {
           if (rename($_FILES["Upload_Config"]["tmp_name"], "$config_base/radar_mqtt.conf")) {
             $message = "<font color=\"#00a000\"> Config Loaded </font>";
             $file_changed = 1;
@@ -168,6 +168,9 @@
             $errors = error_get_last();
             $message = "<font color=\"#c00000\"> Load Failed: " . $errors['message'] . "</font>";
           }
+      }
+      else {
+        $message = "<font color=\"#c00000\"> Uploaded file not valid - missing mqtt_server</font>";
       }
     }
 
