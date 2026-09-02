@@ -2,12 +2,25 @@
   // Results_Info:  Hillclimb style with split, and club for TriSeries
   include_once 'database.php';
 
-  $event_name = array();
   $scores = array();
+  $score_style = "";
+  $round_name = "WSCC";
   $club_tot = array();
-  $prev_results_file = '/etc/timing/TriSeriesScores.php';
-  if (file_exists($prev_results_file))
-    include_once $prev_results_file;
+  $prev_results_file = '/etc/timing/TriSeries/TriSeriesScores.yaml';
+  if (file_exists($prev_results_file)) {
+    $TriSeries = yaml_parse_file( $prev_results_file );
+    if (isset($TriSeries)) {
+      //var_dump($TriSeries);
+      if (isset($TriSeries["Points"]) && is_array($TriSeries["Points"]))
+        $scores = $TriSeries["Points"];
+      else
+        printf("Points was not an array\n");
+      if (isset($TriSeries["Score_Style"]))
+        $score_style = $TriSeries["Score_Style"];
+      if (isset($TriSeries["Local_Name"]))
+        $round_name = $TriSeries["Local_Name"];
+    }
+  }
 
   if(isset($argc) && ($argc>1))
     parse_str(implode('&',array_slice($argv, 1)), $_GET);
@@ -60,14 +73,16 @@
       $event_select = "$event_select <option value=\"$ev\">$nm</option>";
   }
 
-  $class_qry = $db->query('SELECT  class, count(class) AS class_count FROM entrant_info WHERE event = ' . $db->escapeString($evt) . ' group by class' );
-  while ($row = $class_qry->fetchArray()) {
-    $points = $row["class_count"];
-    if ($points > 7)  $points=7;
-    elseif ($points < 3) $points=$points+1;
-    $top_points[$row["class"]] = $points;
-    # echo $row["class"];
-    # echo ":$points    ";
+  if ($score_style == "2025") {
+    $class_qry = $db->query('SELECT  class, count(class) AS class_count FROM entrant_info WHERE event = ' . $db->escapeString($evt) . ' group by class' );
+    while ($row = $class_qry->fetchArray()) {
+      $points = $row["class_count"];
+      if ($points > 7)  $points=7;
+      elseif ($points < 3) $points=$points+1;
+      $top_points[$row["class"]] = $points;
+      # echo $row["class"];
+      # echo ":$points    ";
+    }
   }
 
   $max_runs=5;
@@ -236,7 +251,9 @@
          }
          $prev_class=$row["class"];
          $class_place=1;
-         $points = $top_points[$row["class"]];
+         $points = 10;
+         if ($score_style == "2025")
+           $points = $top_points[$row["class"]];
        }
        echo "</tr>";
        echo "<tr class=\"$classname\">";
@@ -356,13 +373,13 @@
   <!-- Total Series scores table -->
   <table border="1" cellpadding="1">
    <thead>
-   <tr class="listheader"><th align="center" colspan="<?php echo count($event_name) + 3?>">Total Series</td></tr>
+   <tr class="listheader"><th align="center" colspan="<?php echo count($scores) + 3?>">Total Series</td></tr>
    <?php
      foreach ($club_tot as $club => $tot) {
        if ($club != "")
          $all_points[$club] = $tot;
      }
-     foreach ($event_name as $rnd => $rnd_name) {
+     foreach ($scores as $rnd => $pp) {
        if (array_key_exists($rnd,$scores))
          foreach ($scores[$rnd] as $club => $points) {
 	   if (isset($all_points[$club]))
@@ -376,17 +393,17 @@
    <tr class="listheader">
       <td>Club Name</td>
       <?php
-        foreach ($event_name as $rnd => $rnd_name)
-          echo "<td align=\"right\">$rnd_name</td>";
+        foreach ($scores as $rnd => $pp)
+          echo "<td align=\"right\">$rnd</td>";
+        echo "<td>$round_name</td>";
       ?>
-      <td>WSCC</td>
       <td>Total</td>
    </tr>
    <?php
       arsort($all_points, SORT_NUMERIC);
       foreach ($all_points as $club => $tot) {
         echo "<tr><td>$club</td>";
-        foreach ($event_name as $rnd => $rnd_name)
+        foreach ($scores as $rnd => $points)
           if (isset($scores[$rnd]) && isset($scores[$rnd][$club]))
             echo "<td align=\"right\">" . $scores[$rnd][$club] . "</td>";
 	  else
