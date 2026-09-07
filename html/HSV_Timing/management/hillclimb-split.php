@@ -236,7 +236,7 @@
 
        #echo "</td><td>" . htmlspecialchars($row["car_num"]) . "<br/>" . htmlspecialchars($row["car_info"]) . "</td>\n";
        if ($comb_car) {
-         echo "<br><div style=\"text-align: right;\">" . htmlspecialchars($row["car_car"]) . "</div></td>\n";
+         echo "<br><div style=\"text-align: right;\"> &nbsp; &nbsp; " . htmlspecialchars($row["car_car"]) . "</div></td>\n";
        }
        else {
          echo "</td><td>" . htmlspecialchars($row["car_car"]) . "</td>\n";
