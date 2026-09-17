@@ -94,6 +94,23 @@
           $db->query("ROLLBACK");
         }
       }
+      elseif (substr($op,0,4) == "Run-") {
+        $new_run = intval(substr($op,4));
+        $max_run = 10; # semi reasonable default
+        $max_run_query = $db->query("select max(run) as max_run from green_time where event=$cur_evt;");
+        if ($row = $max_run_query->fetchArray()) {
+          $max_run = $row["max_run"];
+        }
+        if (( $new_run > 0 ) && ( $new_run <= $max_run ) &&
+            ($db->query("UPDATE current_run SET current_run = $new_run WHERE ROWID=1"))) {
+          $db->query("COMMIT");
+          $refetch_current_run = true;
+	}
+        else {
+          $message = "<font color=\"#c00000\"> Run Change failed \n<BR>". $db->lastErrorMsg();
+          $db->query("ROLLBACK");
+        }
+      }
       elseif ($op == "Clear") {
         $db->query("COMMIT");
       }
@@ -289,14 +306,28 @@
       $cur_evt = $row["current_event"];
       $cur_run = $row["current_run"];
     }
-
   }
 
 
   if ($cur_evt == 0)
     $event_select = "<option value=\"0\" selected> -- Select an event -- </option>";
-  else
+  else {
     $event_select = "";
+    $max_run_query = $db->query("select max(run) as max_run from green_time where event=$cur_evt;");
+    if ($row = $max_run_query->fetchArray()) {
+      $max_run = $row["max_run"];
+    }
+    $run = $max_run;
+    $run_opts = "";
+    while ($run > 0) {
+      if ($run != $cur_run) {
+        $run_opts = $run_opts . " <option value=\"Run-$run\"> Run $run </option>";
+      }
+      $run--;
+    }
+  }
+
+
   if ($events = $db->query('SELECT num, name, COUNT(event) as entrants FROM event_info
   				LEFT JOIN entrant_info ON event = num
   				GROUP BY num ORDER BY num DESC; ')) {
@@ -482,6 +513,7 @@
     <option value="Clear"> Clear </option>
     <option value="PrevRun"> Prev Run </option>
     <option value="SetOrder"> Set This Order </option>
+    <?php print $run_opts ?>
    </select>
    <input type="submit" id="NewRun-2" name="NewRun-2" value="Now" class="button" disabled>
   </div>
