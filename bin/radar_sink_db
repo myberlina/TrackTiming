@@ -1,14 +1,18 @@
 #!/usr/bin/python3
-
-import paho.mqtt.client as mqtt
-import ssl
+"""Read speed values and time stamps from MQTT Server add to database"""
+# pylint: disable=C0103                 # It thinks that my config defaults are Constants
+# pylint: disable=superfluous-parens    # I like the parens
+# pylint: disable=unspecified-encoding  # This software requires Pi hardware
 
 import sys
 import os
 import time
+import getopt
+import ssl
 
 import yaml
-import getopt
+import apsw	# pylint: disable=import-error # linter cannot handle .pyi
+import paho.mqtt.client as mqtt
 
 # default files
 config_file="/etc/timing/timing.conf"
@@ -26,45 +30,47 @@ mqtt_user = "test_recv"		# This should come from the config file
 mqtt_pass = "default_password"
 mqtt_path_base = "/mqtt"
 
-verbose=0 
+verbose=0
 argv = sys.argv[1:]
 
 try:
-  opts, args = getopt.getopt(argv, "c:C:v", ["config =", "radar ="])
+    opts, args = getopt.getopt(argv, "c:C:v", ["config =", "radar ="])
 except getopt.GetoptError as err:
-  print('Bad arguments: ' + str(err), file=sys.stderr)
-  exit(1)
+    print('Bad arguments: ' + str(err), file=sys.stderr)
+    sys.exit(1)
 
 # First pass of the options
 for opt, arg in opts:
-  if opt in ['-c', '--config']:
-    config_file = arg
-  elif opt in ['-C', '--radar']:
-    mqtt_config_file = arg
-  elif opt == '-v':
-    verbose = verbose + 1
+    if opt in ['-c', '--config']:
+        config_file = arg
+    elif opt in ['-C', '--radar']:
+        mqtt_config_file = arg
+    elif opt == '-v':
+        verbose = verbose + 1
 
 # Read in the config file
 if os.path.isfile(config_file):
-  config=yaml.safe_load(open(config_file))
-  if (verbose > 0):
-    print(yaml.dump(config))
+    with open(config_file) as conf_file:
+        config=yaml.safe_load(conf_file)
+        if (verbose > 0):
+            print(yaml.dump(config))
 else:
-  print('File does not exist: ' + config_file, file=sys.stderr)
-  exit(1)
+    print('File does not exist: ' + config_file, file=sys.stderr)
+    sys.exit(1)
 
 if 'database_path' in config :
-  database=config['database_path']
+    database=config['database_path']
 
 
 # Read in the config file
 if os.path.isfile(mqtt_config_file):
-  config=yaml.safe_load(open(mqtt_config_file))
-  if (verbose > 0):
-    print(yaml.dump(config))
+    with open(mqtt_config_file) as conf_file:
+        config=yaml.safe_load(conf_file)
+        if (verbose > 0):
+            print(yaml.dump(config))
 else:
-  print('Radar MQTT config file does not exist: ' + mqtt_config_file, file=sys.stderr)
-  exit(1)
+    print('Radar MQTT config file does not exist: ' + mqtt_config_file, file=sys.stderr)
+    sys.exit(1)
 
 if 'debug' in config :
     verbose = config['debug']
@@ -96,27 +102,30 @@ if 'mqtt_path_base' in config :
 
 # Second pass of the command line options - might overide values read from config file
 for opt, arg in opts:
-  if opt in ['-D', '--database']:
-    database = arg
+    if opt in ['-D', '--database']:
+        database = arg
 
 
-import apsw
 conn = apsw.Connection(database, apsw.SQLITE_OPEN_READWRITE)
 cur = conn.cursor()
 cur.execute('pragma busy_timeout=5000')
 cur.execute('pragma wal_checkpoint(full);')
 
-# Check if time_t  exists in  green_time
+# Check if table 'speeds' exists in database
 cur.execute("PRAGMA table_info('speeds')")
 rows = cur.fetchall()
 
 if len(rows) == 0:
     print("Adding  speeds  table")
-    cur.execute("CREATE TABLE IF NOT EXISTS speeds ( event INT NOT NULL, time_t INT NOT NULL, speed INT NOT NULL, CONSTRAINT Tuple UNIQUE (event, time_t, speed))")
-
-
+    cur.execute(("CREATE TABLE IF NOT EXISTS speeds ("
+                 " event INT NOT NULL,"
+                 " time_t INT NOT NULL,"
+                 " speed INT NOT NULL,"
+                 " CONSTRAINT Tuple UNIQUE (event, time_t, speed))"))
 
 def on_subscribe2(client, userdata, mid, reason_code_list, properties):
+    """Called when subscription achieved"""
+    # pylint: disable=W0613	# Args there to match callback type
     # Since we subscribed only for a single channel, reason_code_list contains
     # a single entry
     if reason_code_list[0].is_failure:
@@ -125,10 +134,14 @@ def on_subscribe2(client, userdata, mid, reason_code_list, properties):
         print(f"Broker granted the following QoS: {reason_code_list[0].value}")
 
 def on_subscribe(client, userdata, mid, granted_qos):   #create function for callback
-   print("subscribed with qos",granted_qos, "\n")
+    """Called when subscription achieved - simple version"""
+    # pylint: disable=W0613	# Args there to match callback type
+    print("subscribed with qos",granted_qos, "\n")
 
 
 def on_unsubscribe(client, userdata, mid, reason_code_list, properties):
+    """Called when unsubscribed achieved"""
+    # pylint: disable=W0613	# Args there to match callback type
     # Be careful, the reason_code_list is only present in MQTTv5.
     # In MQTTv3 it will always be empty
     if len(reason_code_list) == 0 or not reason_code_list[0].is_failure:
@@ -138,15 +151,17 @@ def on_unsubscribe(client, userdata, mid, reason_code_list, properties):
     client.disconnect()
 
 def on_message(client, userdata, message):
+    """Called for each message arrival"""
+    # pylint: disable=W0613	# Args there to match callback type
     # userdata is the structure we choose to provide, here it's a list()
     print(message.topic+": "+str(message.payload.decode("utf-8")))
     parts=message.payload.decode("utf-8").split()
     print("parts: ", parts)
     if (parts[0] == "Time:") and (parts[2] == "MaxSpeed:"):
-        time=int(parts[1])
+        s_time=int(parts[1])
         speed=int( 10 * float(parts[3]))
-        print("time: ", time, "    speed: ", speed)
-        cur.execute("SELECT current_event FROM current_event");
+        print("time: ", s_time, "    speed: ", speed)
+        cur.execute("SELECT current_event FROM current_event")
         result=cur.fetchall()
         if (len(result) >= 1):
             event = result[0][0]
@@ -154,11 +169,13 @@ def on_message(client, userdata, message):
             event = -2
 
         try:
-            cur.execute("insert into speeds values ( ?, ?, ?)", (event, time, speed))
+            cur.execute("insert into speeds values ( ?, ?, ?)", (event, s_time, speed))
         except apsw.ConstraintError:
             print("duplicate data entry ignored")
 
 def on_connect(client, userdata, flags, reason_code):
+    """Called once connected, time to subscribe"""
+    # pylint: disable=W0613	# Args there to match callback type
     #if reason_code.is_failure:
     if reason_code:
         print(f"Failed to connect: {reason_code}. loop_forever() will retry connection")
@@ -175,7 +192,7 @@ mqttc.on_unsubscribe = on_unsubscribe
 
 # 2. Configure TLS (SSL)
 # Use default system certificates for standard CA-signed brokers
-if mqtt_tls == True :
+if mqtt_tls :
     mqttc.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2)
 
 # Optional: Set custom websocket path (defaults to '/mqtt')
@@ -186,7 +203,7 @@ mqttc.username_pw_set(mqtt_user, mqtt_pass)
 while True:
     try:
         mqttc.connect(mqtt_server, mqtt_port)
-    except:
+    except:	# pylint: disable=bare-except
         print("connect failed - retrying")
         time.sleep(16)
         continue
