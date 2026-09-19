@@ -49,14 +49,16 @@ def reset_debounce(sig, frame):
         debounce[split_gpio] = start_tick + 3
     debounce[finish_gpio] = start_tick + 4
 
+cb_debug = 0
+
 def debug(sig, frame):
     """Signal handler to enable callback debugging - SIGUSR2"""
     # pylint: disable=W0613
+    global cb_debug
+    cb_debug = 1
     pdb.Pdb().set_trace(frame)
-    debug.cb_debug = 1
     print("Turning on cb_debug")
 
-debug.cb_debug = 0
 
 signal.signal(signal.SIGUSR2, debug)
 
@@ -143,7 +145,7 @@ for opt, arg in opts:
     if opt in ['-c', '--config']:
         config_file = arg
     elif opt == '-d':
-        debug.cb_debug = 1
+        cb_debug = 1
     elif opt == '-v':
         verbose = verbose + 1
 
@@ -163,7 +165,7 @@ if 'database_path' in config :
 if 'timing' in config :
     if 'debug' in config['timing'] :
         if config['timing']['debug'] :
-            debug.cb_debug = 1
+            cb_debug = 1
     if 'inputs' in config['timing'] :
         inputs = config['timing']['inputs']
         if 'button' in inputs:
@@ -339,13 +341,13 @@ def cb_button(gpio, level, tick):
             new_car()
             new_car.tick = pi.get_current_tick()
             new_car.tick_val = val
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick), new_car.tick, new_car.time)
         new_car.state = 1  #  Car given buton
     else:
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
-    if debug.cb_debug:
+    if cb_debug:
         print("debug ", gpio, tick, debo)
 
 def cb_green(gpio, level, tick):
@@ -371,15 +373,15 @@ def cb_green(gpio, level, tick):
                 new_car.state = 1  #  Car given green
         cur.execute("insert into green_time values ( ?, ?, ?, ?, ?)",
                     (new_car.event, new_car.run_num, new_car.curr_car, val, int(time.time())))
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, level, val, pigpio.tickDiff(tick, new_car.tick), new_car.tick, new_car.time)
         Green_f.seek(0)
         Green_f.write(str(new_car.curr_car)+"    ")
         Green_f.flush()
     else:
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
-    if debug.cb_debug:
+    if cb_debug:
         print("debug ", gpio, tick, debo)
 
 def cb_start(gpio, level, tick):
@@ -408,15 +410,15 @@ def cb_start(gpio, level, tick):
             # Rear wheels slow, next car staging??
             cur.execute("insert into start_time values ( ?, ?, ?, ?)",
                         (new_car.event, new_car.run_num, -new_car.curr_car, val))
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, level, val)
         Start_f.seek(0)
         Start_f.write(str(new_car.curr_car)+"    ")
         Start_f.flush()
     else:
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
-    if debug.cb_debug:
+    if cb_debug:
         print("debug ", gpio, level, tick, debo)
 
 cb_start.start_events = 0
@@ -433,15 +435,15 @@ def cb_split(gpio, level, tick):
             val = val+4294967     # undo the wrap for database entry
         cur.execute("insert into split_time values ( ?, ?, ?, ?)",
                     (new_car.event, new_car.run_num, new_car.curr_car, val))
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, level, val)
         Split_f.seek(0)
         Split_f.write(str(new_car.curr_car)+"    ")
         Split_f.flush()
     else:
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
-    if debug.cb_debug:
+    if cb_debug:
         print("debug ", gpio, tick, debo)
 
 cb_split.split_events = 0
@@ -458,7 +460,7 @@ def cb_finish(gpio, level, tick):
             val = val+4294967     # undo the wrap for database entry
         cur.execute("insert into finish_time values ( ?, ?, ?, ?)",
                     (new_car.event, new_car.run_num, new_car.curr_car, val))
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, level, val)
         Finish_f.seek(0)
         Finish_f.write(str(new_car.curr_car)+"    ")
@@ -466,9 +468,9 @@ def cb_finish(gpio, level, tick):
         new_car.state = 0  #  Car finished
         new_car.time = time.monotonic_ns() - button_lockout    #  Clear the new_car  lockout
     else:
-        if debug.cb_debug:
+        if cb_debug:
             print(gpio, pigpio.tickDiff(debo,tick), "debounce")
-    if debug.cb_debug:
+    if cb_debug:
         print("debug ", gpio, tick, debo)
 
 cb_finish.finish_events = 0
